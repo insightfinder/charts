@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  if-prometheus-agent:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-10-26T02:23:12.672124157Z"
+    description: A Helm chart for prometheus of InsightAgent
+    digest: ba424e4198cbd7781df78b21c939a14aad2298e86da9c9e21ddf9474b60289cd
+    name: if-prometheus-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.0/if-prometheus-agent-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-10-26T02:23:12.672135457Z"
