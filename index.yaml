@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  if-kubernetes-agent:
+  - apiVersion: v2
+    appVersion: 0.0.4
+    created: "2023-10-26T03:09:10.052817632Z"
+    description: The Helm chart to deploy InsightFinder Kubernetes Agent
+    digest: 809b0950c184df512a413d29ed1abf6828619642905069a935bdc5aa8c0d3f19
+    name: if-kubernetes-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.4/if-kubernetes-agent-0.0.4.tgz
+    version: 0.0.4
   if-prometheus-agent:
   - apiVersion: v2
     appVersion: 1.0.0
@@ -11,4 +22,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.0/if-prometheus-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-10-26T02:23:12.672135457Z"
+generated: "2023-10-26T03:09:10.052829233Z"
