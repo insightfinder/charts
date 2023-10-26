@@ -22,6 +22,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.4/if-kubernetes-agent-0.0.4.tgz
     version: 0.0.4
+  if-power-collector-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2023-10-26T03:14:04.85177648Z"
+    description: The InsightFinder agent for Dell Power Collector
+    digest: 2bc80005b9406669faac51f780ba1ec1a506e3aa6d3afc5391e7b445dde72f67
+    name: if-power-collector-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-power-collector-agent-0.0.1/if-power-collector-agent-0.0.1.tgz
+    version: 0.0.1
   if-prometheus-agent:
   - apiVersion: v2
     appVersion: 1.0.0
@@ -44,4 +55,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
     version: 0.0.1
-generated: "2023-10-26T03:12:26.579217479Z"
+generated: "2023-10-26T03:14:04.85178268Z"
