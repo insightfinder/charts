@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  if-event-push-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2023-10-26T03:11:23.187192586Z"
+    description: A Helm chart InsightFinder Event Push Agent
+    digest: 7542c8aed9d5f4e2c559454647a94fcec669983efe2c5ab58cace353ab66f994
+    name: if-event-push-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-event-push-agent-0.0.1/if-event-push-agent-0.0.1.tgz
+    version: 0.0.1
   if-kubernetes-agent:
   - apiVersion: v2
     appVersion: 0.0.4
@@ -22,4 +33,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.0/if-prometheus-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-10-26T03:09:10.052829233Z"
+generated: "2023-10-26T03:11:23.187196586Z"
