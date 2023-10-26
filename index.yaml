@@ -33,4 +33,15 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.0/if-prometheus-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-10-26T03:11:23.187196586Z"
+  if-vcenter-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2023-10-26T03:12:26.579211479Z"
+    description: A Helm chart for InsightFinder Vcenter agent
+    digest: 4108b16b424f1837a66186f9b6a876b25ba97fb120cf740618c5045b88966a24
+    name: if-vcenter-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
+    version: 0.0.1
+generated: "2023-10-26T03:12:26.579217479Z"
