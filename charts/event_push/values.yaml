@@ -1,6 +1,6 @@
 eventPushAgent:
   # The Docker image for event push agent
-  image: docker.io/insightfinderinc/event-push-agent:0.0.1
+  image: docker.io/insightfinderinc/event_push:latest
   imagePullSecrets: []
 
   # The running interval for event push agent in minutes
@@ -16,9 +16,10 @@ eventPushAgent:
   # Configure the users mapping here.
   # This user mapping is used to map the user from the Edge brain to the same user in the main brain.
   # This user should be have the same timezone in both Edge brain and Main brain.
-  users: []
+  users:
+    []
     # - name: user1
     #   # The license key for the user in the Edge brain
-    #   edgeBrainLicenseKey: 
+    #   edgeBrainLicenseKey:
     #   # The license key for the same user in the Main brain
-    #   mainBrainLicenseKey: 
+    #   mainBrainLicenseKey:
