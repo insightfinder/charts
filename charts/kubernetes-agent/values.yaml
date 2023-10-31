@@ -1,6 +1,3 @@
-# The image of the agent.
-image: "docker.io/insightfinderinc/kubernetes-agent:latest"
-
 # The main configuration for prometheus to get metric data.
 prometheus:
   # The API endpoint for the prometheus server.
