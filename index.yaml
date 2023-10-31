@@ -13,6 +13,16 @@ entries:
     version: 0.0.1
   if-kubernetes-agent:
   - apiVersion: v2
+    appVersion: 0.0.5
+    created: "2023-10-31T15:40:48.661882585Z"
+    description: The Helm chart to deploy InsightFinder Kubernetes Agent
+    digest: c2a02d7cdbe2e00fa276e53308b683c6ed5aa9ec3a395bf4b0768fb3d1583ada
+    name: if-kubernetes-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.5/if-kubernetes-agent-0.0.5.tgz
+    version: 0.0.5
+  - apiVersion: v2
     appVersion: 0.0.4
     created: "2023-10-26T03:09:10.052817632Z"
     description: The Helm chart to deploy InsightFinder Kubernetes Agent
@@ -55,4 +65,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
     version: 0.0.1
-generated: "2023-10-26T03:14:04.85178268Z"
+generated: "2023-10-31T15:40:48.661890485Z"
