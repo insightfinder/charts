@@ -11,6 +11,8 @@ This agent requires **Prometheus** to be installed in the cluster to collect met
 - Kubernetes 1.12+
 - Helm 3.0+
 
+We provided with the instructions to setup the minimal [Prometheus](./prometheus.md) and [Loki](./loki.md).
+
 ## Configuration
 
 The following table lists the configurable parameters of the Kubernetes Agent chart and their default values.
