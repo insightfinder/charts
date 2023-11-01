@@ -7,13 +7,11 @@ insightfinder:
 
   # The HTTP proxy needed to connect to InsightFinder. Leave empty if no proxy is needed.
   http_proxy: ""
-  
 
 # The configurations for the agent
 vCenterAgent:
-
   # The image of the agent
-  image: docker.io/insightfinderinc/vcenter-agent:0.0.1
+  image: docker.io/insightfinderinc/vcenter:latest
 
   # Image Pull Secret
   imagePullSecret: []
@@ -29,7 +27,6 @@ vCenterAgent:
 
   # The HTTP proxy needed to connect to vCenter API endpoint. Leave empty if no proxy is needed.
   http_proxy: ""
-
 
   # The configurations for the agent.
   # Each item in the list represent a standalone vcenter server collector
@@ -49,7 +46,7 @@ vCenterAgent:
 
       # The vcenter password
       password: ""
-      
+
       # enter a list of virtual machine names separated by comma(,) or a regex to match from all available virtual machine names
       # if list and regex are both provided, the list is given precedence and the regex param will be ignored
       # if both are missing, no virtual machines will be processed (set regex to < .* > to select all virtual machines)
