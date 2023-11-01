@@ -82,11 +82,12 @@ projects:
 ## Installation
 After editing the `values.yaml` file, run the following command to install the agent:
 ```bash
-helm install if-kubernetes-agent .
+helm repo add insightfinder https://insightfinder.github.io/charts
+helm install if-kubernetes-agent insightfinder/if-kubernetes-agent --version 0.0.6
 ```
 
 ## Upgrade
 After editing the `values.yaml` file, run the following command to upgrade the agent:
 ```bash
-helm upgrade if-kubernetes-agent .
+helm upgrade if-kubernetes-agent insightfinder/if-kubernetes-agent
 ```
