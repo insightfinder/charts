@@ -63,11 +63,11 @@ data:
     {{- end }}
 
 
-    {{-if eq $project.target "pod" }}
+    {{- if eq $project.target "pod" }}
     is_container = true
-    {{-else}}
+    {{- else }}
     is_container = false
-    {{-end}}
+    {{- end }}
 
     if_url = {{ $.Values.insightfinder.url }}
     sampling_interval = 1
