@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: insightfinderinc/prometheus-agent
+  repository: insightfinderinc/prometheus
   pullPolicy: IfNotPresent
   tag: "latest"
 

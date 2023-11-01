@@ -1,15 +1,14 @@
 insightfinder:
   # The primary configuration for InsightFinder
   url: https://app.insightfinder.com
-  username: 
-  licenseKey: 
+  username:
+  licenseKey:
   if_http_proxy:
   if_https_proxy:
 
 powerCollectorAgent:
-
   # The image of the agent
-  image: docker.io/insightfinderinc/power-collector-agent:0.0.1
+  image: docker.io/insightfinderinc/dell_power_collector:latest
 
   # The image pull Secrets
   imagePullSecrets: []
@@ -35,7 +34,7 @@ powerCollectorAgent:
   # Log:
   #   - powerFlexManager
   config:
-      # The name of the agent task
+    # The name of the agent task
     - name: device_powerflex_example
       # The type of the agent task (powerFlex | powerFlexManager | powerScale | powerStore)
       type: powerFlex
@@ -44,42 +43,42 @@ powerCollectorAgent:
       # The instance type of the storage system (ProtectionDomain | StoragePool | Volume | Device)
       instanceType: Device
       # The username of the system
-      username: 
+      username:
       # The password of the system
-      password: 
+      password:
       # The metric API endpoint of the system
       metricEndpoint: /api/instances/{$instanceType}::{$id}/relationships/Statistics
       # The projectName created in InsightFinder application for this agent task
-      IF_ProjectName: 
+      IF_ProjectName:
       # The systemName created in InsightFinder application for this agent task
-      IF_SystemName: 
-    
+      IF_SystemName:
+
     - name: powerflex_Manager_example
       # The type of the agent task
       type: powerFlexManager
       # The connection url of the storage system
       connectionUrl: https://10.60.89.168
       # The username of the powerFlexManager system
-      username: 
+      username:
       # The password of the powerFlexManager system
-      password: 
+      password:
       # The projectName created in InsightFinder application for this agent task
-      IF_ProjectName: 
+      IF_ProjectName:
       # The systemName created in InsightFinder application for this agent task
-      IF_SystemName: 
-    
+      IF_SystemName:
+
     - name: powerscale_example
       # The type of the agent task
       type: powerScale
       # The connection url of the powerScale system
       connectionUrl: https://10.0.0.1:8080
       # The username of the powerScale system
-      username: 
+      username:
       # The password of the powerScale system
-      password: 
+      password:
       # The metric API endpoint of the powerScale system
       metricEndpoint: /platform/3/statistics/summary/client
-      # The field name to set as the instanceName. (remote_addr, local_addr, local_name, remote_name) 
+      # The field name to set as the instanceName. (remote_addr, local_addr, local_name, remote_name)
       # More field can be found at: https://developer.dell.com/apis/4088/versions/9.2.0.0/9.2.0.0_EMPIRE_OAS2.json/paths/~1platform~13~1statistics~1summary~1client/get
       instanceNameField: remote_addr
       # The field name to set as the timeStamp
@@ -90,9 +89,9 @@ powerCollectorAgent:
       firstLayerkey: client
 
       # The projectName created in InsightFinder application for this agent task
-      IF_ProjectName: 
+      IF_ProjectName:
       # The systemName created in InsightFinder application for this agent task
-      IF_SystemName: 
+      IF_SystemName:
 
     - name: powerStore_example
       # The type of the agent task
@@ -100,9 +99,9 @@ powerCollectorAgent:
       # The connection url of the powerStore system
       connectionUrl: https://10.60.39.230
       # The username of the powerStore system
-      username: 
+      username:
       # The password of the powerStore system
-      password: 
+      password:
       # The metric API endpoint of the powerStore system
       metricEndpoint: /metrics/generate
       # The field name to set as the timestamp.
@@ -122,6 +121,6 @@ powerCollectorAgent:
       instanceNameField: appliance_id
 
       # The projectName created in InsightFinder application for this agent task
-      IF_ProjectName: 
+      IF_ProjectName:
       # The systemName created in InsightFinder application for this agent task
-      IF_SystemName: 
+      IF_SystemName:
