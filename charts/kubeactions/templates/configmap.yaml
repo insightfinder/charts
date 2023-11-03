@@ -8,7 +8,7 @@ data:
     '{
       "k8s.insight-finder.userName": "{{ .Values.insightfinder.user }}",
       "k8s.insight-finder.license": "{{ .Values.insightfinder.licenseKey }}",
-      "k8s.insight-finder.system": "{{ .Values.insightfinder.system }}",
+      "k8s.insight-finder.system": "{{ .Values.insightfinder.systemId }}",
       "k8s.insight-finder.serverUrl": "{{ .Values.insightfinder.url }}",
       {{- if .Values.ingress.tlsEnabled }}
         "k8s.insight-finder.actionServerPort": "443",
