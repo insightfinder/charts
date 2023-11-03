@@ -1,6 +1,6 @@
 ingress:
   ingressClassName: nginx
-  host: stg-kubeactions.insightfinder.com
+  host: 
   tls:
     enabled: true
     secretName: ingress-tls
@@ -8,5 +8,5 @@ ingress:
 insightfinder:
   url: https://stg.insightfinder.com
   user: user
-  licenseKey: a333bd39662ad1edf64e99e97e4b776109827234
-  system: IF Prod System
+  licenseKey: 
+  systemId: 
