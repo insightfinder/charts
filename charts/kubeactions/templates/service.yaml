@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: if-kubeactions-svc
+spec:
+  selector:
+    app: if-kubeactions
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
