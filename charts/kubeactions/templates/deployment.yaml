@@ -15,6 +15,7 @@ spec:
       labels:
         app: if-kubeactions
     spec:
+      serviceAccountName: if-kubeactions-sa
       containers:
       - name: kubeactions
         image: docker.io/insightfinderinc/kubeactions:{{ .Chart.AppVersion }}
