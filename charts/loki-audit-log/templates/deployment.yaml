@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-audit-log
+  labels:
+    app: loki-audit-log
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki-audit-log
+  template:
+    metadata:
+      labels:
+        app: loki-audit-log
+    spec:
+      containers:
+      - name: loki-audit-log
+        imagePullPolicy: Always
+        image: docker.io/insightfinderinc/loki-audit-log:{{.Chart.AppVersion}}
+        volumeMounts:
+          - name: loki-audit-log-config
+            mountPath: /app/conf.d
+      volumes:
+        - name: loki-audit-log-config
+          configMap:
+            name: loki-audit-log-config
+            items:
+              - key: config.ini
+                path: config.ini

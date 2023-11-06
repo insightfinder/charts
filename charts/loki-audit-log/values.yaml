@@ -1,0 +1,20 @@
+collector:
+  query: '{namespace="insightfinder",pod=~".*appserver.*"} |= `com.insightfinder.models.AuditLog`'
+
+  # Epoch time WITHOUT millisec   sample: 1699285077
+  # Leave empty for live streaming.
+  startTime:
+  endTime:
+
+
+loki:
+  endpoint: http://loki-gateway.monitor
+  username: admin
+  password: Insight3Fact2023!
+
+insightfinder:
+  url: https://stg.insightfinder.com
+  user_name: user
+  license_key: a333bd39662ad1edf64e99e97e4b776109827234
+  system_name: IF Prod System
+  project_name: prod_audit_logs
