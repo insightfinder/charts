@@ -75,4 +75,15 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
     version: 0.0.1
-generated: "2023-11-01T19:35:43.934487273Z"
+  loki-audit-log:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2023-11-08T03:19:42.584999433Z"
+    description: A helm chart for loki audit log.
+    digest: 4fbd9d7650a2b4bc2afca995cb3a41482911fb861f433228dc38901a7046bde2
+    name: loki-audit-log
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-11-08T03:19:42.585016144Z"
