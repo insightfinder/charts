@@ -56,6 +56,8 @@ rules:
       - get
       - list
       - watch
+      - patch
+      - update
     apiGroups:
       - apps
     resources:
@@ -95,6 +97,8 @@ rules:
       - get
       - list
       - watch
+      - patch
+      - update
     apiGroups:
       - extensions
     resources:
