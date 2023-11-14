@@ -1,0 +1,7 @@
+OOMDemo:
+  replicas: 1
+  request: 128Mi
+  limit: 256Mi
+
+  stress: 512M
+  wait: 60
