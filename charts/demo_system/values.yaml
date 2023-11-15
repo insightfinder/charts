@@ -1,0 +1,4 @@
+OOMDemo:
+  replicas: 1
+  request: 2Gi
+  limit: 3Gi

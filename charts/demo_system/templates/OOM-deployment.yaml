@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oom-demo
+  namespace: insightfinder
+spec:
+  replicas: {{ .Values.OOMDemo.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: oom-demo
+  template:
+    metadata:
+      labels:
+        app: oom-demo
+    spec:
+      containers:
+      - name: oom-app
+        image: insightfinderinc/oom-demo:latest
+        resources:
+          requests:
+            memory: "{{.Values.OOMDemo.request}}"
+          limits:
+            memory: "{{.Values.OOMDemo.limit}}"
