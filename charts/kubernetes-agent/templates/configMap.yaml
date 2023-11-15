@@ -57,13 +57,15 @@ data:
     cloud_type = KubernetesNode
     {{- else if eq $project.target "pod" }}
     cloud_type = KubernetesPod
-
+    {{- else if eq $project.type "event" }}
+    cloud_type = KubernetesEvent
     {{- else }}
     cloud_type = PrivateCloud
     {{- end }}
 
-
     {{- if eq $project.target "pod" }}
+    is_container = true
+    {{- else if eq $project.type "event" }}
     is_container = true
     {{- else }}
     is_container = false
