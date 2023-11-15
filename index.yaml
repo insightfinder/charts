@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  demo-system:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2023-11-15T23:03:51.766889449Z"
+    description: The helm chart for Demo Syste.
+    digest: 57a1232a23d83418bbfeb7466c765637cdcb909187d348a47f9c2a77a0c6f097
+    name: demo-system
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/demo-system-0.1.2/demo-system-0.1.2.tgz
+    version: 0.1.2
   if-event-push-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -96,4 +107,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-15T21:30:52.814921415Z"
+generated: "2023-11-15T23:03:51.766911701Z"
