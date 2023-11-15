@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: oom-demo
-  namespace: {{ .Release.Namespace }}
+  namespace: insightfinder
 spec:
   replicas: {{ .Values.OOMDemo.replicas }}
   strategy:
@@ -17,10 +17,9 @@ spec:
     spec:
       containers:
       - name: oom-app
-        image: polinux/stress-ng
+        image: insightfinderinc/oom-demo:latest
         resources:
           requests:
             memory: "{{.Values.OOMDemo.request}}"
           limits:
             memory: "{{.Values.OOMDemo.limit}}"
-        args: ["--vm", "1", "--vm-bytes", "{{.Values.OOMDemo.stress}}", "--timeout", "{{.Values.OOMDemo.wait}}"]
