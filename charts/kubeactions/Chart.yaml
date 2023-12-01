@@ -3,4 +3,4 @@ name: kubeactions
 description: The Kubernetes Action Server from InsightFinder.
 type: application
 version: 0.0.1
-appVersion: "latest"
+appVersion: "0.0.1"
