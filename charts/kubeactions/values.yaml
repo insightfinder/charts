@@ -1,12 +1,12 @@
 ingress:
   ingressClassName: nginx
-  host: 
+  host: myaction-server.aaa.com
   tls:
     enabled: true
-    secretName: ingress-tls
+    secretName: ingress-tls-secret
 
 insightfinder:
   url: https://stg.insightfinder.com
   user: user
-  licenseKey: 
-  systemId: 
+  licenseKey: ""
+  systemId: ""
