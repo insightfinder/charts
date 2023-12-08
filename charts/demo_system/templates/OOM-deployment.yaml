@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: oom-demo
-  namespace: insightfinder
+  namespace: otel-demo
 spec:
   replicas: {{ .Values.OOMDemo.replicas }}
   strategy:

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: demo-system
-description: The helm chart for Demo Syste.
+description: The helm chart for Demo System
 type: application
 version: 0.1.2
 appVersion: "latest"

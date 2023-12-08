@@ -19,34 +19,38 @@ loki:
 # The configuration for InsightFinder
 insightfinder:
   url: "https://app.insightfinder.com" # The url of InsightFinder.
-  user_name: "" # Username for InsightFinder.
-  license_key: "" # license_key for that InsightFinder user.
-  system_name: "" # The system created in InsightFinder website.
+  user_name: "demoUser" # Username for InsightFinder.
+  license_key: "a169dd4e7d7a148e9ec5efa678a9106d44fca534" # license_key for that InsightFinder user.
+  system_name: "Kubernetes Demo System" # The system created in InsightFinder website.
 
 # Each project entry is a project that will be created in InsightFinder.
 # Projects will get created automatically if they don't exist.
 projects:
-  []
-  # - name: node-metrics
-  #   type: metric
-  #   target: node
 
-  # - name: pod-metric
-  #   type: metric
-  #   target: pod
-  #   namespace: namespace1
+  - name: k8s-demo-node-metrics
+    type: metric
+    target: node
 
-  # - name: pod-log
-  #   type: log
-  #   target: pod
-  #   namespace: namespace2
+  - name: k8s-demo-pod-metrics
+    type: metric
+    target: pod
+    namespace: otel-demo
+    hide_component_name_prefix: opentelemetry-demo-
 
-  # - name: namespace-event
-  #   type: event
-  #   target: namespace
-  #   namespace: namespace3
+  - name: k8s-demo-pod-logs
+    type: log
+    target: pod
+    namespace: otel-demo
+    hide_component_name_prefix: opentelemetry-demo-
 
-  # - name: pvc-metric
-  #   type: metric
-  #   target: pvc
-  #   namespace: namespace3
+  - name: k8s-demo-events
+    type: event
+    target: namespace
+    namespace: otel-demo
+    hide_component_name_prefix: opentelemetry-demo-
+
+  - name: k8s-demo-pvc-metrics
+    type: metric
+    target: pvc
+    namespace: otel-demo
+    hide_component_name_prefix: opentelemetry-demo-
