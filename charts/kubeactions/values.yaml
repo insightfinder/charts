@@ -1,12 +1,12 @@
 ingress:
   ingressClassName: nginx
-  host: demo-kubeactions.insightfinder.com
+  host: myaction-server.aaa.com
   tls:
     enabled: false
     secretName: ingress-tls-secret
 
 insightfinder:
-  url: https://app.insightfinder.com
-  user: demoUser
-  licenseKey: "a169dd4e7d7a148e9ec5efa678a9106d44fca534"
-  systemId: "ef3736d215e1ffc90ebbce3b5f7c968c01a48d00"
+  url: https://stg.insightfinder.com
+  user: user
+  licenseKey: ""
+  systemId: ""
