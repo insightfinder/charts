@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: if-kubeactions
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: if-kubeactions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: if-kubeactions
+  template:
+    metadata:
+      labels:
+        app: if-kubeactions
+    spec:
+      serviceAccountName: if-kubeactions-sa
+      containers:
+      - name: kubeactions
+        image: docker.io/insightfinderinc/kubeactions:{{ .Chart.AppVersion }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILE
+          value: k8s
+        - name: SPRING_APPLICATION_JSON
+          valueFrom:
+            configMapKeyRef:
+              name: if-kubeactions-config
+              key: config.json

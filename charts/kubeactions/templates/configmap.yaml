@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: if-kubeactions-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.json:
+    '{
+      "k8s.insight-finder.userName": "{{ .Values.insightfinder.user }}",
+      "k8s.insight-finder.license": "{{ .Values.insightfinder.licenseKey }}",
+      "k8s.insight-finder.system": "{{ .Values.insightfinder.systemId }}",
+      "k8s.insight-finder.serverUrl": "{{ .Values.insightfinder.url }}",
+      {{- if .Values.ingress.tls.enabled }}
+        "k8s.insight-finder.actionServerPort": "443",
+        "k8s.insight-finder.actionServerIp": "https://{{ .Values.ingress.host }}"
+      {{- else }}
+        "k8s.insight-finder.actionServerPort": "80",
+        "k8s.insight-finder.actionServerIp": "http://{{ .Values.ingress.host }}"
+      {{- end }}
+     }'
