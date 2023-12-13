@@ -10,7 +10,7 @@ data:
       "k8s.insight-finder.license": "{{ .Values.insightfinder.licenseKey }}",
       "k8s.insight-finder.system": "{{ .Values.insightfinder.systemId }}",
       "k8s.insight-finder.serverUrl": "{{ .Values.insightfinder.url }}",
-      {{- if .Values.ingress.tlsEnabled }}
+      {{- if .Values.ingress.tls.enabled }}
         "k8s.insight-finder.actionServerPort": "443",
         "k8s.insight-finder.actionServerIp": "https://{{ .Values.ingress.host }}"
       {{- else }}
