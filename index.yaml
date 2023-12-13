@@ -22,6 +22,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-event-push-agent-0.0.1/if-event-push-agent-0.0.1.tgz
     version: 0.0.1
+  if-kubeactions:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2023-12-13T20:36:00.419123818Z"
+    description: The Kubernetes Action Server from InsightFinder.
+    digest: 20919bf8b228fa05d7c6efb24638894f745ceeb51b8805868d83389c349bb0fd
+    name: if-kubeactions
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-kubeactions-0.0.1/if-kubeactions-0.0.1.tgz
+    version: 0.0.1
   if-kubernetes-agent:
   - apiVersion: v2
     appVersion: 0.0.6
@@ -107,4 +118,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-15T23:03:51.766911701Z"
+generated: "2023-12-13T20:36:00.419145348Z"
