@@ -35,6 +35,16 @@ entries:
     version: 0.0.1
   if-kubernetes-agent:
   - apiVersion: v2
+    appVersion: 0.0.7
+    created: "2023-12-20T02:55:14.108841414Z"
+    description: The Helm chart to deploy InsightFinder Kubernetes Agent
+    digest: 095b1cfb6207aef29e14c21d34d3a9146323249a780ba9b72f436d2f917fdb37
+    name: if-kubernetes-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.8/if-kubernetes-agent-0.0.8.tgz
+    version: 0.0.8
+  - apiVersion: v2
     appVersion: 0.0.6
     created: "2023-11-15T21:30:52.814896207Z"
     description: The Helm chart to deploy InsightFinder Kubernetes Agent
@@ -118,4 +128,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2023-12-13T20:36:00.419145348Z"
+generated: "2023-12-20T02:55:14.108864947Z"
