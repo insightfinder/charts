@@ -1,7 +1,7 @@
 # The main configuration for prometheus to get metric data.
 prometheus:
   # The API endpoint for the prometheus server.
-  endpoint: "aaa"
+  endpoint: "http://prometheus-server.monitor.svc.cluster.local"
 
   # Prometheus Basic Auth Creadentials. (Optional)
   username: ""
@@ -10,7 +10,7 @@ prometheus:
 # The main configuration for Loki to get log data.
 loki:
   # The API endpoint for loki-gateway server.
-  endpoint: "bbb"
+  endpoint: "http://loki-gateway.monitor.svc.cluster.local"
 
   # Loki Basic Auth Creadentials. (Optional)
   username: ""
@@ -52,14 +52,14 @@ projects:
   #   namespace: namespace3
 
 embeddedprometheus:
-  enabled: true
+  enabled: false
   server:
     persistentVolume:
       size: 20Gi
     retention: 1d
 
 embeddedloki:
-  enabled: true
+  enabled: false
   monitoring:
     selfMonitoring:
       enabled: false
