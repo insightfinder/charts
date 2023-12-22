@@ -8,16 +8,28 @@ data:
 
     {{- if eq $project.type "metric" }}
     [prometheus]
+    {{- if $.Values.embeddedprometheus.enabled }}
+    endpoint = {{ $Release.Name }}-embeddedprometheus-server
+    user = ""
+    password = ""
+    {{- else }}
     endpoint = {{ $.Values.prometheus.endpoint }}
     user = {{ $.Values.prometheus.username | default ""}}
     password = {{ $.Values.prometheus.password | default ""}}
     {{- end }}
+    {{- end }}
 
     {{- if eq $project.type "log" }}
     [loki]
+    {{- if $.Values.embeddedloki.enabled }}
+    endpoint = http://loki-gateway
+    user = ""
+    password = ""
+    {{- else }}
     endpoint = {{ $.Values.loki.endpoint }}
     user = {{ $.Values.loki.username | default "" }}
     password = {{ $.Values.loki.password | default "" }}
+    {{- end }}
     {{- end }}
 
     [general]
