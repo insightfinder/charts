@@ -52,12 +52,14 @@ projects:
   #   namespace: namespace3
 
 embedded-prometheus:
+  nameOverride: if-prometheus
   enabled: true
   server:
     persistentVolume.size: 20Gi
     retention: 1d
 
 embedded-loki:
+  nameOverride: if-loki
   enabled: true
   monitoring:
     selfMonitoring:
