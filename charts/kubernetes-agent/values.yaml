@@ -58,7 +58,7 @@ embedded-prometheus:
     retention: 1d
 
 embedded-loki:
-  enabled: false
+  enabled: true
   monitoring:
     selfMonitoring:
       enabled: false
