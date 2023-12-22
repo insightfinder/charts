@@ -51,13 +51,13 @@ projects:
   #   target: pvc
   #   namespace: namespace3
 
-embedded_prometheus:
+embedded-prometheus:
   enabled: true
   server:
     persistentVolume.size: 20Gi
     retention: 1d
 
-embedded_loki:
+embedded-loki:
   enabled: false
   monitoring:
     selfMonitoring:
