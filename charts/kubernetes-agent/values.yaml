@@ -54,7 +54,8 @@ projects:
 embedded-prometheus:
   enabled: true
   server:
-    persistentVolume.size: 20Gi
+    persistentVolume:
+      size: 20Gi
     retention: 1d
 
 embedded-loki:
@@ -85,4 +86,5 @@ embedded-loki:
   minio:
     enabled: true
     replicas: 1
-    persistence.size: 20Gi
+    persistence:
+      size: 20Gi
