@@ -9,7 +9,7 @@ data:
     {{- if eq $project.type "metric" }}
     [prometheus]
     {{- if $.Values.embeddedprometheus.enabled }}
-    endpoint = {{ .Release.Name }}-embeddedprometheus-server
+    endpoint = {{ $.Release.Name }}-embeddedprometheus-server
     user = ""
     password = ""
     {{- else }}
