@@ -30,6 +30,8 @@ The following table lists the configurable parameters of the Kubernetes Agent ch
 | `insightfinder.user_name`     | Username for InsightFinder                               | `""`                                                   |
 | `insightfinder.license_key`   | License key for that InsightFinder user                  | `""`                                                   |
 | `insightfinder.system_name`   | The system created in InsightFinder website              | `""`                                                   |
+| `embeddedprometheus.enabled`  | Enable / Disable the built-in Prometheus subchart        | `false`                                                |
+| `embeddedloki.enabled`        | Enable / Disable the built-in Loki subchart              | `false`                                                |
 | `projects`                    | List of projects that will be created in InsightFinder   | `[]`                                                   |
 
 ### Projects Configuration
@@ -83,7 +85,7 @@ projects:
 After editing the `values.yaml` file, run the following command to install the agent:
 ```bash
 helm repo add insightfinder https://insightfinder.github.io/charts
-helm install if-kubernetes-agent insightfinder/if-kubernetes-agent --version 0.0.8
+helm install if-kubernetes-agent insightfinder/if-kubernetes-agent --version 0.0.9
 ```
 
 ## Upgrade

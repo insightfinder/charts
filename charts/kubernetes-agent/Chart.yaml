@@ -15,10 +15,28 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.0.8
+version: 0.0.9
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "0.0.7"
+
+dependencies:
+- name: prometheus
+  version: 25.8.2
+  repository: https://prometheus-community.github.io/helm-charts
+  condition: embeddedprometheus.enabled
+  alias: embeddedprometheus
+
+- name: loki
+  version: 5.41.4
+  repository: https://grafana.github.io/helm-charts
+  condition: embeddedloki.enabled
+  alias: embeddedloki
+
+- name: promtail
+  version: 6.15.3
+  repository: https://grafana.github.io/helm-charts
+  condition: embeddedloki.enabled
