@@ -78,7 +78,7 @@ projects:
 |------------|-------------------------------------------------------------------------|--------------------------------------|-----------------------------------|
 | `name`     | The name of the project in InsightFinder. This name needs to be unique. | Yes                                  | Any string                        |
 | `type`     | The type of data that will be collected.                                | Yes                                  | `metric`, `log` , `event`         |
-| `target`   | The target from which data will be collected.                           | Yes                                  | `node`, `pod`, `pvc`, `namespace` |
+| `target`   | The target from which data will be collected.                           | Yes                                  | `node`, `pod`, `namespace` |
 | `namespace`| The Kubernetes namespace from which to collect data.                    | Yes (For Namespace-Scoped resources) | Any valid Kubernetes namespace    |
 
 ## Installation

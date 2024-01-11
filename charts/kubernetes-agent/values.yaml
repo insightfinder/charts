@@ -46,11 +46,6 @@ projects:
   #   target: namespace
   #   namespace: namespace3
 
-  # - name: pvc-metric
-  #   type: metric
-  #   target: pvc
-  #   namespace: namespace3
-
 embeddedprometheus:
   enabled: false
   server:
