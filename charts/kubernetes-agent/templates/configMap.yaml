@@ -32,6 +32,13 @@ data:
     {{- end }}
     {{- end }}
 
+    {{- if eq $project.type "trace" }}
+    [jaeger]
+    endpoint = {{ $.Values.jaeger.endpoint }}
+    user = {{ $.Values.jaeger.username | default "" }}
+    password =  {{ $.Values.jaeger.password | default "" }}
+    {{- end }}
+
     [general]
     target = {{$project.target}}
     type = {{ $project.type }}
@@ -84,6 +91,6 @@ data:
     {{- end }}
 
     if_url = {{ $.Values.insightfinder.url }}
-    sampling_interval = 1
+    sampling_interval = 5
 
   {{- end }}

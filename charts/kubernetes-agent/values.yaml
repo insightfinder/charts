@@ -16,6 +16,14 @@ loki:
   username: ""
   password: ""
 
+jaeger:
+  # The API endpoint for jaeger server.
+  endpoint: "http://jaeger.monitor.svc.cluster.local/jaeger/ui"
+
+  # Jaeger Basic Auth Creadentials. (Optional)
+  username: ""
+  password: ""
+
 # The configuration for InsightFinder
 insightfinder:
   url: "https://app.insightfinder.com" # The url of InsightFinder.
@@ -45,6 +53,11 @@ projects:
   #   type: event
   #   target: namespace
   #   namespace: namespace3
+
+  # - name: pod-trace
+  #   type: trace
+  #   target: pod
+  #   namespace: namespace4
 
 embeddedprometheus:
   enabled: false
