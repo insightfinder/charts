@@ -2,12 +2,6 @@ annotations:
   category: Database
 apiVersion: v2
 appVersion: 3.11.11
-dependencies:
-- name: common
-  repository: https://charts.bitnami.com/bitnami
-  tags:
-  - bitnami-common
-  version: 1.x.x
 description: Apache Cassandra is a free and open-source distributed database management
   system designed to handle large amounts of data across many commodity servers, providing
   high availability with no single point of failure. Cassandra offers robust support
