@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: if-saml-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: if-saml
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

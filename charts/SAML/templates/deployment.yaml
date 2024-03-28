@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: if-saml
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: if-saml
+spec:
+  selector:
+    matchLabels:
+      app: if-saml
+  template:
+    metadata:
+      labels:
+        app: if-saml
+    spec:
+      imagePullSecrets:
+      {{- range .Values.deployment.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      containers:
+        - name: if-saml
+          image: {{ .Values.deployment.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            {{- toYaml .Values.deployment.resources | nindent 12 }}

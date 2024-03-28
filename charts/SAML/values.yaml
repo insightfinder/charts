@@ -1,0 +1,15 @@
+deployment:
+  imagePullSecrets: ["regcred"]
+  image: docker.io/insightfinderinc/saml:draft
+  resources:
+    requests:
+        cpu: 100m
+        memory: 300Mi
+
+ingress:
+  ingressClassName: nginx
+  host: saml.insightfinder.com
+  tls:
+    enabled: true
+    secretName: ingress-tls
+  
