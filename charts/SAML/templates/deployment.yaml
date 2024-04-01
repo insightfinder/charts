@@ -14,9 +14,11 @@ spec:
       labels:
         app: if-saml
     spec:
+      {{- if .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
-      {{- range .Values.deployment.imagePullSecrets }}
+        {{- range .Values.deployment.imagePullSecrets }}
         - name: {{ . }}
+        {{- end }}
       {{- end }}
       containers:
         - name: if-saml
@@ -24,5 +26,35 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          volumeMounts:
+          - name: config
+            mountPath: /app/config/
+          - name: saml-spkey
+            mountPath: /app/certs/sp.key
+          - name: saml-spcert
+            mountPath: /app/certs/sp.crt
+            {{- range $idpName, $idpConfig := .Values.saml.idp }}
+            {{- if $idpConfig.idpcertSecretName }}
+          - name: {{ $idpName }}-idpcert
+            mountPath: /app/certs/{{ $idpName }}.pem
+            {{- end }}
+            {{- end }}
           resources:
             {{- toYaml .Values.deployment.resources | nindent 12 }}
+    volumes:
+    - name: config
+      configMap:
+        name: if-saml-cm
+    - name: saml-spkey
+      secret:
+        secretName: {{ .Values.insightfinder.spkeySecretName }}
+    - name: saml-spcert
+      secret:
+        secretName: {{ .Values.insightfinder.spcertSecretName }}
+      {{- range $idpName, $idpConfig := .Values.saml.idp }}
+      {{- if $idpConfig.idpcertSecretName }}
+    - name: {{ $idpName }}-idpcert
+      secret:
+        secretName: {{ $idpConfig.idpcertSecretName }}
+      {{- end }}
+      {{- end }}

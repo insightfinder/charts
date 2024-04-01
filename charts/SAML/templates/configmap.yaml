@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: if-saml-cm
+  namespace: {{ .Release.Namespace }}
+data:
+  application.yml: |-
+    server:
+      port: 8080
+    insight-finder:
+      serverUrl: {{ .Values.insightfinder.serverUrl }}
+      samlUrl: {{ .Values.insightfinder.samlUrl }}
+      sp-key: /app/certs/sp.key
+      sp-cert: /app/certs/sp.crt
+
+    saml:
+      idp:
+        {{- range $idpName, $idpConfig := .Values.saml.idp }}
+        {{ $idpName }}:
+          entity-id: {{ $idpConfig.entityid }}
+          firstname-key: {{ $idpConfig.firstnamekey }}
+          lastname-key: {{ $idpConfig.lastnamekey }}
+          email-key: {{ $idpConfig.emailkey }}
+          {{- if $idpConfig.singlesignonurl }}
+          singlesignon-url: {{ $idpConfig.singlesignonurl }}
+          {{- end }}
+          {{- if $idpConfig.idpcertSecretName }}
+          idp-cert: /app/certs/{{ $idpName }}.pem
+          {{- end }}
+        {{- end }}

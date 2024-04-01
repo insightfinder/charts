@@ -1,6 +1,6 @@
 deployment:
-  imagePullSecrets: ["regcred"]
-  image: docker.io/insightfinderinc/saml:draft
+  imagePullSecrets: []
+  image: docker.io/insightfinderinc/saml:latest
   resources:
     requests:
         cpu: 100m
@@ -12,4 +12,43 @@ ingress:
   tls:
     enabled: true
     secretName: ingress-tls
+
+insightfinder:
+  # The URL of the InsightFinder server
+  serverUrl: https://app.insightfinder.com
+  # The URL of the this SAML server
+  samlUrl: https://saml.insightfinder.com
+  # saml application acts as service provider, it needs key and cert to make requests
+  spkeySecretName: sp-key-secretname
+  spcertSecretName: sp-cert-secretname
+
+saml:
+  idp:
+    # List of Identity Providers
+    teleport:
+      # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
+      entityid: https://xxx.teleport.sh/enterprise/saml-idp/metadata
+      # The key in the principal that containers the first name
+      firstnamekey: firstname-field-in-the-principal
+      # The key in the principal that containers the last name
+      lastnamekey: lastname-field-in-the-principal
+      # The key in the principal that containers the email
+      emailkey: email-field-in-the-principal
+      # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
+      singlesignonurl: https://xxx.teleport.sh/enterprise/saml-idp/sso
+      # (Optional) The path of the certificate from the Identity Provider
+      idpcertSecretName: idp-secretname
+    # idp-2:
+    #   # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
+    #   entityid:
+    #   # The key in the principal that containers the first name
+    #   firstnamekey:
+    #   # The key in the principal that containers the last name
+    #   lastnamekey:
+    #   # The key in the principal that containers the email
+    #   emailkey:
+    #   # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
+    #   singlesignonurl:
+    #   # (Optional) The path of the certificate from the Identity Provider
+    #   idpcertSecretName:
   
