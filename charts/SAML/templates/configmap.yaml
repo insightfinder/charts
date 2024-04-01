@@ -10,8 +10,8 @@ data:
     insight-finder:
       serverUrl: {{ .Values.insightfinder.serverUrl }}
       samlUrl: {{ .Values.insightfinder.samlUrl }}
-      sp-key: /app/certs/sp.key
-      sp-cert: /app/certs/sp.crt
+      sp-key: /app/certs/sp/sp.key
+      sp-cert: /app/certs/sp/sp.crt
 
     saml:
       idp:
@@ -24,7 +24,7 @@ data:
           {{- if $idpConfig.singlesignonurl }}
           singlesignon-url: {{ $idpConfig.singlesignonurl }}
           {{- end }}
-          {{- if $idpConfig.idpcertSecretName }}
-          idp-cert: /app/certs/{{ $idpName }}.pem
+          {{- if $idpConfig.idp_ssl_enabled }}
+          idp-cert: /app/certs/idp/{{ $idpName }}.pem
           {{- end }}
         {{- end }}

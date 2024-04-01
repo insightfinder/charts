@@ -19,10 +19,11 @@ insightfinder:
   # The URL of the this SAML server
   samlUrl: https://saml.insightfinder.com
   # saml application acts as service provider, it needs key and cert to make requests
-  spkeySecretName: sp-key-secretname
-  spcertSecretName: sp-cert-secretname
+  spSecretName: sp-secret
 
 saml:
+  # (Optional)
+  idpSecretName: idp-secret
   idp:
     # List of Identity Providers
     teleport:
@@ -36,19 +37,19 @@ saml:
       emailkey: email-field-in-the-principal
       # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
       singlesignonurl: https://xxx.teleport.sh/enterprise/saml-idp/sso
+      # True if providing certificate for idp in the secrets
+      idp_ssl_enabled: true
+    idp-2:
+      # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
+      entityid:
+      # The key in the principal that containers the first name
+      firstnamekey:
+      # The key in the principal that containers the last name
+      lastnamekey:
+      # The key in the principal that containers the email
+      emailkey:
+      # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
+      singlesignonurl:
       # (Optional) The path of the certificate from the Identity Provider
-      idpcertSecretName: idp-secretname
-    # idp-2:
-    #   # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
-    #   entityid:
-    #   # The key in the principal that containers the first name
-    #   firstnamekey:
-    #   # The key in the principal that containers the last name
-    #   lastnamekey:
-    #   # The key in the principal that containers the email
-    #   emailkey:
-    #   # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
-    #   singlesignonurl:
-    #   # (Optional) The path of the certificate from the Identity Provider
-    #   idpcertSecretName:
+      idp_ssl_enabled: false
   
