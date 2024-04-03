@@ -31,32 +31,36 @@ spec:
             mountPath: /app/config/
           - name: sp-secret
             mountPath: /app/certs/sp/
+            {{- if .Values.saml.idpSecretName }}
           - name: idp-secret
             mountPath: /app/certs/idp/
+            {{- end }}
           resources:
             {{- toYaml .Values.deployment.resources | nindent 12 }}
-    volumes:
-    - name: config
-      configMap:
-        name: if-saml-cm
-        items:
-        - key: application.yml
-          path: application.yml
-    - name: sp-secret
-      secret:
-        secretName: {{ .Values.insightfinder.spSecretName }}
-        items:
-        - key: cert
-          path: sp.crt
-        - key: key
-          path: sp.key
-    - name: idp-secret
-      secret:
-        secretName: idp-secret
-        items:
-        {{- range $idpName, $idpConfig := .Values.saml.idp }}
-        {{- if $idpConfig.idp_ssl_enabled }}
-        - key: {{ $idpName }}
-          path: {{ $idpName }}.pem
-        {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: if-saml-cm
+          items:
+          - key: application.yml
+            path: application.yml
+      - name: sp-secret
+        secret:
+          secretName: {{ .Values.insightfinder.spSecretName }}
+          items:
+          - key: cert
+            path: sp.crt
+          - key: key
+            path: sp.key
+        {{- if .Values.saml.idpSecretName }}
+      - name: idp-secret
+        secret:
+          secretName: idp-secret
+          items:
+          {{- range $idpName, $idpConfig := .Values.saml.idp }}
+          {{- if $idpConfig.idp_cert_provided }}
+          - key: {{ $idpName }}
+            path: {{ $idpName }}.pem
+          {{- end }}
+          {{- end }}
         {{- end }}

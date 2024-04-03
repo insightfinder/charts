@@ -8,7 +8,8 @@ deployment:
 
 ingress:
   ingressClassName: nginx
-  host: saml.insightfinder.com
+  # Host name for ingress/saml server
+  host:
   tls:
     enabled: true
     secretName: ingress-tls
@@ -17,39 +18,25 @@ insightfinder:
   # The URL of the InsightFinder server
   serverUrl: https://app.insightfinder.com
   # The URL of the this SAML server
-  samlUrl: https://saml.insightfinder.com
-  # saml application acts as service provider, it needs key and cert to make requests
+  samlUrl:
+  # saml application acts as service provider, it needs key and cert to make requests.
+  # key and cert need to be in same secret, with 'key' and 'cert' as the secret keys
   spSecretName: sp-secret
 
 saml:
-  # (Optional)
-  idpSecretName: idp-secret
   idp:
     # List of Identity Providers
     teleport:
-      # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
       entityid: https://xxx.teleport.sh/enterprise/saml-idp/metadata
-      # The key in the principal that containers the first name
+      # use firstname-key to extract first name info of the user from response of idp
       firstnamekey: firstname-field-in-the-principal
-      # The key in the principal that containers the last name
       lastnamekey: lastname-field-in-the-principal
-      # The key in the principal that containers the email
+      # use email-key to extract email info of the user from response of idp
       emailkey: email-field-in-the-principal
       # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
       singlesignonurl: https://xxx.teleport.sh/enterprise/saml-idp/sso
       # True if providing certificate for idp in the secrets
-      idp_ssl_enabled: true
-    idp-2:
-      # The URL of the Identity Provider's SAML 2.0 metadata endpoint 
-      entityid:
-      # The key in the principal that containers the first name
-      firstnamekey:
-      # The key in the principal that containers the last name
-      lastnamekey:
-      # The key in the principal that containers the email
-      emailkey:
-      # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
-      singlesignonurl:
-      # (Optional) The path of the certificate from the Identity Provider
-      idp_ssl_enabled: false
+      idp_cert_provided: false
+  # (Optional) If needed to provide certs from idp provider(s), please store them in a single secret, with key names being same as idp providers in the idp section below
+  idpSecretName: idp-secret
   
