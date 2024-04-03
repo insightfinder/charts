@@ -20,6 +20,12 @@ spec:
         - name: {{ . }}
         {{- end }}
       {{- end }}
+      {{- $idpFound := false -}}
+      {{- range $idpName, $idpConfig := .Values.saml.idp }}
+        {{- if and (not $idpFound) $idpConfig.idp_cert }}
+        {{- $idpFound = true -}}
+        {{- end }}
+      {{- end }}
       containers:
         - name: if-saml
           image: {{ .Values.deployment.image }}
@@ -29,12 +35,8 @@ spec:
           volumeMounts:
           - name: config
             mountPath: /app/config/
-          - name: sp-secret
-            mountPath: /app/certs/sp/
-            {{- if .Values.saml.idpSecretName }}
-          - name: idp-secret
+          - name: idp-secrets
             mountPath: /app/certs/idp/
-            {{- end }}
           resources:
             {{- toYaml .Values.deployment.resources | nindent 12 }}
       volumes:
@@ -44,23 +46,14 @@ spec:
           items:
           - key: application.yml
             path: application.yml
-      - name: sp-secret
-        secret:
-          secretName: {{ .Values.insightfinder.spSecretName }}
-          items:
-          - key: cert
-            path: sp.crt
-          - key: key
-            path: sp.key
-        {{- if .Values.saml.idpSecretName }}
-      - name: idp-secret
-        secret:
-          secretName: idp-secret
-          items:
+      {{- if $idpFound }}
+      - name: idp-secrets
+        projected:
+          sources:
           {{- range $idpName, $idpConfig := .Values.saml.idp }}
-          {{- if $idpConfig.idp_cert_provided }}
-          - key: {{ $idpName }}
-            path: {{ $idpName }}.pem
+          {{- if $idpConfig.idp_cert }}
+          - secret:
+              name: if-saml-secret-{{ $idpName }}
           {{- end }}
           {{- end }}
-        {{- end }}
+      {{- end }}

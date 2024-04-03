@@ -9,7 +9,7 @@ deployment:
 ingress:
   ingressClassName: nginx
   # Host name for ingress/saml server
-  host:
+  host: saml.host.com
   tls:
     enabled: true
     secretName: ingress-tls
@@ -18,10 +18,7 @@ insightfinder:
   # The URL of the InsightFinder server
   serverUrl: https://app.insightfinder.com
   # The URL of the this SAML server
-  samlUrl:
-  # saml application acts as service provider, it needs key and cert to make requests.
-  # key and cert need to be in same secret, with 'key' and 'cert' as the secret keys
-  spSecretName: sp-secret
+  samlUrl: https://saml.host.com
 
 saml:
   idp:
@@ -35,8 +32,6 @@ saml:
       emailkey: email-field-in-the-principal
       # (Optional) The URL of the Identity Provider's SAML 2.0 SSO service
       singlesignonurl: https://xxx.teleport.sh/enterprise/saml-idp/sso
-      # True if providing certificate for idp in the secrets
-      idp_cert_provided: false
-  # (Optional) If needed to provide certs from idp provider(s), please store them in a single secret, with key names being same as idp providers in the idp section below
-  idpSecretName: idp-secret
+      # (Optional) If needed to provide certs from idp provider(s), provide here with base64 encoded values
+      idp_cert:
   
