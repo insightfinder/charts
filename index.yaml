@@ -63,6 +63,31 @@ entries:
     version: 0.0.1
   if-kubernetes-agent:
   - apiVersion: v2
+    appVersion: 0.0.9
+    created: "2024-04-16T20:23:38.618308729Z"
+    dependencies:
+    - alias: embeddedprometheus
+      condition: embeddedprometheus.enabled
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 25.8.2
+    - alias: embeddedloki
+      condition: embeddedloki.enabled
+      name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 5.41.4
+    - condition: embeddedloki.enabled
+      name: promtail
+      repository: https://grafana.github.io/helm-charts
+      version: 6.15.3
+    description: The Helm chart to deploy InsightFinder Kubernetes Agent
+    digest: 13332eb9f93ae9f897b9eadb600562849982812b1cb2dc726be8b33ba573caa2
+    name: if-kubernetes-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.11/if-kubernetes-agent-0.0.11.tgz
+    version: 0.0.11
+  - apiVersion: v2
     appVersion: 0.0.8
     created: "2024-02-12T15:38:23.337624838Z"
     dependencies:
@@ -206,4 +231,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2024-03-04T05:30:49.656458785Z"
+generated: "2024-04-16T20:23:38.618339406Z"
