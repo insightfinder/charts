@@ -23,6 +23,9 @@ data:
         ## metrics
         # Prometheus query used to query all the needed metrics. If not set, it will use `{__name__=~".+"}` to query all metrics.
         prometheus_query = {{ .Values.prometheus.prometheus_query }}
+        # The json file contains the prometheus query. For each json object, it contains "query", optional "metric_name" and optional "instance_fields" string array.
+        # For example: prometheus_query_json = prometheus_query.json
+        prometheus_query_json = prometheus_query.json
         # metric's name field, Multiple fields are separated by commas. EX: __name__, job, the metric name =  {__name__}_{job}
         metrics_name_field = {{ .Values.prometheus.metrics_name_field }}
         # history data time config. If these options is set, the agent will query results by time range
@@ -42,8 +45,12 @@ data:
         # Timezone of the timestamp data to be sent and stored in target DB (InsightFinder). Default is UTC. Only if you wish the data to be stored in other time zones in InsightFinder, this field should be specified to be the desired time zone.
         target_timestamp_timezone = {{ .Values.prometheus.target_timestamp_timezone }}
         component_field = {{ .Values.prometheus.component_field }}
+        # Default component name if component_field is not set or field value is empty.
+        default_component_name = {{ .Values.prometheus.default_component_name }}
         # if no instance given, will set to 'Application'. Can also set instance name from multiple fields which separated by commas. Ex: instance_name_part1,instance_name_part2.
         instance_field = {{ .Values.prometheus.instance_field }}
+        # field names used to get host id
+        dynamic_host_field = {{ .Values.prometheus.dynamic_host_field }}
         # instance_whitelist is a regex string used to define which instances will be filtered.
         instance_whitelist = {{ .Values.prometheus.instance_whitelist }}
         # Field name of device. Can also set device name from multiple fields which separated by commas. Ex: device_name_part1,device_name_part2.
@@ -80,3 +87,6 @@ data:
         if_url = {{ .Values.insightfinder.if_url }}
         if_http_proxy = {{ .Values.insightfinder.if_http_proxy }}
         if_https_proxy = {{ .Values.insightfinder.if_http_proxy }}
+
+    prometheus_query.json: |
+        {{ .Values.prometheus_query | toJson }}
