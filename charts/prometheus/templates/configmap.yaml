@@ -3,94 +3,98 @@ kind: ConfigMap
 metadata:
     name: config-cm
 data:
-    config.ini: |-
+{{- range $i, $v := .Values.configs }}
+    {{ printf "config-%d.ini" $i }}: |-
         [prometheus]
         ## prometheus info
         # required
-        prometheus_uri = {{ .Values.prometheus.uri }}
+        prometheus_uri = {{ $v.prometheus.uri | default "http://prometheus-server.monitor" }}
         # Basic Authentication
-        user = {{ .Values.prometheus.user }}
-        password = {{ .Values.prometheus.password }}
+        user = {{ $v.prometheus.user }}
+        password = {{ $v.prometheus.password }}
         # True or False
-        verify_certs = {{ .Values.prometheus.verify_certs }}
+        verify_certs = {{ $v.prometheus.verify_certs | default false }}
         # path to ca bundle
-        ca_certs = {{ .Values.prometheus.ca_certs }}
+        ca_certs = {{ $v.prometheus.ca_certs }}
         # path to client cert
-        client_cert = {{ .Values.prometheus.client_cert }}
+        client_cert = {{ $v.prometheus.client_cert }}
         # path to client key
-        client_key = {{ .Values.prometheus.client_key }}
+        client_key = {{ $v.prometheus.client_key }}
 
         ## metrics
         # Prometheus query used to query all the needed metrics. If not set, it will use `{__name__=~".+"}` to query all metrics.
-        prometheus_query = {{ .Values.prometheus.prometheus_query }}
+        prometheus_query = {{ $v.prometheus.prometheus_query }}
 
         # If prometheus_query is set, this is the batch size of metrics to query in one request. Keep it empty if you want to query all metrics in one request.
-        prometheus_query_metric_batch_size = {{ .Values.prometheus.prometheus_query_metric_batch_size }}
+        prometheus_query_metric_batch_size = {{ $v.prometheus.prometheus_query_metric_batch_size }}
 
         # The json file contains the prometheus query. For each json object, it contains "query", optional "metric_name" and optional "instance_fields" string array.
         # For example: prometheus_query_json = prometheus_query.json
-        prometheus_query_json = prometheus_query.json
+        prometheus_query_json = {{ $v.prometheus.prometheus_query_json }}
         # metric's name field, Multiple fields are separated by commas. EX: __name__, job, the metric name =  {__name__}_{job}
-        metrics_name_field = {{ .Values.prometheus.metrics_name_field }}
+        metrics_name_field = {{ $v.prometheus.metrics_name_field }}
         # history data time config. If these options is set, the agent will query results by time range
         # time range, Example: 2020-04-14 00:00:00,2020-04-15 00:00:00
-        his_time_range = {{ .Values.prometheus.his_time_range }}
+        his_time_range = {{ $v.prometheus.his_time_range }}
 
         # raw, rawtail, csv, csvtail, xls, xlsx, json, jsontail, avro, or xml
         # *tail formats keep track of the current file & position + completed files in [state] below
-        data_format = {{ .Values.prometheus.data_format }}
+        data_format = {{ $v.prometheus.data_format | default "json" }}
 
         ## message parsing
         # timestamp format, as library [arrow]. multiple fields can be formatted together to create the timestamp a la `YYYY-MM-DD HH:mm:ss ZZ`. If multiple fields could contain the timestamp, a comma-delimited list may be entered (no value of which may use the aforementioned {formatting}), of which the first found will be selected (treating the list as a priority list). ex `timestamp1,timestamp2`
-        timestamp_format = {{ .Values.prometheus.timestamp_format }}
+        timestamp_format = {{ $v.prometheus.timestamp_format }}
         # timezone, as per pytz
-        timezone = {{ .Values.prometheus.timezone }}
-        timestamp_field = {{ .Values.prometheus.timestamp_field }}
+        timezone = {{ $v.prometheus.timezone }}
+        timestamp_field = {{ $v.prometheus.timestamp_field }}
         # Timezone of the timestamp data to be sent and stored in target DB (InsightFinder). Default is UTC. Only if you wish the data to be stored in other time zones in InsightFinder, this field should be specified to be the desired time zone.
-        target_timestamp_timezone = {{ .Values.prometheus.target_timestamp_timezone }}
-        component_field = {{ .Values.prometheus.component_field }}
+        target_timestamp_timezone = {{ $v.prometheus.target_timestamp_timezone | default "UTC" }}
+        component_field = {{ $v.prometheus.component_field }}
         # Default component name if component_field is not set or field value is empty.
-        default_component_name = {{ .Values.prometheus.default_component_name }}
+        default_component_name = {{ $v.prometheus.default_component_name }}
         # if no instance given, will set to 'Application'. Can also set instance name from multiple fields which separated by commas. Ex: instance_name_part1,instance_name_part2.
-        instance_field = {{ .Values.prometheus.instance_field }}
+        instance_field = {{ $v.prometheus.instance_field | default "instance" }}
         # field names used to get host id
-        dynamic_host_field = {{ .Values.prometheus.dynamic_host_field }}
+        dynamic_host_field = {{ $v.prometheus.dynamic_host_field }}
         # instance_whitelist is a regex string used to define which instances will be filtered.
-        instance_whitelist = {{ .Values.prometheus.instance_whitelist }}
+        instance_whitelist = {{ $v.prometheus.instance_whitelist }}
         # Field name of device. Can also set device name from multiple fields which separated by commas. Ex: device_name_part1,device_name_part2.
-        device_field = {{ .Values.prometheus.device_field }}
+        device_field = {{ $v.prometheus.device_field }}
         # The connector for build `instance_field` or `device_field` from multiple fields. Default is `-`.
-        instance_connector = {{ .Values.prometheus.instance_connector }}
+        instance_connector = {{ $v.prometheus.instance_connector }}
         # number of thread to used in the pool, default is 20
-        thread_pool = {{ .Values.prometheus.thread_pool }}
+        thread_pool = {{ $v.prometheus.thread_pool | default 20 }}
         # number of the worker processes, default is count_of_cpu * 4
-        processes = {{ .Values.prometheus.processes }}
+        processes = {{ $v.prometheus.processes }}
         # minutes the main process wait for workers to finish, default is 5
-        timeout = {{ .Values.prometheus.timeout }}
+        timeout = {{ $v.prometheus.timeout | default 5 }}
 
         ## proxy
-        agent_http_proxy = {{ .Values.prometheus.agent_http_proxy }}
-        agent_https_proxy = {{ .Values.prometheus.agent_https_proxy }}
+        agent_http_proxy = {{ $v.prometheus.agent_http_proxy }}
+        agent_https_proxy = {{ $v.prometheus.agent_https_proxy }}
 
         [insightfinder]
-        user_name = {{ .Values.insightfinder.user_name }}
-        license_key = {{ .Values.insightfinder.license_key }}
-        token = {{ .Values.insightfinder.token }}
+        user_name = {{ $v.insightfinder.user_name }}
+        license_key = {{ $v.insightfinder.license_key }}
+        token = {{ $v.insightfinder.token }}
         # Name of the project created in the InsightFinder UI, If this project is not exist, agent will create it automatically.
-        project_name = {{ .Values.insightfinder.project_name }}
+        project_name = {{ $v.insightfinder.project_name }}
         # Name of system owned by project. If project_name is not exist in InsightFinder, agent will create a new system automatically from this field or project_name.
-        system_name = {{ .Values.insightfinder.system_name }}
+        system_name = {{ $v.insightfinder.system_name }}
         # metric, metricreplay, log, logreplay, alert, alertreplay, incident, incidentreplay, deployment, deploymentreplay, trace, tracereplay
-        project_type = {{ .Values.insightfinder.project_type }}
+        project_type = {{ $v.insightfinder.project_type | default "metric" }}
         # Set to `YES` if project is container.
-        containerize = {{ .Values.insightfinder.containerize }}
-        sampling_interval = {{ .Values.insightfinder.sampling_interval }}
-        run_interval = {{ .Values.insightfinder.run_interval }}
+        containerize = {{ $v.insightfinder.containerize | default "no" }}
+        sampling_interval = {{ $v.insightfinder.sampling_interval | default 5 }}
+        run_interval = {{ $v.insightfinder.run_interval | default 5 }}
         # what size to limit chunks sent to IF to, as kb
-        chunk_size_kb = {{ .Values.insightfinder.chunk_size_kb }}
-        if_url = {{ .Values.insightfinder.if_url }}
-        if_http_proxy = {{ .Values.insightfinder.if_http_proxy }}
-        if_https_proxy = {{ .Values.insightfinder.if_http_proxy }}
+        chunk_size_kb = {{ $v.insightfinder.chunk_size_kb | default 2048 }}
+        if_url = {{ $v.insightfinder.if_url }}
+        if_http_proxy = {{ $v.insightfinder.if_http_proxy }}
+        if_https_proxy = {{ $v.insightfinder.if_http_proxy }}
 
-    prometheus_query.json: |-
-        {{ .Values.prometheus_query | toJson }}
+    {{- with $v.prometheus.prometheus_query_json }}
+    {{ . }}: |-
+        {{ $v.queries | toJson }}
+    {{- end }}
+{{- end }}
