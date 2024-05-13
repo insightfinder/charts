@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: es-config-cm
+data:
+{{- range $i, $v := .Values.configs }}
+  config.ini: |-
+    [elasticsearch]
+    # required
+    # a comma delimited list of RFC-1738 formatted urls <scheme>://[<username>:<password>@]hostname:port
+    es_uris = {{ $v.elasticsearch.es_uris | default "http://elasticsearch-master:9200" }}
+    # json to add to the query body. For exclude DEBUG log, ie:
+    # regexp-syntax: https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html
+    # query_json = {
+    #               "query": {
+    #                   "bool": {
+    #                       "filter": {
+    #                           "bool": {
+    #                               "must_not": {
+    #                                   "regexp": {
+    #                                       "message": {
+    #                                           "value": ".*DEBUG.*",
+    #                                           "flags": "ALL"
+    #                                       }
+    #                                   }
+    #                               }
+    #                           }
+    #                       }
+    #                   }
+    #               }
+    #            }
+    query_json = {}
+    # json file to add to the query body.
+    query_json_file = query_json.json
+    # The maximum messages number of each query, default is 5000, and max value id 10000.
+    query_chunk_size = {{ $v.elasticsearch.query_chunk_size | default 5000 }}
+    # indexes to search over, example indeces = filebeat*
+    indeces = {{ $v.elasticsearch.indeces | default "filebeat*" }}
+
+    ## parameters for all hosts
+    # port to connect to (Can be parsed from url)
+    port = {{ $v.elasticsearch.port }}
+    # username:password (Can be parsed from url)
+    http_auth = {{ $v.elasticsearch.http_auth | default "elastic:elastic" }}
+    # True or False (True if uri scheme is https)
+    use_ssl = {{ $v.elasticsearch.use_ssl | default "False" }}
+    # Version of SSL to use - one of SSLv23 (default), SSLv2, SSLv3, TLSv1
+    ssl_version = {{ $v.elasticsearch.ssl_version }}
+    # True or False - use hostname verification
+    ssl_assert_hostname = {{ $v.elasticsearch.ssl_assert_hostname | default "False" }}
+    # True or False - use fingerprint verification
+    ssl_assert_fingerprint = {{ $v.elasticsearch.ssl_assert_fingerprint }}
+    # True or False
+    verify_certs = {{ $v.elasticsearch.verify_certs | default "False" }}
+    # path to ca bundle
+    ca_certs = {{ $v.elasticsearch.ca_certs }}
+    # path to client cert
+    client_cert = {{ $v.elasticsearch.client_cert }}
+    # path to client key
+    client_key = {{ $v.elasticsearch.client_key }}
+
+    # history data time config. If these options is set, the agent will query results by time range
+    # time range, Example: 2020-04-14 00:00:00,2020-04-15 00:00:00
+    his_time_range = {{ $v.elasticsearch.his_time_range }}
+
+    # Field that contains the project name. If this field is empty, agent will use project_name in insightfinder section
+    project_field = {{ $v.elasticsearch.project_field }}
+    # project_whitelist is a regex string used to define which projects form project_field will be filtered.
+    project_whitelist = {{ $v.elasticsearch.project_whitelist }}
+
+    ## message parsing
+    # timestamp format, as library [arrow]. multiple fields can be formatted together to create the timestamp a la `YYYY-MM-DD HH:mm:ss ZZ`. If multiple fields could contain the timestamp, a comma-delimited list may be entered (no value of which may use the aforementioned {formatting}), of which the first found will be selected (treating the list as a priority list). ex `timestamp1,timestamp2`
+    timestamp_format = {{ $v.elasticsearch.timestamp_format }}
+    # timezone, as per pytz
+    timezone = {{ $v.elasticsearch.timezone }}
+    # if document_root_field is "", need to set the full path. For example _source.@timestamp
+    timestamp_field = {{ $v.elasticsearch.timestamp_field | default "@timestamp" }}
+    # Timezone of the timestamp data to be sent and stored in target DB (InsightFinder). Default is UTC. Only if you wish the data to be stored in other time zones in InsightFinder, this field should be specified to be the desired time zone.
+    target_timestamp_timezone = {{ $v.elasticsearch.target_timestamp_timezone }}
+
+    # document root field, default is "_source". To use the whole document as the root, use ""
+    document_root_field = {{ $v.elasticsearch.document_root_field | default "_source" }}
+
+    component_field = {{ $v.elasticsearch.component_field }}
+    default_component_name = {{ $v.elasticsearch.default_component_name }}
+    # if no instance given, the agent server name will be used. If document_root_field is "", need to set the full path. For example _source.agent.hostname
+    instance_field = {{ $v.elasticsearch.instance_field | default "agent.hostname" }}
+    # instance_field_regex is a field name and a regex string used to get instance, syntax `<field1>::<regex1>,<field2>::<regex2>`.
+    instance_field_regex = {{ $v.elasticsearch.instance_field_regex | default "message::group=\"(.*?)\",message::deployment=\"(.*?)\"" }}
+    # instance_whitelist is a regex string used to define which instances will be filtered.
+    instance_whitelist = {{ $v.elasticsearch.instance_whitelist }}
+    default_instance_name = {{ $v.elasticsearch.default_instance_name }}
+
+    # If document_root_field is "", need to set the full path. For example _source.device
+    device_field = {{ $v.elasticsearch.device_field }}
+    # Optional regex to retrieve the device name using a capture group named 'device' (eg: '(?P<device>.*)') 
+    device_field_regex = {{ $v.elasticsearch.device_field_regex }}
+
+    # multiple fields are separated by commas, a field can be `<name>` or regex. Example: data_fields = /^system\.filesystem.*/,system.process.cgroup.memory.memsw.events.max
+    # If it is empty, the whole document at the document root will be sent.
+    data_fields = {{ $v.elasticsearch.data_fields | default "message" }}
+
+    # multiple fields with string or regex, are separated by commas, like: /0-metric\.values\.99.0/,value,doc_count
+    aggregation_data_fields = {{ $v.elasticsearch.aggregation_data_fields }}
+
+    ## proxy
+    agent_http_proxy = {{ $v.elasticsearch.agent_http_proxy }}
+    agent_https_proxy = {{ $v.elasticsearch.agent_https_proxy }}
+
+    [insightfinder]
+    user_name = {{ $v.insightfinder.user_name }}
+    license_key = {{ $v.insightfinder.license_key }}
+    token = {{ $v.insightfinder.token }}
+    # Name of the project created in the InsightFinder UI, If this project does not exist, agent will create it automatically.
+    project_name = {{ $v.insightfinder.project_name }}
+    # Name of system owned by project. If project_name is not exist in InsightFinder, agent will create a new system automatically from this field or project_name.
+    system_name = {{ $v.insightfinder.system_name }}
+    # metric, metricreplay, log, logreplay, alert, alertreplay, incident, incidentreplay, deployment, deploymentreplay, trace, tracereplay
+    project_type = {{ $v.insightfinder.project_type | default "metric" }}
+    # Set to `YES` if project is container.
+    containerize = {{ $v.insightfinder.containerize | default "no" }}
+    enable_holistic_model = {{ $v.insightfinder.enable_holistic_model | default false }}
+    sampling_interval = {{ $v.insightfinder.sampling_interval | default 5 }}
+    frequency_sampling_interval = {{ $v.insightfinder.frequency_sampling_interval | default 10 }}
+    log_compression_interval = {{ $v.insightfinder.log_compression_interval | default 5 }}
+    enable_log_rotation = {{ $v.insightfinder.enable_log_rotation | default false }}
+    log_backup_count = {{ $v.insightfinder.log_backup_count | default 14 }}
+    run_interval = {{ $v.insightfinder.run_interval | default 5 }}
+    worker_timeout = {{ $v.insightfinder.worker_timeout }}
+    # what size to limit chunks sent to IF to, as kb
+    chunk_size_kb = {{ $v.insightfinder.chunk_size_kb | default 2048 }}
+    if_url = {{ $v.insightfinder.if_url }}
+    if_http_proxy = {{ $v.insightfinder.if_http_proxy }}
+    if_https_proxy = {{ $v.insightfinder.if_http_proxy }}
+
+  query_json.json: |-
+{{ $v.query_json | indent 4 }}
+{{- end }}
