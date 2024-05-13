@@ -43,7 +43,7 @@ data:
     # username:password (Can be parsed from url)
     http_auth = {{ $v.elasticsearch.http_auth | default "elastic:elastic" }}
     # True or False (True if uri scheme is https)
-    use_ssl = {{ $v.elasticsearch.use_ssl | default "False" }}
+    use_ssl = {{ $v.elasticsearch.use_ssl }}
     # Version of SSL to use - one of SSLv23 (default), SSLv2, SSLv3, TLSv1
     ssl_version = {{ $v.elasticsearch.ssl_version }}
     # True or False - use hostname verification
