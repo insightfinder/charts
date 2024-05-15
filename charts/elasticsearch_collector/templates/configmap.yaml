@@ -41,7 +41,7 @@ data:
     # port to connect to (Can be parsed from url)
     port = {{ $v.elasticsearch.port }}
     # username:password (Can be parsed from url)
-    http_auth = {{ $v.elasticsearch.http_auth | default "elastic:elastic" }}
+    http_auth = {{ $v.elasticsearch.http_auth }}
     # True or False (True if uri scheme is https)
     use_ssl = {{ $v.elasticsearch.use_ssl }}
     # Version of SSL to use - one of SSLv23 (default), SSLv2, SSLv3, TLSv1
