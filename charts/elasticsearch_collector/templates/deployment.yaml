@@ -41,6 +41,8 @@ spec:
           volumeMounts:
             - name: es-config
               mountPath: /elasticsearch_collector/conf.d/
+            - name: tmp-volume
+              mountPath: /tmp
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -56,4 +58,7 @@ spec:
       volumes:
       - name: es-config
         configMap:
-          name: es-config-cm
+          name: {{ include "if-elasticsearch-collector.fullname" . }}
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 128Mi
