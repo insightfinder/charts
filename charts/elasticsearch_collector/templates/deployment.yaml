@@ -58,7 +58,7 @@ spec:
       volumes:
       - name: es-config
         configMap:
-          name: {{ include "if-elasticsearch-collector.fullname" . }}
+          name: {{ include "if-elasticsearch-collector.fullname" . }}-config-cm
       - name: tmp-volume
         emptyDir:
           sizeLimit: 128Mi

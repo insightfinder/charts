@@ -62,7 +62,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: config-cm
+          name: {{ include "if-prometheus-agent.fullname" . }}-config-cm
       - name: tmp-volume
         emptyDir:
           sizeLimit: 128Mi

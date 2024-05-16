@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: config-cm
+    name: {{ include "if-prometheus-agent.fullname" . }}-config-cm
 data:
 {{- range $i, $v := .Values.configs }}
     {{ $queryJsonFile := (empty $v.queries) | ternary  "" (printf "config-%d.json" $i) }}
