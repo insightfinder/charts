@@ -26,11 +26,27 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsUser: 10001
+            runAsGroup: 10001
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /app/conf.d/
+              mountPath: /app/prometheus/conf.d/
+            - name: tmp-volume
+              mountPath: /tmp
+            - name: cache-volume
+              mountPath: /app/prometheus/cache
+            - name: log-volume
+              mountPath: /app/prometheus/logs
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -47,3 +63,12 @@ spec:
       - name: config
         configMap:
           name: config-cm
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: cache-volume
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: log-volume
+        emptyDir:
+          sizeLimit: 128Mi
