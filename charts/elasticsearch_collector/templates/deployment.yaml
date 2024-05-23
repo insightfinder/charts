@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "if-prometheus-agent.fullname" . }}
+  name: {{ include "if-elasticsearch-collector.fullname" . }}
   labels:
-    {{- include "if-prometheus-agent.labels" . | nindent 4 }}
+    {{- include "if-elasticsearch-collector.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "if-prometheus-agent.selectorLabels" . | nindent 6 }}
+      {{- include "if-elasticsearch-collector.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -16,7 +16,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "if-prometheus-agent.selectorLabels" . | nindent 8 }}
+        {{- include "if-elasticsearch-collector.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -39,14 +39,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: config
-              mountPath: /app/prometheus/conf.d/
+            - name: es-config
+              mountPath: /elasticsearch_collector/conf.d/
             - name: tmp-volume
               mountPath: /tmp
-            - name: cache-volume
-              mountPath: /app/prometheus/cache
-            - name: log-volume
-              mountPath: /app/prometheus/logs
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -60,15 +56,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      - name: config
+      - name: es-config
         configMap:
-          name: {{ include "if-prometheus-agent.fullname" . }}-config-cm
+          name: {{ include "if-elasticsearch-collector.fullname" . }}-config-cm
       - name: tmp-volume
-        emptyDir:
-          sizeLimit: 128Mi
-      - name: cache-volume
-        emptyDir:
-          sizeLimit: 128Mi
-      - name: log-volume
         emptyDir:
           sizeLimit: 128Mi

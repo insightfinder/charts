@@ -107,6 +107,9 @@ configs:
       project_type:
       # Set to `YES` if project is container.
       containerize:
+      # Set to empty to create normal projects
+      # set to 'vm' to use 'DynamicVM' as the AgentType, set to 'host' to use 'DynamicHost' as the AgentType
+      dynamic_metric_type:
       sampling_interval:
       run_interval:
       # what size to limit chunks sent to IF to, as kb

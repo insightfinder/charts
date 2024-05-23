@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: config-cm
+    name: {{ include "if-prometheus-agent.fullname" . }}-config-cm
 data:
 {{- range $i, $v := .Values.configs }}
     {{ $queryJsonFile := (empty $v.queries) | ternary  "" (printf "config-%d.json" $i) }}
@@ -86,6 +86,11 @@ data:
         project_type = {{ $v.insightfinder.project_type | default "metric" }}
         # Set to `YES` if project is container.
         containerize = {{ $v.insightfinder.containerize | default "no" }}
+
+        # Set to empty to create normal projects
+        # set to 'vm' to use 'DynamicVM' as the AgentType, set to 'host' to use 'DynamicHost' as the AgentType
+        dynamic_metric_type = {{ $v.insightfinder.containerize }}
+
         sampling_interval = {{ $v.insightfinder.sampling_interval | default 5 }}
         run_interval = {{ $v.insightfinder.run_interval | default 5 }}
         # what size to limit chunks sent to IF to, as kb
