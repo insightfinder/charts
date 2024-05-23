@@ -39,6 +39,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/demo-system-0.1.2/demo-system-0.1.2.tgz
     version: 0.1.2
+  if-elasticsearch-collector:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-05-23T19:44:54.854473266Z"
+    description: A Helm chart for elasticsearch_collector from InsightFinder
+    digest: 486de90e6977f442067e28e735b024f156319eaecc006c37d59c3592480520d3
+    name: if-elasticsearch-collector
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-elasticsearch-collector-0.1.0/if-elasticsearch-collector-0.1.0.tgz
+    version: 0.1.0
   if-event-push-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -231,4 +242,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-16T20:23:38.618339406Z"
+generated: "2024-05-23T19:44:54.97441694Z"
