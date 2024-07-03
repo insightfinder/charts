@@ -9,12 +9,12 @@ collector:
 
 loki:
   endpoint: http://loki-gateway.monitor
-  username: admin
-  password: Insight3Fact2023!
+  username: 
+  password: 
 
 insightfinder:
   url: https://stg.insightfinder.com
   user_name: user
-  license_key: a333bd39662ad1edf64e99e97e4b776109827234
-  system_name: IF Prod System
-  project_name: prod_audit_logs
+  license_key: 
+  system_name: 
+  project_name: 
