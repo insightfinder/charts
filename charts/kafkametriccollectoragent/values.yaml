@@ -1,0 +1,48 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/kafkametriccollectoragent
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+kafka:
+  consumers: {}
+
+insightfinder:
+  userName:
+  serverUrl:
+  serverUri: /api/v2/metric-data-receive
+  checkAndCreateUri: /api/v1/check-and-add-custom-project
+  licenseKey:
+  samplingIntervalInSeconds: 60
+  keystoreFile:
+  keystorePassword:
+  truststoreFile:
+  truststorePassword:
+  bufferingTimeoutCycle: 2
+  metricDataPointCachePeriod: 10
+  maxGapFillingIntervals: 30
+  metricSendingIntervalInSeconds: 30
+  metricNameSavingIntervalInSecond: 3600
+  metricNameSavingDirectory: ./metricNames
+  messageHandlerClassName: com.insightfinder.kafkaCollectorHandler.messageHandler.defaultHandler.DefaultMetricMessageHandler
+  projectInfo: []
+  topicProjectMapping: {}
