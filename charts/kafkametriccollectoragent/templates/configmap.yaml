@@ -5,35 +5,6 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   application.yml: |-
-    {{- with .Values.kafka.consumers }}
-    kafka:
-      consumers:
-        {{- toYaml . | nindent 8 }}
+    {{- with .Values.config }}
+      {{- toYaml . | nindent 4 }}
     {{- end }}
-
-    insight-finder:
-      userName: {{ .Values.insightfinder.userName }}
-      serverUrl: {{ .Values.insightfinder.serverUrl }}
-      serverUri: {{ .Values.insightfinder.serverUri }}
-      checkAndCreateUri: {{ .Values.insightfinder.checkAndCreateUri }}
-      licenseKey: {{ .Values.insightfinder.licenseKey }}
-      samplingIntervalInSeconds: {{ .Values.insightfinder.samplingIntervalInSeconds }}
-      keystoreFile: {{ .Values.insightfinder.keystoreFile }}
-      keystorePassword: {{ .Values.insightfinder.keystorePassword }}
-      truststoreFile: {{ .Values.insightfinder.truststoreFile }}
-      truststorePassword: {{ .Values.insightfinder.truststorePassword }}
-      bufferingTimeoutCycle: {{ .Values.insightfinder.bufferingTimeoutCycle }}
-      metricDataPointCachePeriod: {{ .Values.insightfinder.metricDataPointCachePeriod }}
-      maxGapFillingIntervals: {{ .Values.insightfinder.maxGapFillingIntervals }}
-      metricSendingIntervalInSeconds: {{ .Values.insightfinder.metricSendingIntervalInSeconds }}
-      metricNameSavingIntervalInSecond: {{ .Values.insightfinder.metricNameSavingIntervalInSecond }}
-      metricNameSavingDirectory: {{ .Values.insightfinder.metricNameSavingDirectory }}
-      messageHandlerClassName: {{ .Values.insightfinder.messageHandlerClassName }}
-      {{ with .Values.insightfinder.projectInfo }}
-      projectInfo:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{ with .Values.insightfinder.topicProjectMapping }}
-      topicProjectMapping:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
