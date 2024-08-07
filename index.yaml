@@ -241,6 +241,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
     version: 0.0.1
+  kafkametriccollectoragent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-08-07T01:46:30.804034324Z"
+    description: A Helm chart for KafkaMetricCollectorAgent
+    digest: 93d32b3a7ee694c15e1a4e809edf88a66981bb06820d526bbbb2e65cc4f1d515
+    name: kafkametriccollectoragent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kafkametriccollectoragent-0.1.0/kafkametriccollectoragent-0.1.0.tgz
+    version: 0.1.0
   loki-audit-log:
   - apiVersion: v2
     appVersion: latest
@@ -252,4 +263,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2024-06-26T01:17:45.063538212Z"
+generated: "2024-08-07T01:46:30.925093137Z"
