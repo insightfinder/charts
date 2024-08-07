@@ -1,0 +1,70 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/kafkametriccollectoragent
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# - The configuration of application.yml
+config: {}
+# kafka:
+#   consumers:
+#     consumer1:
+#       bootstrap-servers: localhost:29092
+#       group-id: metric-group-1
+#       topics:
+#         - metric1
+#       concurrency: 1
+#       config:
+#         "[enable.auto.commit]": true
+#         "[key.deserializer]": org.apache.kafka.common.serialization.StringDeserializer
+#         "[value.deserializer]": org.apache.kafka.common.serialization.StringDeserializer
+# insight-finder:
+#   userName: username
+#   serverUrl: http://localhost:8080
+#   serverUri: /api/v2/metric-data-receive
+#   checkAndCreateUri: /api/v1/check-and-add-custom-project
+#   licenseKey:
+#   samplingIntervalInSeconds: 60
+#   keystoreFile:
+#   keystorePassword:
+#   truststoreFile:
+#   truststorePassword:
+#   bufferingTimeoutCycle: 2
+#   metricDataPointCachePeriod: 10
+#   maxGapFillingIntervals: 30
+#   metricSendingIntervalInSeconds: 30
+#   metricNameSavingIntervalInSecond: 3600
+#   metricNameSavingDirectory: ./metricNames
+#   messageHandlerClassName: com.insightfinder.kafkaCollectorHandler.messageHandler.defaultHandler.DefaultMetricMessageHandler
+#   projectInfo:
+#     - projectName: project1
+#       systemName: system1
+#       isContainerProject: false
+#       metricInfos:
+#         - metricName: metric1
+#         - metricName: metric2
+#           specialSamplingIntervalInSeconds: 300
+#     - projectName: project2
+#       systemName: system2
+#       isContainerProject: true
+#   topicProjectMapping:
+#     metric1: projectName1
