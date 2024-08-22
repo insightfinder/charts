@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: if-kubernetes-config
+  name: if-k8s-config
 data:
   {{- range $key, $project := .Values.projects }}
   {{$project.name}}.ini: |
