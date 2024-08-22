@@ -30,7 +30,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: if-k8s-config
+            name: if-k8s-agent-cm
             items:
               {{- range $key, $project := .Values.projects }}
                 - key: {{ $project.name }}.ini
@@ -44,4 +44,4 @@ spec:
         resources:
           requests:
             storage: 1Gi
-  serviceName: servicename-{{ .Release.Name }}
+  serviceName: svcname-{{ .Release.Name }}

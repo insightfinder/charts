@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: if-k8s-config
+  name: if-k8s-agent-cm
 data:
   {{- range $key, $project := .Values.projects }}
   {{$project.name}}.ini: |
