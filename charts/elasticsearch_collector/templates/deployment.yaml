@@ -40,7 +40,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: es-config
-              mountPath: /elasticsearch_collector/conf.d/
+              mountPath: /app/conf.d/
             - name: tmp-volume
               mountPath: /tmp
       {{- with .Values.nodeSelector }}
