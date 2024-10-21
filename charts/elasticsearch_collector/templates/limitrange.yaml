@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: {{ printf "%s-limitrange" (include "if-prometheus-agent.fullname" .) }}
+  name: {{ printf "%s-limitrange" (include "if-elasticsearch-collector.fullname" .) }}
   namespace: {{ $.Release.Namespace }}
 spec:
   limits:

@@ -1,4 +1,4 @@
-# Default values for if-prometheus-agent.
+# Default values for if-elasticsearch-collector.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -15,7 +15,7 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
-automountServiceAccountToken: true
+automountServiceAccountToken: false
 
 appArmor:
   enabled: true

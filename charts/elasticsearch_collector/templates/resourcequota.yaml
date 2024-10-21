@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: {{ printf "%s-resourcequota" (include "if-prometheus-agent.fullname" .) }}
+  name: {{ printf "%s-resourcequota" (include "if-elasticsearch-collector.fullname" .) }}
   namespace: {{ $.Release.Namespace }}
 spec:
   {{- toYaml $.Values.resourceQuota.spec | nindent 2 }}
