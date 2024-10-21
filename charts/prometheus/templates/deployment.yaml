@@ -40,13 +40,13 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /app/prometheus/conf.d/
+              mountPath: /app/conf.d/
             - name: tmp-volume
               mountPath: /tmp
             - name: cache-volume
-              mountPath: /app/prometheus/cache
+              mountPath: /app/cache
             - name: log-volume
-              mountPath: /app/prometheus/logs
+              mountPath: /app/logs
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
