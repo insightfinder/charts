@@ -48,6 +48,31 @@ spec:
               mountPath: /app/conf.d/
             - name: tmp-volume
               mountPath: /tmp
+          readinessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import os; exit(0) if os.path.exists('/tmp/ready') else exit(1)"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          startupProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import os; exit(0) if os.path.exists('/tmp/startup') else exit(1)"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import os; exit(0) if os.path.exists('/tmp/alive') else exit(1)"
+            initialDelaySeconds: 5
+            periodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
