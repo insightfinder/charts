@@ -15,6 +15,30 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
+automountServiceAccountToken: true
+
+appArmor:
+  enabled: true
+
+limitRange:
+  enabled: true
+  limits:
+    - default:
+        cpu: "4"
+        memory: "8Gi"
+      defaultRequest:
+        cpu: "200m"
+        memory: "500Mi"
+      type: Container
+
+resourceQuota:
+  enabled: true
+  spec:
+    hard:
+      cpu: "24"
+      memory: 24Gi
+      pods: "3"
+
 resources:
   limits:
     cpu: 1000m
