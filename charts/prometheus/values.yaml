@@ -24,7 +24,7 @@ limitRange:
   enabled: true
   limits:
     - default:
-        cpu: "4"
+        cpu: "8"
         memory: "8Gi"
       defaultRequest:
         cpu: "200m"
