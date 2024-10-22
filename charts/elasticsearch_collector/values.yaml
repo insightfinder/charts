@@ -63,6 +63,8 @@ configs:
       query_chunk_size:
       # indexes to search over, example indeces = metricbeat*
       indeces:
+      # The time offset when querying live data, default is 0.
+      query_time_offset_seconds:
 
       ## parameters for all hosts
       # port to connect to (Can be parsed from url)
@@ -78,7 +80,7 @@ configs:
       # True or False - use fingerprint verification
       ssl_assert_fingerprint:
       # True or False
-      verify_certs:
+      verify_certs: False
       # path to ca bundle
       ca_certs:
       # path to client cert
@@ -100,13 +102,13 @@ configs:
       timestamp_format:
       # timezone, as per pytz
       timezone:
-      # if document_root_field is "", need to set the full path. For example _source.@timestamp
+      # if document_root_field is "", need to set the full path. For example _source.@timestamp. Default is @timestamp
       timestamp_field:
       # Timezone of the timestamp data to be sent and stored in target DB (InsightFinder). Default is UTC. Only if you wish the data to be stored in other time zones in InsightFinder, this field should be specified to be the desired time zone.
       target_timestamp_timezone:
 
       # document root field, default is _source. To use the whole document as the root, use ""
-      document_root_field:
+      document_root_field: ""
 
       component_field:
       default_component_name:
