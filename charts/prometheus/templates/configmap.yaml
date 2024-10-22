@@ -98,7 +98,7 @@ data:
 
         # Set to empty to create normal projects
         # set to 'vm' to use 'DynamicVM' as the AgentType, set to 'host' to use 'DynamicHost' as the AgentType
-        dynamic_metric_type = {{ $v.insightfinder.containerize }}
+        dynamic_metric_type = {{ $v.insightfinder.dynamic_metric_type }}
 
         sampling_interval = {{ $v.insightfinder.sampling_interval | default 5 }}
         run_interval = {{ $v.insightfinder.run_interval | default 5 }}
