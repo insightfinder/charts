@@ -52,7 +52,7 @@ spec:
             exec:
               command:
                 - cat
-                - /app/conf.d/config-0.ini
+                - /app/conf.d/config.ini
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
@@ -60,14 +60,14 @@ spec:
             exec:
               command:
                 - cat
-                - /app/conf.d/config-0.ini
+                - /app/conf.d/config.ini
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             exec:
               command:
                 - cat
-                - /app/conf.d/config-0.ini
+                - /app/conf.d/config.ini
             initialDelaySeconds: 5
             periodSeconds: 10
       {{- with .Values.nodeSelector }}

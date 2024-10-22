@@ -79,7 +79,7 @@ data:
     target_timestamp_timezone = {{ $v.elasticsearch.target_timestamp_timezone }}
 
     # document root field, default is "_source". To use the whole document as the root, use ""
-    document_root_field = {{ $v.elasticsearch.document_root_field | default "_source" }}
+    document_root_field = {{ if eq $v.elasticsearch.document_root_field "" }}""{{ else }}{{ $v.elasticsearch.document_root_field | default "_source" }}{{ end }}
 
     component_field = {{ $v.elasticsearch.component_field }}
     default_component_name = {{ $v.elasticsearch.default_component_name }}
