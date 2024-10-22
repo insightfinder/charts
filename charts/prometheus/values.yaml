@@ -78,14 +78,10 @@ configs:
       prometheus_query:
       # If prometheus_query is set, this is the batch size of metrics to query in one request. Keep it empty if you want to query all metrics in one request.
       prometheus_query_metric_batch_size:
-      # The json file contains the prometheus query. For each json object, it contains "query", optional "metric_name" and optional "instance_fields" string array.
-      # For example: prometheus_query_json = prometheus_query.json
-      # prometheus_query_json:
+      # regex to filter metrics if batch size is set
+      batch_metric_filter_regex:
       # metric's name field, Multiple fields are separated by commas. EX: __name__, job, the metric name =  {__name__}_{job}
       metrics_name_field:
-      # history data time config. If these options is set, the agent will query results by time range
-      # time range, Example: 2020-04-14 00:00:00,2020-04-15 00:00:00
-      his_time_range:
       # raw, rawtail, csv, csvtail, xls, xlsx, json, jsontail, avro, or xml
       # *tail formats keep track of the current file & position + completed files in [state] below
       data_format:
@@ -102,6 +98,8 @@ configs:
       default_component_name:
       # if no instance given, will set to 'Application'. Can also set instance name from multiple fields which separated by commas. Ex: instance_name_part1,instance_name_part2.
       instance_field:
+      # Instance name suffix, if want to add on to instance name obtained from labels
+      instance_name_suffix:
       # field names used to get host id
       dynamic_host_field:
       # instance_whitelist is a regex string used to define which instances will be filtered.
@@ -116,6 +114,9 @@ configs:
       processes:
       # minutes the main process wait for workers to finish, default is 5
       timeout:
+      # The seconds to delay for each prometheus query, default is 10 seconds
+      # The agent will always query the metrics at (Current Timestamp - query_delay)
+      query_delay:
       ## proxy
       agent_http_proxy:
       agent_https_proxy:

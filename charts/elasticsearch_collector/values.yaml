@@ -88,10 +88,6 @@ configs:
       # path to client key
       client_key:
 
-      # history data time config. If these options is set, the agent will query results by time range
-      # time range, Example: 2020-04-14 00:00:00,2020-04-15 00:00:00
-      his_time_range:
-
       # Field that contains the project name. If this field is empty, agent will use project_name in insightfinder section
       project_field:
       # project_whitelist is a regex string used to define which projects form project_field will be filtered.
