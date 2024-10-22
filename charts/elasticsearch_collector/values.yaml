@@ -16,8 +16,6 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
-automountServiceAccountToken: false
-
 appArmor:
   enabled: false
 

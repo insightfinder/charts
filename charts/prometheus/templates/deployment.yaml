@@ -22,7 +22,7 @@ spec:
       labels:
         {{- include "if-prometheus-agent.selectorLabels" . | nindent 8 }}
     spec:
-      automountServiceAccountToken: {{ $.Values.automountServiceAccountToken }}
+      automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
