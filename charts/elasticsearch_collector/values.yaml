@@ -1,4 +1,4 @@
-# Default values for if-prometheus-agent.
+# Default values for if-elasticsearch-collector.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -6,7 +6,8 @@ replicaCount: 1
 
 image:
   repository: insightfinderinc/elasticsearch_collector
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
   tag: "latest"
 
 imagePullSecrets: []
@@ -14,6 +15,28 @@ nameOverride: ""
 fullnameOverride: ""
 
 podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: true
+  limits:
+    - default:
+        cpu: "8"
+        memory: "8Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "500Mi"
+      type: Container
+
+resourceQuota:
+  enabled: true
+  spec:
+    hard:
+      cpu: "24"
+      memory: 24Gi
+      pods: "3"
 
 resources:
   limits:
@@ -38,6 +61,8 @@ configs:
       query_chunk_size:
       # indexes to search over, example indeces = metricbeat*
       indeces:
+      # The time offset when querying live data, default is 0.
+      query_time_offset_seconds:
 
       ## parameters for all hosts
       # port to connect to (Can be parsed from url)
@@ -53,17 +78,13 @@ configs:
       # True or False - use fingerprint verification
       ssl_assert_fingerprint:
       # True or False
-      verify_certs:
+      verify_certs: False
       # path to ca bundle
       ca_certs:
       # path to client cert
       client_cert:
       # path to client key
       client_key:
-
-      # history data time config. If these options is set, the agent will query results by time range
-      # time range, Example: 2020-04-14 00:00:00,2020-04-15 00:00:00
-      his_time_range:
 
       # Field that contains the project name. If this field is empty, agent will use project_name in insightfinder section
       project_field:
@@ -75,13 +96,13 @@ configs:
       timestamp_format:
       # timezone, as per pytz
       timezone:
-      # if document_root_field is "", need to set the full path. For example _source.@timestamp
+      # if document_root_field is "", need to set the full path. For example _source.@timestamp. Default is @timestamp
       timestamp_field:
       # Timezone of the timestamp data to be sent and stored in target DB (InsightFinder). Default is UTC. Only if you wish the data to be stored in other time zones in InsightFinder, this field should be specified to be the desired time zone.
       target_timestamp_timezone:
 
       # document root field, default is _source. To use the whole document as the root, use ""
-      document_root_field:
+      document_root_field: ""
 
       component_field:
       default_component_name:

@@ -1,0 +1,10 @@
+{{- if $.Values.limitRange.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ printf "%s-limitrange" (include "if-prometheus-agent.fullname" .) }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  limits:
+  {{- toYaml $.Values.limitRange.limits | nindent 2 }}
+{{- end -}}
