@@ -19,7 +19,7 @@ podAnnotations: {}
 automountServiceAccountToken: false
 
 appArmor:
-  enabled: true
+  enabled: false
 
 limitRange:
   enabled: true
