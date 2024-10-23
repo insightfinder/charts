@@ -101,7 +101,7 @@ data:
 
     # multiple fields are separated by commas, a field can be `<name>` or regex. Example: data_fields = /^system\.filesystem.*/,system.process.cgroup.memory.memsw.events.max
     # If it is empty, the whole document at the document root will be sent.
-    data_fields = {{ $v.elasticsearch.data_fields | default "message" }}
+    data_fields = {{ $v.elasticsearch.data_fields }}
 
     # multiple fields with string or regex, are separated by commas, like: /0-metric\.values\.99.0/,value,doc_count
     aggregation_data_fields = {{ $v.elasticsearch.aggregation_data_fields }}
