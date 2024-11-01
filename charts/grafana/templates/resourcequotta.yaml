@@ -1,0 +1,9 @@
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ printf "%s-resourcequota" (include "if-grafana-agent.fullname" .) }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  {{- toYaml $.Values.resourceQuota.spec | nindent 2 }}
+{{- end -}}
