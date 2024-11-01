@@ -71,6 +71,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-event-push-agent-0.0.1/if-event-push-agent-0.0.1.tgz
     version: 0.0.1
+  if-grafana-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-11-01T20:20:40.846618767Z"
+    description: A Helm chart for grafana of InsightAgent
+    digest: 4ff2bcf96c0e328bd47cec7fb153bfb92d1d62a2600cc3120c67d26cc1671e2e
+    name: if-grafana-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-grafana-agent-0.0.1/if-grafana-agent-0.0.1.tgz
+    version: 0.0.1
   if-kubeactions:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -308,4 +319,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-21T17:08:29.443074608Z"
+generated: "2024-11-01T20:20:40.974798252Z"
