@@ -1,0 +1,106 @@
+# Default values for if-grafana-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/grafana-agent
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "8"
+        memory: "8Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "500Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "24"
+      memory: 24Gi
+      pods: "3"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 200m
+    memory: 200Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+config:
+  insightfinder:
+    # The url to InsightFinder
+    url: "https://app.insightfinder.com"
+    userName: "maoyuwang"
+    licenseKey: ""
+
+    # Sampling interval defines the interval between two consecutive data points.
+    samplingInterval: "1m"
+
+    # Run interval defines the time range for data collection during each run.
+    runInterval: "1m"
+    runIntervalInSeconds: "90"
+
+  grafana:
+    # URL of the Grafana instance
+    url: "https://grafana.xxx.com"
+
+    # API token for the Grafana service account
+    token: ""
+
+    # (Optional) Basic auth credentials for the Grafana instance
+    # Not needed if using API token
+    username: "123"
+    password: "123"
+
+    # The UID of the data source we want to query in Grafana
+    dataSourceUID: "PBFA97CFB590B2093"
+
+    queryDelay: "10s"
+
+  projects:
+
+    - name: "test-project1"
+      system: "test-system-1"
+      isContainer: false
+      type: "Metric" # Metric or Log
+      query:
+      # Specify each of the query you want to stream to this project from the 'query section'
+      - "Container CPU Usage"
+
+  query:
+    # The name of the query. It will become the metric name shown in InsightFinder
+    "Container CPU Usage":
+      # useRawMetricName: false   # Set to true to use the raw metric names we queried from grafana.
+      query: "container_cpu_user_seconds_total"
+      instanceLabel:
+        - "pod"
+      containerLabel:
+        - "container"
+      componentLabel:
+        - "namespace"

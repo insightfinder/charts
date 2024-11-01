@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ include "if-grafana-agent.fullname" . }}-config-cm
+data:
+  config.yaml: |-
+    {{ .Values.config | toYaml | nindent 4}}
