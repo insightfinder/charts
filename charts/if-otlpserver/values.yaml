@@ -1,0 +1,143 @@
+# Default values for if-otlpserver.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: docker.io/insightfinderinc/otlpserver
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "1024Mi"
+  requests:
+    cpu: "1"
+    memory: "512Mi"
+
+# Make sure this port matches the port in your server.yaml configuration
+port: 4317 # Port the container should expose
+
+# Service related configuration
+service:
+  name: if-otlpserver-svc
+  type: ClusterIP
+  port: 4317
+  
+config:
+  server: 
+    # InsightFinder Engine URL
+    insightFinderUrl: "https://stg.insightfinder.com"
+
+    # The gRPC server listen port
+    port: 4317
+
+    # TLS/SSL settings.
+    tls:
+      enabled: false
+
+      # Path to full-chain certificate file (PEM)
+      certificateFile: ""
+
+      # Path to the private key file.
+      privateKeyFile: ""
+
+    # Worker Thread Configurations.
+    worker:
+      # DataProcess worker: Extracting information from the original data.
+      processThreads: 1
+
+      # Streaming worker: Send data to InsightFinder.
+      streamingThreads: 1
+      streamingBatchSize: 100
+  data: |-
+    users:
+      # InsightFinder username
+      demoUser:
+        # InsightFinder licenseKey
+        licenseKey: ""
+        
+        # Rules to process log data.
+        log:
+          extraction:
+            
+            # The rule to extract projectName from the data
+            projectFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # (Optional)
+            # The rule to extract projectName from the data
+            systemFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # The rule to extract instanceName from the data
+            instanceFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+            # (Optional)
+            # The rule to extract component from the data
+            componentFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # The rule to extract timestamp from the data
+            timestampFrom:
+              - source: ''
+                field: ''
+        
+        # Rules to process trace data.
+        trace:
+          extraction:
+
+            # The rule to extract projectName from the data
+            projectFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+            # (Optional)
+            # The rule to extract systemName from the data
+            systemFrom:
+              - source: ''
+                field: ''
+                regex: ''
+                
+            # The rule to extract instanceName from the data
+            instanceFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # (Optional)
+            # The rule to extract componentName from the data
+            componentFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
