@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "if-otlpserver.fullname" . }}
-  name: {{ printf "%s-config-cm" (include "if-otlpserver.fullname" .) }}
+  name: {{ include "if-otlpserver.configMapName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "if-otlpserver.labels" . | nindent 4 }}
@@ -18,13 +17,7 @@ data:
 
     # TLS/SSL settings.
     tls:
-      enabled: {{ .Values.config.server.tls.enabled | default false }}
-
-      # Path to full-chain certificate file (PEM)
-      certificateFile: {{ .Values.config.server.tls.certificateFile | default "" }}
-
-      # Path to the private key file.
-      privateKeyFile: {{ .Values.config.server.tls.privateKeyFile | default "" }}
+      enabled: false
 
     # Worker Thread Configurations.
     worker:

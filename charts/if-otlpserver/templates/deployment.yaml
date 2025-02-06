@@ -52,7 +52,7 @@ spec:
         {{- end }}
         ports:
         - name: otlp-svc
-          containerPort: {{ .Values.port | default 4317 }}
+          containerPort: 4317
           protocol: TCP
         volumeMounts:
         - name: config-data
@@ -66,13 +66,13 @@ spec:
       volumes:
       - name: config-data
         configMap:
-          name: {{ printf "%s-config-cm" (include "if-otlpserver.fullname" .) }}
+          name: {{ include "if-otlpserver.configMapName" . }}
           items:
           - key: data.yaml
             path: data.yaml
       - name: config-server
         configMap:
-          name: {{ printf "%s-config-cm" (include "if-otlpserver.fullname" .) }}
+          name: {{ include "if-otlpserver.configMapName" . }}
           items:
           - key: server.yaml
             path: server.yaml

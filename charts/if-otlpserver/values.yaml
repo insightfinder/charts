@@ -29,32 +29,10 @@ resources:
     cpu: "1"
     memory: "512Mi"
 
-# Make sure this port matches the port in your server.yaml configuration
-port: 4317 # Port the container should expose
-
-# Service related configuration
-service:
-  name: if-otlpserver-svc
-  type: ClusterIP
-  port: 4317
-  
 config:
   server: 
     # InsightFinder Engine URL
     insightFinderUrl: "https://stg.insightfinder.com"
-
-    # The gRPC server listen port
-    port: 4317
-
-    # TLS/SSL settings.
-    tls:
-      enabled: false
-
-      # Path to full-chain certificate file (PEM)
-      certificateFile: ""
-
-      # Path to the private key file.
-      privateKeyFile: ""
 
     # Worker Thread Configurations.
     worker:
@@ -135,6 +113,16 @@ config:
               - source: ''
                 field: ''
                 regex: ''
+
+
+ingress:
+  enabled: false
+  annotations: {}
+  ingressClassName: nginx
+  host: https://stg.insightfinder.com
+  tls:
+    enabled: false
+    secretName: ingress-tls
 
 nodeSelector: {}
 

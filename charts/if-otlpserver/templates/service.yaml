@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "if-otlpserver.fullname" . }}
+  name: {{ include "if-otlpserver.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "if-otlpserver.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   selector:
     {{- include "if-otlpserver.selectorLabels" . | nindent 4 }}
   ports:
   - name: otlp-svc
     protocol: TCP
-    port: {{ .Values.service.port | default 4317 }}
+    port: 4317
     targetPort: otlp-svc

@@ -49,3 +49,20 @@ Selector labels
 app.kubernetes.io/name: {{ include "if-otlpserver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+
+{{/*
+Define service name
+*/}}
+{{- define "if-otlpserver.serviceName" -}}
+{{ printf "%s-svc" (include "if-otlpserver.fullname" .) }}
+{{- end }}
+
+
+
+{{/*
+Define configmap name
+*/}}
+{{- define "if-otlpserver.configMapName" -}}
+{{ printf "%s-config-cm" (include "if-otlpserver.fullname" .) }}
+{{- end }}
