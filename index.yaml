@@ -244,6 +244,18 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.4/if-kubernetes-agent-0.0.4.tgz
     version: 0.0.4
+  if-otlpserver:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2025-02-07T20:07:21.764486394Z"
+    description: A Helm chart for deploying OTLP server for streaming data to InsightFinder
+      applications
+    digest: 37531f51dd0e622b9271b95981acb4a5f081c35d89abe9f53c165eb14eb1f84d
+    name: if-otlpserver
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-otlpserver-0.0.1/if-otlpserver-0.0.1.tgz
+    version: 0.0.1
   if-power-collector-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -319,4 +331,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-01T20:20:40.974798252Z"
+generated: "2025-02-07T20:07:21.764525317Z"
