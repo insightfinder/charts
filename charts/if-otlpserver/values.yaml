@@ -1,0 +1,131 @@
+# Default values for if-otlpserver.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: docker.io/insightfinderinc/otlpserver
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "1024Mi"
+  requests:
+    cpu: "1"
+    memory: "512Mi"
+
+config:
+  server: 
+    # InsightFinder Engine URL
+    insightFinderUrl: "https://stg.insightfinder.com"
+
+    # Worker Thread Configurations.
+    worker:
+      # DataProcess worker: Extracting information from the original data.
+      processThreads: 1
+
+      # Streaming worker: Send data to InsightFinder.
+      streamingThreads: 1
+      streamingBatchSize: 100
+  data: |-
+    users:
+      # InsightFinder username
+      demoUser:
+        # InsightFinder licenseKey
+        licenseKey: ""
+        
+        # Rules to process log data.
+        log:
+          extraction:
+            
+            # The rule to extract projectName from the data
+            projectFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # (Optional)
+            # The rule to extract projectName from the data
+            systemFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # The rule to extract instanceName from the data
+            instanceFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+            # (Optional)
+            # The rule to extract component from the data
+            componentFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # The rule to extract timestamp from the data
+            timestampFrom:
+              - source: ''
+                field: ''
+        
+        # Rules to process trace data.
+        trace:
+          extraction:
+
+            # The rule to extract projectName from the data
+            projectFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+            # (Optional)
+            # The rule to extract systemName from the data
+            systemFrom:
+              - source: ''
+                field: ''
+                regex: ''
+                
+            # The rule to extract instanceName from the data
+            instanceFrom:
+              - source: ''
+                field: ''
+                regex: ''
+            
+            # (Optional)
+            # The rule to extract componentName from the data
+            componentFrom:
+              - source: ''
+                field: ''
+                regex: ''
+
+
+ingress:
+  enabled: false
+  annotations: {}
+  ingressClassName: nginx
+  host: https://stg.insightfinder.com
+  tls:
+    enabled: false
+    secretName: ingress-tls
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

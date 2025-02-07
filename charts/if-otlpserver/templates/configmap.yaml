@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "if-otlpserver.configMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "if-otlpserver.labels" . | nindent 4 }}
+data:
+  data.yaml: |-
+{{ .Values.config.data | indent 4 }}
+
+  server.yaml: |-
+    # InsightFinder Engine URL
+    insightFinderUrl: {{ .Values.config.server.insightFinderUrl | default  "https://stg.insightfinder.com" }}
+    # The gRPC server listen port
+    port: {{ .Values.config.server.port | default 4317 }}
+
+    # TLS/SSL settings.
+    tls:
+      enabled: false
+
+    # Worker Thread Configurations.
+    worker:
+      # DataProcess worker: Extracting information from the original data.
+      processThreads: {{ .Values.config.server.worker.processThreads | default 1 }}
+
+      # Streaming worker: Send data to InsightFinder.
+      streamingThreads: {{ .Values.config.server.worker.streamingThreads | default 1 }}
+      streamingBatchSize: {{ .Values.config.server.worker.streamingBatchSize | default 100 }}
