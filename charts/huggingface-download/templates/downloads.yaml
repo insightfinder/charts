@@ -1,0 +1,74 @@
+{{- range $modelName, $modelID := $.Values.models }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $modelName }}
+  namespace: {{ $.Values.modelNamespace }}
+spec:
+  storageClassName: {{ $.Values.efs.storageClassName }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-download" $modelName }}
+  labels:
+    {{- include "huggingface-download.labels" $ | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: {{ $.Values.job.ttlSecondsAfterFinished }}
+  template:
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          {{- with $.Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          args:
+            ["download", "--local-dir=/pv", "{{ $modelID }}"]
+          {{- with $.Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: HF_TOKEN
+                  optional: false
+          volumeMounts:
+            - mountPath: "/pv"
+              name: models-store
+      volumes:
+        - name: models-store
+          persistentVolumeClaim:
+            claimName: {{ $modelName }}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ $.Values.job.restartPolicy }}
+{{- end }}
