@@ -33,6 +33,8 @@ job:
 
 modelNamespace: modelserving
 
+hf_token: ""
+
 # HuggingFace models list in the format:
 # <model_name>: "<model_id>"
 # The model_name is corresponding to the model name in kservectl model list.

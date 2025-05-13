@@ -1,0 +1,15 @@
+{{- range $modelName, $modelID := $.Values.models }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $modelName }}
+  namespace: {{ $.Values.modelNamespace }}
+spec:
+  storageClassName: {{ $.Values.efs.storageClassName }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+{{- end }}

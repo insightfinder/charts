@@ -1,17 +1,4 @@
 {{- range $modelName, $modelID := $.Values.models }}
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ $modelName }}
-  namespace: {{ $.Values.modelNamespace }}
-spec:
-  storageClassName: {{ $.Values.efs.storageClassName }}
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -71,4 +58,5 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       restartPolicy: {{ $.Values.job.restartPolicy }}
+---
 {{- end }}
