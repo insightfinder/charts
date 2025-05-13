@@ -1,0 +1,42 @@
+image:
+  repository: insightfinderinc/huggingface-cli
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+resources:
+  limits:
+    memory: "1Gi"
+    cpu: "1"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+efs:
+  storageClassName: "efs-sc"
+  directoryPerms: "700"
+  fileSystemId: ""
+
+job:
+  ttlSecondsAfterFinished: 180
+  restartPolicy: OnFailure
+
+modelNamespace: modelserving
+
+hf_token: ""
+
+# HuggingFace models list in the format:
+# <model_name>: "<model_id>"
+# The model_name is corresponding to the model name in kservectl model list.
+models:
+  smollm2: "HuggingFaceTB/SmolLM2-135M-Instruct"
