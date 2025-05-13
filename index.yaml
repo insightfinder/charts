@@ -41,6 +41,15 @@ entries:
     version: 0.1.2
   huggingface-download:
   - apiVersion: v2
+    created: "2025-05-13T07:04:46.47086145Z"
+    description: A Helm chart for downloading Hugging Face models
+    digest: 3bfad0a6688f1683f719d7ecab148c618555a80e59d3bb0527e1b5ae1cdac251
+    name: huggingface-download
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/huggingface-download-0.1.1/huggingface-download-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     created: "2025-05-13T06:30:20.618763576Z"
     description: A Helm chart for downloading Hugging Face models
     digest: db81979e22606b8a519021e24681204783a2de0cd4883364b8ec7639701f5eee
@@ -341,4 +350,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-13T06:30:20.755021519Z"
+generated: "2025-05-13T07:04:46.470907727Z"
