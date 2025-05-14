@@ -23,7 +23,7 @@ tolerations: []
 affinity: {}
 
 efs:
-  storageClassName: "efs-sc"
+  storageClassName: "efs"
   directoryPerms: "700"
   fileSystemId: ""
 
