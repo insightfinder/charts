@@ -5,7 +5,7 @@ metadata:
   name: {{ $modelName }}
   namespace: {{ $.Values.modelNamespace }}
 spec:
-  storageClassName: {{ $.Values.efs.storageClassName }}
+  storageClassName: {{ include "storageclass-name" $ }}
   accessModes:
     - ReadWriteMany
   resources:
