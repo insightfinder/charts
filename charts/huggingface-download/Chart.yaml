@@ -2,4 +2,4 @@ apiVersion: v2
 name: huggingface-download
 description: A Helm chart for downloading Hugging Face models
 type: application
-version: 0.1.2
+version: 0.1.1
