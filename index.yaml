@@ -335,6 +335,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.0/if-prometheus-agent-0.1.0.tgz
     version: 0.1.0
+  if-redis-agent:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-05-16T21:34:56.368959367Z"
+    description: A Helm chart for Redis for InsightAgent
+    digest: 1c721560fc44af59abc587ff630653b2760aaaf10ea04d15a7ffc40dda52ad82
+    name: if-redis-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-redis-agent-1.0.0/if-redis-agent-1.0.0.tgz
+    version: 1.0.0
   if-vcenter-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -368,4 +379,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-14T08:29:42.952727342Z"
+generated: "2025-05-16T21:34:56.368988211Z"
