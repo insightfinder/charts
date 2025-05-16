@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ include "if-redis-agent.fullname" . }}-config-cm
+data:
+{{- range $i, $v := .Values.configs }}
+    {{ printf "config-%d.ini" $i }}: |-
+        [redis]
+        ## redis info
+        # required
+        redis_hosts = {{ $v.redis.redis_hosts | default "http://redis:6379" }}
+        # redis mode - either 'cluster' or 'single'
+        redis_mode = {{ $v.redis.redis_mode | default "single" }}
+        # authentication
+        password = {{ $v.redis.password }}
+        # SSL/TLS configuration
+        use_ssl = {{ $v.redis.use_ssl | default False }}
+        ssl_ca_certs = {{ $v.redis.ssl_ca_certs }}
+        ssl_certfile = {{ $v.redis.ssl_certfile }}
+        ssl_keyfile = {{ $v.redis.ssl_keyfile }}
+        # connection timeout in seconds
+        connection_timeout = {{ $v.redis.connection_timeout | default 5 }}
+        # connection pool
+        max_connections = {{ $v.redis.max_connections | default 10 }}
+
+        ## key monitoring configuration
+        # regex pattern to filter keys (leave empty to check all keys)
+        key_pattern = {{ $v.redis.key_pattern | default "*" }}
+        # Whether to scan keys or use KEYS command (scan is more efficient for large databases)
+        use_scan = {{ $v.redis.use_scan | default true }}
+        # scan count parameter
+        scan_count = {{ $v.redis.scan_count | default 1000 }}
+        # If set to True, will also check TTL for keys (disabled by default as we only want idle time)
+        check_ttl = {{ $v.redis.check_ttl | default False }}
+
+        # number of thread to use in the pool, default is 4
+        thread_pool = {{ $v.redis.thread_pool | default 4 }}
+        # number of the worker processes, default is count_of_cpu * 4
+        processes = {{ $v.redis.processes }}
+        # minutes the main process wait for workers to finish, default is 5
+        timeout = {{ $v.redis.timeout | default 5 }}
+        process_timeout = {{ $v.redis.process_timeout | default 5 }}
+
+        ## proxy
+        agent_http_proxy = {{ $v.redis.agent_http_proxy }}
+        agent_https_proxy = {{ $v.redis.agent_https_proxy }}
+
+        [insightfinder]
+        user_name = {{ $v.insightfinder.user_name }}
+        license_key = {{ $v.insightfinder.license_key }}
+        token = 
+        # Name of the project created in the InsightFinder UI, If this project is not exist, agent will create it automatically.
+        project_name = {{ $v.insightfinder.project_name }}
+        # Name of system owned by project. If project_name is not exist in InsightFinder, agent will create a new system automatically from this field or project_name.
+        system_name = {{ $v.insightfinder.system_name }}
+        # metric, metricreplay, log, logreplay, alert, alertreplay, incident, incidentreplay, deployment, deploymentreplay, trace, tracereplay
+        project_type = {{ $v.insightfinder.project_type | default "METRIC" }}
+        # Set to `YES` if project is container.
+        containerize = {{ $v.insightfinder.containerize | default "no" }}
+
+        # Set to empty to create normal projects
+        # set to 'vm' to use 'DynamicVM' as the AgentType, set to 'host' to use 'DynamicHost' as the AgentType
+        dynamic_metric_type = {{ $v.insightfinder.dynamic_metric_type }}
+
+        sampling_interval = {{ $v.insightfinder.sampling_interval | default 5 }}
+        run_interval = {{ $v.insightfinder.run_interval | default 5 }}
+        # what size to limit chunks sent to IF to, as kb
+        chunk_size_kb = {{ $v.insightfinder.chunk_size_kb | default 2048 }}
+        if_url = {{{ $v.insightfinder.if_url | default "https://app.insightfinder.com" }}}
+        if_http_proxy = {{ $v.insightfinder.if_http_proxy }}
+        if_https_proxy = {{ $v.insightfinder.if_https_proxy }}
+        
+{{- end }}
