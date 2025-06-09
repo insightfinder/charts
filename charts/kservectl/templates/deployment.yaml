@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "kservectl.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "kservectl.selectorLabels" . | nindent 6 }}
@@ -38,32 +36,29 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+              containerPort: 8080
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: models
+              mountPath: /app/conf.d/llm_models.yaml
+              subPath: llm_models.yaml
+            - name: accelerators
+              mountPath: /app/conf.d/accelerators.yaml
+              subPath: accelerators.yaml
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: models
+          configMap:
+            name: config-models
+        - name: accelerators
+          configMap:
+            name: config-accelerators
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

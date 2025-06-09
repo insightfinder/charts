@@ -1,0 +1,44 @@
+accelerators:
+  nvidia-t4-16gb:
+    resources:
+      requests:
+        cpu: 2
+        memory: 14Gi
+        nvidia.com/gpu: 1
+      limits:
+        cpu: 2
+        memory: 14Gi
+        nvidia.com/gpu: 1
+
+  nvidia-a10g-24gb:
+    resources:
+      requests:
+        cpu: 2
+        memory: 14Gi
+        nvidia.com/gpu: 1
+      limits:
+        cpu: 2
+        memory: 14Gi
+        nvidia.com/gpu: 1
+
+  nvidia-l40s-48gb:
+    resources:
+      requests:
+        cpu: 2
+        memory: 28Gi
+        nvidia.com/gpu: 1
+      limits:
+        cpu: 2
+        memory: 28Gi
+        nvidia.com/gpu: 1
+
+  nvidia-a10g-96gb:
+    resources:
+      requests:
+        cpu: 40
+        memory: 120Gi
+        nvidia.com/gpu: 4
+      limits:
+        cpu: 40
+        memory: 120Gi
+        nvidia.com/gpu: 4
