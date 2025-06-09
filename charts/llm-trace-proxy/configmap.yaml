@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-llm-trace-proxy-cm" (include "insightfinder.fullname" .) }}
+  namespace: {{ .Values.llmTraceProxy.namespace | default .Release.Namespace }}
+data:
+  config.yaml: |
+{{ tpl (.Files.Get "files/llm-trace-proxy/config.yaml") . | indent 4 }}
