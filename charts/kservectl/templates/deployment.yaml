@@ -55,10 +55,10 @@ spec:
       volumes:
         - name: models
           configMap:
-            name: config-models
+            name: kservectl-models
         - name: accelerators
           configMap:
-            name: config-accelerators
+            name: kservectl-accelerators
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
