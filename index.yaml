@@ -368,6 +368,16 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/kafkametriccollectoragent-0.1.0/kafkametriccollectoragent-0.1.0.tgz
     version: 0.1.0
+  kservectl:
+  - apiVersion: v2
+    created: "2025-06-09T13:34:45.2079213Z"
+    description: A Helm chart to control kserve inference services
+    digest: 8187f055650fb446c1f97360bfd8e3d208eeaebca69ecee90e64145df036414e
+    name: kservectl
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kservectl-0.1.0/kservectl-0.1.0.tgz
+    version: 0.1.0
   loki-audit-log:
   - apiVersion: v2
     appVersion: latest
@@ -379,4 +389,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-16T21:34:56.368988211Z"
+generated: "2025-06-09T13:34:45.20796406Z"
