@@ -387,6 +387,16 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/kservectl-0.1.0/kservectl-0.1.0.tgz
     version: 0.1.0
+  llm-trace-proxy:
+  - apiVersion: v2
+    created: "2025-06-10T13:29:25.305391917Z"
+    description: A Helm chart for llm proxy
+    digest: ae75c029a53a145fd93e7645dbd70c9d69a7aefcd3e13d1efa831f98f196df27
+    name: llm-trace-proxy
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/llm-trace-proxy-0.1.0/llm-trace-proxy-0.1.0.tgz
+    version: 0.1.0
   loki-audit-log:
   - apiVersion: v2
     appVersion: latest
@@ -398,4 +408,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-10T06:01:21.825231316Z"
+generated: "2025-06-10T13:29:25.305430459Z"
