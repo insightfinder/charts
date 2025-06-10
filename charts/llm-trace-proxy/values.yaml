@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: docker.io/insightfinderinc/llm-trace-proxy
   pullPolicy: Always
-  tag: "latest"
+  tag: "staging"
 
 imagePullSecrets:
   - name: regcred
@@ -21,15 +21,18 @@ service:
   port: 80
 
 ingress:
-  enabled: false
-  className: ""
+  enabled: true
+  className: "nginx"
   annotations: {}
   hosts:
-    - host: chart-example.local
+    - host: gke-stg-llm-proxy.insightfinder.com
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+    - secretName: ingress-tls
+      hosts:
+        - gke-stg-llm-proxy.insightfinder.com
 
 resources:
   requests:
@@ -47,7 +50,7 @@ config:
   proxy:
     target: "modelserving.svc.cluster.local" # Target subdomain URL for routing requests
   aw:
-    endpoint: "http://insightfinder-aw.insightfinder.svc.cluster.local"
+    endpoint: "https://ai-stg.insightfinder.com"
   trace:
     endpoint: 'http://localhost:4316'
     serviceName: "test-llm-trace-proxy"
