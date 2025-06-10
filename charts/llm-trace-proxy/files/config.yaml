@@ -1,0 +1,12 @@
+proxy:
+  target: {{ .Values.config.proxy.target | quote}} # Target URL for the proxy
+
+aw:
+  endpoint: {{ .Values.config.aw.endpoint | quote }}
+
+processor:
+  tokenizer: "cl100k_base" # Tokenizer type used for token counting
+
+trace:
+  endpoint: {{ .Values.config.trace.endpoint | quote }} # Endpoint for the trace service
+  service_name: {{ .Values.config.trace.serviceName | quote }} # Service name for the trace

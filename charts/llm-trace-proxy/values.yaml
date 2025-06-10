@@ -1,0 +1,56 @@
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: docker.io/insightfinderinc/llm-trace-proxy
+  pullPolicy: Always
+  tag: "staging"
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: gke-stg-llm-proxy.insightfinder.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: ingress-tls
+      hosts:
+        - gke-stg-llm-proxy.insightfinder.com
+
+resources:
+  requests:
+    cpu: 1
+    memory: 512Mi
+  limits:
+    cpu: 2
+    memory: 1Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+config:
+  proxy:
+    target: "modelserving.svc.cluster.local" # Target subdomain URL for routing requests
+  aw:
+    endpoint: "https://ai-stg.insightfinder.com"
+  trace:
+    endpoint: 'http://localhost:4316'
+    serviceName: "test-llm-trace-proxy"
