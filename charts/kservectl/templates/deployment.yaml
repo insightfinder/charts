@@ -49,6 +49,9 @@ spec:
             - name: models
               mountPath: /app/conf.d/llm_models.yaml
               subPath: llm_models.yaml
+            - name: sites-url
+              mountPath: /app/conf.d/sites-url.yaml
+              subPath: sites-url.yaml
             - name: accelerators
               mountPath: /app/conf.d/accelerators.yaml
               subPath: accelerators.yaml
@@ -56,6 +59,9 @@ spec:
         - name: models
           configMap:
             name: kservectl-models
+        - name: sites-url
+          configMap:
+            name: kservectl-sites-url
         - name: accelerators
           configMap:
             name: kservectl-accelerators
