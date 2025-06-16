@@ -67,7 +67,8 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-models: {}
+models:
+  {}
   # Example model configurations
   # smollm2:
   #   model_id: HuggingFaceTB/SmolLM2-135M-Instruct
@@ -81,3 +82,13 @@ models: {}
   #     limits:
   #       cpu: 1
   #       memory: 2Gi
+
+sites_url:
+  {}
+  # Example site URLs for different platforms
+  # aws:
+  #   kservectl: http://insightfinder-kservectl.modelserving.svc.cluster.local
+  #   llm-trace-proxy: http://insightfinder-llm-trace-proxy.modelserving.svc.cluster.local
+  # gcp:
+  #   kservectl: https://gateway-gke-stg.insightfinder.com
+  #   llm-trace-proxy: https://gke-stg-llm-proxy.insightfinder.com
