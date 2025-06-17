@@ -370,6 +370,15 @@ entries:
     version: 0.1.0
   kservectl:
   - apiVersion: v2
+    created: "2025-06-17T02:10:00.871329316Z"
+    description: A Helm chart to control kserve inference services
+    digest: e443d558305bab0ef4db060b74416c54f6eb62fffb42963f07fc77475dadecc9
+    name: kservectl
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kservectl-0.1.3/kservectl-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     created: "2025-06-16T20:14:33.988948577Z"
     description: A Helm chart to control kserve inference services
     digest: f502901c6ef7d4abb77ab7dcc56f75b819500641324e80afd8e168c69e2d5d3a
@@ -417,4 +426,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-16T20:14:33.988997418Z"
+generated: "2025-06-17T02:10:00.871396742Z"
