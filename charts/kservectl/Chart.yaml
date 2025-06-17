@@ -2,4 +2,4 @@ apiVersion: v2
 name: kservectl
 description: A Helm chart to control kserve inference services
 type: application
-version: 0.1.2
+version: 0.1.3

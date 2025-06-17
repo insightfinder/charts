@@ -50,8 +50,8 @@ spec:
               mountPath: /app/conf.d/llm_models.yaml
               subPath: llm_models.yaml
             - name: sites-url
-              mountPath: /app/conf.d/sites-url.yaml
-              subPath: sites-url.yaml
+              mountPath: /app/conf.d/sites_url.yaml
+              subPath: sites_url.yaml
             - name: accelerators
               mountPath: /app/conf.d/accelerators.yaml
               subPath: accelerators.yaml
