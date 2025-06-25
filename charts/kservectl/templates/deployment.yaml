@@ -4,6 +4,8 @@ metadata:
   name: {{ include "kservectl.fullname" . }}
   labels:
     {{- include "kservectl.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
