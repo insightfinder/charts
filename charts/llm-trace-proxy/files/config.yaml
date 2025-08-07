@@ -6,6 +6,7 @@ aw:
 
 processor:
   tokenizer: "cl100k_base" # Tokenizer type used for token counting
+  max_tokens: {{ .Values.config.processor.max_tokens | default 3000 }} # Maximum tokens limit for responses (default: 3000)
 
 trace:
   endpoint: {{ .Values.config.trace.endpoint | quote }} # Endpoint for the trace service
