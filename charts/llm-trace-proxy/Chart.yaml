@@ -2,4 +2,4 @@ apiVersion: v2
 name: llm-trace-proxy
 description: A Helm chart for llm proxy
 type: application
-version: 0.1.0
+version: 0.1.1
