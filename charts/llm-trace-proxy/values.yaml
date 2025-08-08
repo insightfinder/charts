@@ -55,4 +55,4 @@ config:
     endpoint: 'http://localhost:4316'
     serviceName: "test-llm-trace-proxy"
   processor:
-    max_tokens: 3000 # Maximum tokens limit for responses
+    max_tokens: 2048 # Maximum tokens limit for responses
