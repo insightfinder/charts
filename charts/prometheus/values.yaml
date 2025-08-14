@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: insightfinderinc/prometheus
+  repository: insightfinderinc/prometheus-k8s
   pullPolicy: Always
   # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
   tag: "latest"
