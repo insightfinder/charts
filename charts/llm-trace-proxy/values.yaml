@@ -56,3 +56,5 @@ config:
     serviceName: "test-llm-trace-proxy"
   processor:
     max_tokens: 2048 # Maximum tokens limit for responses
+  bedrockAccessGateway:
+    target: "bedrock-access-gateway.svc.cluster.local"

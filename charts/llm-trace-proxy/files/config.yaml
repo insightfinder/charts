@@ -11,3 +11,6 @@ processor:
 trace:
   endpoint: {{ .Values.config.trace.endpoint | quote }} # Endpoint for the trace service
   service_name: {{ .Values.config.trace.serviceName | quote }} # Service name for the trace
+
+bedrock-access-gateway:
+  target: {{ .Values.config.bedrockAccessGateway.target | quote }}

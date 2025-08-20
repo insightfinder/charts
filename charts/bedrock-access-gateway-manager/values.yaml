@@ -1,0 +1,71 @@
+# Default values for bedrock-access-gateway-manager.
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/bedrock-access-gateway-manager
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Defaults from raw manifests
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 3
+  periodSeconds: 10
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Application runtime config -> rendered into a ConfigMap
+config:
+  apiRoutePrefix: "/api/v1"
+  debug: false
+  awsRegion: "us-east-1"
+  defaultModel: "meta.llama3-8b-instruct-v1:0"
+  defaultEmbeddingModel: "cohere.embed-multilingual-v3"
+  enableCrossRegionInference: true
+  enableApplicationInferenceProfiles: true
+
+# RBAC resources
+rbac:
+  create: true
