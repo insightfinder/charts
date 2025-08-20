@@ -1,5 +1,15 @@
 apiVersion: v1
 entries:
+  bedrock-access-gateway-manager:
+  - apiVersion: v2
+    created: "2025-08-20T20:23:07.148351745Z"
+    description: A Helm chart to manage bedrock-access-gateway
+    digest: 40c8667e440779ec2eba5289188c450dc763e88763c980011e8f2d29c6afc4b3
+    name: bedrock-access-gateway-manager
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/bedrock-access-gateway-manager-0.1.0/bedrock-access-gateway-manager-0.1.0.tgz
+    version: 0.1.0
   cassandra:
   - annotations:
       category: Database
@@ -416,6 +426,15 @@ entries:
     version: 0.1.0
   llm-trace-proxy:
   - apiVersion: v2
+    created: "2025-08-20T20:23:07.431286928Z"
+    description: A Helm chart for llm proxy
+    digest: fb4c109fb455ef1ef384376dacdf3d99f25c7301f90fdcf057c2a000819a933b
+    name: llm-trace-proxy
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/llm-trace-proxy-0.1.2/llm-trace-proxy-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     created: "2025-08-08T18:43:58.923824235Z"
     description: A Helm chart for llm proxy
     digest: 36527127a265b27789c0db45af28a048ad7985f2ba6c30e43b4307f75dc4ea4d
@@ -444,4 +463,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-08T18:43:58.923881102Z"
+generated: "2025-08-20T20:23:07.431336471Z"
