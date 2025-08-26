@@ -22,7 +22,7 @@ spec:
       labels:
         {{- include "if-prometheus-agent.selectorLabels" . | nindent 8 }}
     spec:
-      automountServiceAccountToken: false
+      serviceAccountName: {{ include "if-prometheus-agent.fullname" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -43,6 +43,23 @@ spec:
               type: RuntimeDefault
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: LEASE_NAME
+              value: "prometheus-agent-leader"
+            - name: LEASE_DURATION
+              value: "15"
+            - name: RENEW_DEADLINE
+              value: "10"
+            - name: RETRY_PERIOD
+              value: "2"
           volumeMounts:
             - name: config
               mountPath: /app/conf.d/
@@ -55,24 +72,26 @@ spec:
           startupProbe:
             exec:
               command:
-                - cat
-                - /app/logs/output.log
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            failureThreshold: 10
-          readinessProbe:
-            exec:
-              command:
-                - cat
-                - /app/logs/output.log
-            initialDelaySeconds: 5
-            periodSeconds: 10
+                - pgrep
+                - -f
+                - leader_election_wrapper.py
+            initialDelaySeconds: 30
+            periodSeconds: 30
           livenessProbe:
             exec:
               command:
-                - cat
-                - /app/logs/output.log
-            initialDelaySeconds: 5
+                - pgrep
+                - -f
+                - leader_election_wrapper.py
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - leader_election_wrapper.py
+            initialDelaySeconds: 10
             periodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
