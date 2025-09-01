@@ -1,0 +1,421 @@
+replicaCount: 3
+
+image:
+  repository: insightfinderinc/ifcron-leader
+  pullPolicy: Always
+  tag: "latest"
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+appArmor:
+  enabled: false
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "1024Mi"
+  requests:
+    cpu: "1"
+    memory: "512Mi"
+
+livenessProbe:
+  exec:
+    command: ["python3", "-c", "import requests;"]
+  failureThreshold: 3
+  periodSeconds: 10
+readinessProbe:
+  exec:
+    command: ["python3", "-c", "import requests;"]
+  initialDelaySeconds: 10
+  failureThreshold: 3
+  periodSeconds: 10
+
+startupProbe:
+  exec:
+    command: ["python3", "-c", "import requests;"]
+  initialDelaySeconds: 10
+  failureThreshold: 10
+  periodSeconds: 10
+
+# Optional: extra environment variables to inject into the container
+extraEnv: []
+
+# RBAC resources (Role/RoleBinding) for leader election
+rbac:
+  create: true
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Env vars for leader election
+leaderElection:
+  leaseDurationSeconds: 15
+  renewDeadlineSeconds: 10
+  retryPeriodSeconds: 2
+
+# Env vars for the cron app
+tz: "America/New_York"
+ifUrl: "https://insightfinder-dataserver.insightfinder.svc.cluster.local"
+
+crons:
+  baseline:
+    schedule: "5 */12 * * *"
+    frequency: 43200
+
+  check-k8s-systems:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  checkdeletedincident:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  cleanUpChunks:
+    schedule: "12 * * * *"
+    frequency: 3600
+
+  cleanusertoken:
+    schedule: "0 */6 * * *"
+    frequency: 21600
+
+  collect:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  componentmetadatacheck:
+    schedule: "0 */4 * * *"
+    frequency: 14400
+
+  croncollectpredictionstats:
+    schedule: "6 * * * *"
+    frequency: 3600
+
+  cronretention:
+    schedule: "0 4 * * *"
+    frequency: 86400
+
+  createglobalview:
+    schedule: "*/4 * * * *"
+    frequency: 240
+
+  createglobalviewlongterm:
+    schedule: "0 * * * *"
+    frequency: 3600
+
+  detect:
+    schedule: "1-59/5 * * * *"
+    frequency: 300
+
+  detectRerun:
+    operation: detect
+    schedule: "0 */6 * * *"
+    frequency: 21600
+    parameters:
+      cronRerun: "true"
+
+  detectfixedincidents:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  webhookalert:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  detectedincidentalert:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  detectlongterm:
+    schedule: "15 * * * *"
+    frequency: 3600
+
+  dynatracedependencyretrieval:
+    schedule: "56 * * * *"
+    frequency: 3600
+
+  eventsupport:
+    schedule: "*/30 * * * *"
+    frequency: 1800
+    parameters:
+      overview: "true"
+      provision: "true"
+
+  eventsupportlongterm:
+    schedule: "0 */2 * * *"
+    frequency: 7200
+    parameters:
+      overview: "true"
+      provision: "true"
+
+  global-kb-detection:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  global-kb-detection-long-term:
+    schedule: "57 * * * *"
+    frequency: 3600
+
+  incidentalert:
+    schedule: "* * * * *"
+    frequency: 60
+
+  incidentpredictiontimeline:
+    schedule: "*/4 * * * *"
+    frequency: 240
+
+  incidentpredictiontimeline-long-term:
+    schedule: "25,55 * * * *"
+    frequency: 1800
+
+  insightSummary:
+    schedule: "*/20 * * * *"
+    frequency: 1200
+
+  insightsreport:
+    schedule: "15,45 * * * *"
+    frequency: 1800
+
+  insightsweeklyreport:
+    schedule: "20,50 * * * *"
+    frequency: 1800
+
+  knowledgebase-prediction:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  knowledgebase-prediction-longterm:
+    schedule: "30 * * * *"
+    frequency: 3600
+
+  knowledgebase-training:
+    schedule: "0 */3 * * *"
+    frequency: 10800
+
+  knowledgebase-training-long-term:
+    schedule: "0 */6 * * *"
+    frequency: 21600
+
+  trainmaster:
+    schedule: "0 12 * * *"
+    frequency: 86400
+
+  logbasevalueflush:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  logcdfdatastream:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  logdatafilling:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  logcollectdata:
+    schedule: "*/4 * * * *"
+    frequency: 240
+
+  logdetect:
+    enabled: true
+    schedule: "* * * * *"
+    frequency: 60
+
+  logeventfrequencyflush:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  logfeatureoutliermodel:
+    schedule: "0 */3 * * *"
+    frequency: 10800
+
+  logfrequencydetectiondata:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  logglobalpatternid:
+    schedule: "0 */6 * * *"
+    frequency: 21600
+
+  loggooglepubsub:
+    schedule: "* * * * *"
+    frequency: 60
+
+  logmetadatacache:
+    schedule: "10 * * * *"
+    frequency: 3600
+
+  lograwdataflush:
+    schedule: "* * * * *"
+    frequency: 60
+
+  logsendalertemail:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  logtometricflush:
+    schedule: "* * * * *"
+    frequency: 60
+
+  logupdatecalendar:
+    schedule: "* * * * *"
+    frequency: 60
+
+  llm-evaluation:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  metricdataaggregation:
+    schedule: "0 9 * * *"
+    frequency: 14400
+
+
+  metricdatacache:
+    schedule: "0 * * * *"
+    frequency: 3600
+    enabled: true
+
+  metricPrediction:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  metricPrediction-long-term:
+    schedule: "0 * * * *"
+    frequency: 3600
+
+  metric-filling:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  metricvalueaggregation:
+    schedule: "*/3 * * * *"
+    frequency: 180
+
+  outlier-stream:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  relationpreprocess:
+    schedule: "36 * * * *"
+    frequency: 3600
+
+  rootcauseanalysis:
+    schedule: "*/20 * * * *"
+    frequency: 1200
+
+  servicenownotes:
+    schedule: "5,35 * * * *"
+    frequency: 1800
+
+  servicenow-incident:
+    schedule: "* * * * *"
+    frequency: 60
+
+  systemdown:
+    schedule: "5,20,35,50 * * * *"
+    frequency: 900
+    enabled: true
+
+  systemdownlongTerm:
+    operation: "systemdown"
+    schedule: "0 */2 * * *"
+    frequency: 7200
+    parameters:
+      longTerm: "true"
+    enabled: true
+
+  validate-down-incident:
+    schedule: "*/15 * * * *"
+    frequency: 900
+
+  update-rca-llm:
+    schedule: "0 */6 * * *"
+    frequency: 21600
+
+  updatelongtermmetricsettingandinstancemetadata:
+    schedule: "54 * * * *"
+    frequency: 3600
+
+  updatemetricsettingandinstancemetadata:
+    schedule: "4-59/10 * * * *"
+    frequency: 600
+
+  updateprojectinfo:
+    schedule: "48 * * * *"
+    frequency: 3600
+
+  refresh-teams-tokens:
+    schedule: "0 0 * * *"
+    frequency: 86400
+
+  systemstructure:
+    schedule: "0 0 * * *"
+    frequency: 86400
+
+  cdf-detection:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  streamdetectionpostprocess:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  bias-detection:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+  safety-evaluation:
+    schedule: "*/10 * * * *"
+    frequency: 600
+
+
+  logdataqualityaggregation:
+    schedule: "*/5 * * * *"
+    frequency: 300
+
+  systemautoshare:
+    enabled: false
+    schedule: "* * * * *"
+    frequency: 60
+
+  rca-demo:
+    schedule: "* * * * *"
+    frequency: 60
