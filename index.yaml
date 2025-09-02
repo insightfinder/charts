@@ -367,6 +367,16 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-vcenter-agent-0.0.1/if-vcenter-agent-0.0.1.tgz
     version: 0.0.1
+  ifcron:
+  - apiVersion: v2
+    created: "2025-09-02T15:29:29.663057516Z"
+    description: A Helm chart for InsightFinder cron job
+    digest: 62017a0d496a74ec624e66534d62c49e52569329d9df1619bfe30873293ad90d
+    name: ifcron
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/ifcron-0.1.0/ifcron-0.1.0.tgz
+    version: 0.1.0
   kafkametriccollectoragent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -463,4 +473,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-20T20:23:07.431336471Z"
+generated: "2025-09-02T15:29:29.663126494Z"
