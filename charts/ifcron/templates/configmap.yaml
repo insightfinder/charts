@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ifcron-cm
+  namespace: {{ $.Release.Namespace }}
+data:
+  config.yaml: |-
+    crons:
+{{ .Values.crons | toYaml | indent 6 }}
