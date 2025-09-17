@@ -89,6 +89,16 @@ entries:
   if-elasticsearch-collector:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-09-17T16:38:02.610497176Z"
+    description: A Helm chart for elasticsearch_collector from InsightFinder
+    digest: c54a9a153c382c73e927ec6fe2a8ca41e8dbc4c702ea8ecb81b23ad4a7cbfb40
+    name: if-elasticsearch-collector
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-elasticsearch-collector-0.1.2/if-elasticsearch-collector-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2024-10-18T18:33:30.529642456Z"
     description: A Helm chart for elasticsearch_collector from InsightFinder
     digest: 325e2c027d34d6617e6a4c66495f82f501b34d9489613a5a63b632fa183d91ef
@@ -483,4 +493,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-17T16:37:58.082967025Z"
+generated: "2025-09-17T16:38:02.610564281Z"
