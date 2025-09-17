@@ -317,6 +317,16 @@ entries:
   if-prometheus-agent:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-09-17T16:37:58.082904047Z"
+    description: A Helm chart for prometheus of InsightAgent
+    digest: 533a0b5c1bd6fb8d4567ed10c8c9deecb153168f93393479aaa6884697230fe2
+    name: if-prometheus-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-prometheus-agent-0.1.3/if-prometheus-agent-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2024-10-21T17:08:29.443030525Z"
     description: A Helm chart for prometheus of InsightAgent
     digest: 6895b197348093271945576f86244dd33bdac214f7dfec62da9b9255f39ceab5
@@ -473,4 +483,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-02T15:29:29.663126494Z"
+generated: "2025-09-17T16:37:58.082967025Z"
