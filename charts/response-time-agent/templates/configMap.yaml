@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  config.ini: |
+    [InsightFinder]
+    user_name = {{ .Values.insightfinder.user_name }}
+    license_key = {{ .Values.insightfinder.license_key }}
+    project_name = {{ .Values.insightfinder.project_name }}
+    server_url = {{ .Values.insightfinder.server_url }}
+
+    [agent]
+    # IF System to monitor
+    url = {{ .Values.agent.url }}
+
+    login_user = {{ .Values.agent.login_user }}
+    login_pass = {{ .Values.agent.login_pass }}
+
+    # URLs for each of the API endpoints
+    monitor_urls = {{ .Values.agent.monitor_urls | toJson }}
