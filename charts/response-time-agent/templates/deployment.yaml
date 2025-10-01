@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.agent.replicas }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -18,6 +18,13 @@ spec:
       - name: {{ .Release.Name }}
         imagePullPolicy: Always
         image: "docker.io/insightfinderinc/response-time-agent:{{.Chart.AppVersion}}"
+        resources:
+          requests:
+            cpu: "{{.Values.agent.resources.requests.cpu}}"
+            memory: "{{.Values.agent.resources.requests.memory}}"
+          limits:
+            cpu: "{{.Values.agent.resources.limits.cpu}}"
+            memory: "{{.Values.agent.resources.limits.memory}}"
         volumeMounts:
           - name: {{ .Release.Name }}-config
             mountPath: /app/config.ini

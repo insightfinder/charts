@@ -6,6 +6,7 @@ insightfinder:
   project_name: 123
 
 agent:
+  replicas: 1
   url: 123
   login_user: 123
   login_pass: 123
@@ -14,3 +15,10 @@ agent:
     - Metric Line Chart: /metric/linecharts
     - Root Cause Analysis: /global/systemrootcause
     - Project Settings: /settings/projects
+  resources:
+    requests:
+      cpu: 500m
+      memory: 250Mi
+    limits:
+      cpu: 1
+      memory: 512Mi
