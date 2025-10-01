@@ -493,4 +493,15 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-17T16:38:02.610564281Z"
+  response-time-agent:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-10-01T21:07:21.295761766Z"
+    description: A helm chart for response time agent
+    digest: 0b40d3cc6428a7a3353cf06c23f26cfd9f852cc8f735bd1b278694fb36a9ee1c
+    name: response-time-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-10-01T21:07:21.295815166Z"
