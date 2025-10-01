@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        imagePullPolicy: Always
+        image: "docker.io/insightfinderinc/response-time-agent:{{.Chart.AppVersion}}"
+        volumeMounts:
+          - name: {{ .Release.Name }}-config
+            mountPath: /app/config.ini
+            subPath: config.ini
+            readOnly: true
+      volumes:
+        - name: {{ .Release.Name }}-config
+          configMap:
+            name: {{ .Release.Name }}-config
+            items:
+              - key: config.ini
+                path: config.ini
