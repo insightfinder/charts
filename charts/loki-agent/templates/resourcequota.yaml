@@ -1,0 +1,11 @@
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ printf "%s-resourcequota" (include "if-loki-agent.fullname" .) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-loki-agent.labels" . | nindent 4 }}
+spec:
+  {{- toYaml $.Values.resourceQuota.spec | nindent 2 }}
+{{- end -}}

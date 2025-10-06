@@ -1,0 +1,126 @@
+# Default values for if-loki-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/loki-agent
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "4"
+        memory: "4Gi"
+      defaultRequest:
+        cpu: "200m"
+        memory: "200Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "12"
+      memory: 12Gi
+      pods: "3"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 200m
+    memory: 200Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Loki Agent Configuration
+config:
+  agent:
+    data_format: "json"
+    timezone: "UTC"
+    log_level: "INFO"
+    filters_include: ""
+    filters_exclude: ""
+
+  loki:
+    base_url: "http://localhost:46339"
+    username: "admin"
+    password: "admin"
+    verify_ssl: false
+    max_concurrent_requests: 10
+    max_retries: 3
+    query_timeout: 60
+    max_entries_per_query: 1000
+    default_instance_name_field: "app"
+    
+    queries:
+      - name: "insightfinder_audit_logs"
+        query: '{namespace="insightfinder",pod=~".*appserver.*"} |= `com.insightfinder.models.AuditLog`'
+        enabled: true
+        labels:
+          source: "insightfinder"
+          type: "audit"
+        component_name_field: "container"
+        container_name_field: "node_name"
+      
+      - name: "application_errors"
+        query: '{namespace="insightfinder"} |~ "ERROR|Exception|FATAL"'
+        enabled: true
+        labels:
+          source: "insightfinder"
+          type: "error"
+        component_name_field: "container"
+        container_name_field: "pod"
+      
+      - name: "kubernetes_events"
+        query: '{namespace=~"kube-.*|default"} |= "Event"'
+        enabled: true
+        labels:
+          source: "kubernetes"
+          type: "event"
+
+  insightfinder:
+    user_name: ""
+    license_key: ""
+    project_name: ""
+    system_name: ""
+    server_url: "https://app.insightfinder.com"
+    if_http_proxy: ""
+    if_https_proxy: ""
+    run_interval_in_seconds: 300
+    chunk_size_kb: 8192
+    http_timeout: 60
+    max_workers: 10
+    
+    # Data Type Configuration
+    is_replay: false
+    sampling_interval: 1
+    sampling_interval_in_seconds: 60
+    metric_buffer_enable: false
+    
+    # Cloud settings
+    cloud_type: ""
+    aws_iam_role: ""
