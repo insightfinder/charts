@@ -120,7 +120,3 @@ config:
     sampling_interval: 1
     sampling_interval_in_seconds: 60
     metric_buffer_enable: false
-    
-    # Cloud settings
-    cloud_type: ""
-    aws_iam_role: ""
