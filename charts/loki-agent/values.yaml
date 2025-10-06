@@ -110,8 +110,8 @@ config:
     username: ""
     license_key: ""
     
-    logs_project_name: "loki-logs"
-    logs_system_name: "loki-system"
+    logs_project_name: ""
+    logs_system_name: ""
     logs_project_type: "LOG"
     
     sampling_interval: 60
