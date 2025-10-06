@@ -66,7 +66,7 @@ config:
     filters_exclude: ""
 
   loki:
-    base_url: "http://localhost:46339"
+    base_url: "http://localhost:8080"
     username: "admin"
     password: "admin"
     verify_ssl: false
@@ -101,22 +101,28 @@ config:
         labels:
           source: "kubernetes"
           type: "event"
+        instance_name_field: "container"
+        component_name_field: "instance"
+        container_name_field: "pod"
 
   insightfinder:
-    user_name: ""
-    license_key: ""
-    project_name: ""
-    system_name: ""
     server_url: "https://app.insightfinder.com"
-    if_http_proxy: ""
-    if_https_proxy: ""
-    run_interval_in_seconds: 300
-    chunk_size_kb: 8192
-    http_timeout: 60
-    max_workers: 10
+    username: ""
+    license_key: ""
     
-    # Data Type Configuration
-    is_replay: false
-    sampling_interval: 1
-    sampling_interval_in_seconds: 60
-    metric_buffer_enable: false
+    logs_project_name: "loki-logs"
+    logs_system_name: "loki-system"
+    logs_project_type: "LOG"
+    
+    sampling_interval: 60
+    cloud_type: "OnPremise"
+    instance_type: "OnPremise"
+    is_container: true
+    
+    http_proxy: ""
+    https_proxy: ""
+    
+    chunk_size: 2097152
+    max_packet_size: 10485760
+    retry_times: 3
+    retry_interval: 5
