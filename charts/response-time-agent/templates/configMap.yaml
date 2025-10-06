@@ -13,6 +13,7 @@ data:
     [agent]
     # IF System to monitor
     url = {{ .Values.agent.url }}
+    genai_url = {{ .Values.agent.genai_url }}
 
     login_user = {{ .Values.agent.login_user }}
     login_pass = {{ .Values.agent.login_pass }}
