@@ -1,0 +1,12 @@
+{{- if $.Values.limitRange.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ printf "%s-limitrange" (include "if-loki-agent.fullname" .) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-loki-agent.labels" . | nindent 4 }}
+spec:
+  limits:
+  {{- toYaml $.Values.limitRange.limits | nindent 2 }}
+{{- end -}}
