@@ -301,6 +301,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-kubernetes-agent-0.0.4/if-kubernetes-agent-0.0.4.tgz
     version: 0.0.4
+  if-loki-agent:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-10-06T18:16:45.021824744Z"
+    description: A Helm chart for Loki Agent of InsightFinder
+    digest: 8a11aceb0cfa86421080fc1c780519e85d6f4c9ef56baf36d8e2165c1e75f95f
+    name: if-loki-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-loki-agent-0.0.1/if-loki-agent-0.0.1.tgz
+    version: 0.0.1
   if-otlpserver:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -504,4 +515,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-01T21:07:21.295815166Z"
+generated: "2025-10-06T18:16:45.021887671Z"
