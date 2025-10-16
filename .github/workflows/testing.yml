@@ -37,11 +37,52 @@ jobs:
           changed=$(ct list-changed --chart-dirs ${{ matrix.charts_dir }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "changed_charts<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$changed" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
             echo "Changed charts in ${{ matrix.charts_dir }}:"
             echo "$changed"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No changed charts in ${{ matrix.charts_dir }}"
+          fi
+
+      - name: Update Bitnami image repositories to InsightFinder
+        if: steps.list-changed.outputs.changed == 'true' && matrix.charts_dir == 'bitnami'
+        run: |
+          # Update bitnami/* image repositories to insightfinderinc/bitnami-* for changed charts only
+          changed_charts="${{ steps.list-changed.outputs.changed_charts }}"
+
+          echo "Processing changed charts..."
+          for chart_path in $changed_charts; do
+            values_file="$chart_path/values.yaml"
+            if [[ -f "$values_file" ]]; then
+              # Check if there are any bitnami/* repositories that need to be updated
+              if grep -q "repository: bitnami/" "$values_file"; then
+                echo "Updating image repositories in $values_file"
+                # Replace any bitnami/<image-name> with insightfinderinc/bitnami-<image-name>
+                sed -i 's|repository: bitnami/\([a-zA-Z0-9_-]*\)|repository: insightfinderinc/bitnami-\1|g' "$values_file"
+                echo "Updated $(grep -c 'repository: insightfinderinc/bitnami-' "$values_file") image repository(ies)"
+              else
+                echo "Skipping $values_file - no bitnami/ repositories found (already updated or none present)"
+              fi
+            fi
+          done
+          echo "Image repositories update process completed"
+
+      - name: Commit image repository changes
+        if: steps.list-changed.outputs.changed == 'true' && matrix.charts_dir == 'bitnami'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add .
+            git commit -m "chore: update bitnami image repositories to insightfinderinc"
+            git push
+            echo "Changes committed and pushed"
           fi
 
       - name: Run chart-testing (lint)
