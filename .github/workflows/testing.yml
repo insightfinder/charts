@@ -85,6 +85,12 @@ jobs:
             echo "Changes committed and pushed"
           fi
 
+      - name: Pull latest changes
+        if: steps.list-changed.outputs.changed == 'true' && matrix.charts_dir == 'bitnami'
+        run: |
+          git pull origin ${{ github.head_ref }}
+          echo "Pulled latest changes to ensure tests run with updated values.yaml"
+
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --validate-maintainers=false --chart-dirs ${{ matrix.charts_dir }} --target-branch ${{ github.event.repository.default_branch }}
