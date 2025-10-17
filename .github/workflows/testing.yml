@@ -70,6 +70,29 @@ jobs:
           done
           echo "Image repositories update process completed"
 
+      - name: Set allowInsecureImages to true
+        if: steps.list-changed.outputs.changed == 'true' && matrix.charts_dir == 'bitnami'
+        run: |
+          # Set allowInsecureImages to true for changed charts
+          changed_charts="${{ steps.list-changed.outputs.changed_charts }}"
+
+          echo "Setting allowInsecureImages to true for changed charts..."
+          for chart_path in $changed_charts; do
+            values_file="$chart_path/values.yaml"
+            if [[ -f "$values_file" ]]; then
+              # Check if allowInsecureImages exists in the file
+              if grep -q "allowInsecureImages:" "$values_file"; then
+                echo "Updating allowInsecureImages in $values_file"
+                # Replace allowInsecureImages: false with allowInsecureImages: true
+                sed -i 's/allowInsecureImages: false/allowInsecureImages: true/g' "$values_file"
+                echo "Updated allowInsecureImages to true"
+              else
+                echo "Skipping $values_file - no allowInsecureImages setting found"
+              fi
+            fi
+          done
+          echo "allowInsecureImages update process completed"
+
       - name: Commit image repository changes
         if: steps.list-changed.outputs.changed == 'true' && matrix.charts_dir == 'bitnami'
         run: |
@@ -79,8 +102,12 @@ jobs:
           if git diff --quiet; then
             echo "No changes to commit"
           else
+            changed_charts="${{ steps.list-changed.outputs.changed_charts }}"
+            # Extract chart names from paths (e.g., bitnami/rabbitmq -> rabbitmq)
+            chart_names=$(echo "$changed_charts" | sed 's|.*/||' | tr '\n' ', ' | sed 's/, $//')
+
             git add .
-            git commit -m "chore: update bitnami image repositories to insightfinderinc"
+            git commit -m "Updated chart: $chart_names"
             git push origin HEAD:${{ github.head_ref }}
             echo "Changes committed and pushed"
           fi
