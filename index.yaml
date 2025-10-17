@@ -506,6 +506,42 @@ entries:
     version: 0.1.0
   rabbitmq:
   - annotations:
+      images: |
+        - name: os-shell
+          image: docker.io/bitnami/os-shell:12-debian-12-r50
+        - name: rabbitmq
+          image: docker.io/bitnami/rabbitmq:4.1.3-debian-12-r1
+      licenses: Apache-2.0
+      tanzuCategory: service
+    apiVersion: v2
+    appVersion: 4.1.3
+    created: "2025-10-17T03:37:41.656418198Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: RabbitMQ is an open source general-purpose message broker that is
+      designed for consistent, highly-available messaging scenarios (both synchronous
+      and asynchronous).
+    digest: 33588c0a906e9e865eea9ef91c330bb5261305ffc889b2b75999c814d7859407
+    home: https://bitnami.com
+    icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/rabbitmq/img/rabbitmq-stack-220x234.png
+    keywords:
+    - rabbitmq
+    - message queue
+    - AMQP
+    maintainers:
+    - name: Broadcom, Inc. All Rights Reserved.
+      url: https://github.com/bitnami/charts
+    name: rabbitmq
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/rabbitmq-16.0.15/rabbitmq-16.0.15.tgz
+    version: 16.0.15
+  - annotations:
       category: Infrastructure
       images: |
         - name: os-shell
@@ -562,4 +598,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-15T16:42:38.745885084Z"
+generated: "2025-10-17T03:37:41.656472859Z"
