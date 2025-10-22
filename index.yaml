@@ -580,6 +580,16 @@ entries:
   response-time-agent:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-10-22T17:23:30.682346572Z"
+    description: A helm chart for response time agent
+    digest: cb5b0d9a3af982349807618b70207f10b974e819e3b0f244548cabf7ef9c7e5b
+    name: response-time-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.2/response-time-agent-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-10-06T18:47:25.725044749Z"
     description: A helm chart for response time agent
     digest: d2586ce2dee50dc1987f645135b1373900ffaed47bc8c67b768682b532c56359
@@ -598,4 +608,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-17T03:37:41.656472859Z"
+generated: "2025-10-22T17:23:30.682421862Z"
