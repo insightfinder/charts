@@ -14,6 +14,8 @@ data:
     # IF System to monitor
     url = {{ .Values.agent.url }}
     genai_url = {{ .Values.agent.genai_url }}
+    genaichat_url = {{ .Values.agent.genaichat_url }}
+    llmjudge_url = {{ .Values.agent.llmjudge_url }}
 
     login_user = {{ .Values.agent.login_user }}
     login_pass = {{ .Values.agent.login_pass }}
