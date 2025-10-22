@@ -9,6 +9,8 @@ agent:
   replicas: 1
   url: 123
   genai_url: ""
+  genaichat_url: ""
+  llmjudge_url: ""
   login_user: 123
   login_pass: 123
   monitor_urls:
