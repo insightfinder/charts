@@ -13,6 +13,13 @@ agent:
   llmjudge_url: ""
   login_user: 123
   login_pass: 123
+  
+  # Incident Summary and Recommendation LLM parameters
+  system_name: ""
+  customer_name: ""
+  root_cause_chain_size: ""
+  root_cause_entry: ""
+  
   monitor_urls:
     - Incident Prediction: /global/systemprediction
     - Metric Line Chart: /metric/linecharts
