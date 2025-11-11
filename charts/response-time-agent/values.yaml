@@ -21,10 +21,10 @@ agent:
   root_cause_entry: ""
   
   monitor_urls:
-    - Incident Prediction: /global/systemprediction
-    - Metric Line Chart: /metric/linecharts
-    - Root Cause Analysis: /global/systemrootcause
-    - Project Settings: /settings/projects
+    - Incident Prediction: /ui/global/systemprediction
+    - Metric Line Chart: /ui/metric/linecharts
+    - Root Cause Analysis: /ui/global/systemrootcause
+    - Project Settings: /ui/settings/projects
   resources:
     requests:
       cpu: 500m
