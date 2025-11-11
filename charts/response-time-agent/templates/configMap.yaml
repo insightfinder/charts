@@ -20,5 +20,11 @@ data:
     login_user = {{ .Values.agent.login_user }}
     login_pass = {{ .Values.agent.login_pass }}
 
+    # Incident Summary and Recommendation LLM parameters
+    system_name = {{ .Values.agent.system_name }}
+    customer_name = {{ .Values.agent.customer_name }}
+    root_cause_chain_size = {{ .Values.agent.root_cause_chain_size }}
+    root_cause_entry = {{ .Values.agent.root_cause_entry }}
+
     # URLs for each of the API endpoints
     monitor_urls = {{ .Values.agent.monitor_urls | toJson }}
