@@ -38,10 +38,10 @@ receiver:
     #   value: "value"
 
   ingress:
-    enabled: false
-    className: ""
+    enabled: true
+    className: "nginx"
     annotations: {}
-    host: ""
+    host: "nbc-receiver-stg.insightfinder.com"
     path: "/"
     pathType: "Prefix"
     tls: []
