@@ -1,20 +1,23 @@
+kafka:
+  broker: "kafka-controller-headless.insightfinder:9092"
+  topic: "data-events"
+  compression: "snappy"
+  retry_max: 3
+  required_acks: -1
+  timeout: 10s
+
 receiver:
   replicaCount: 3
-  
   image:
     repository: insightfinderinc/nbc-data-receiver
     pullPolicy: Always
     tag: "main"
-  
   imagePullSecrets:
     - name: regcred
-  
   podAnnotations: {}
-  
   podSecurityContext: {}
-  
   securityContext: {}
-  
+
   resources:
     limits:
       cpu: "1"
@@ -24,18 +27,11 @@ receiver:
       memory: 256Mi
   
   nodeSelector: {}
-  
   tolerations: []
-  
   affinity: {}
-  
   volumeMounts: []
-  
   volumes: []
-  
   env: []
-    # - name: ENV_VAR_NAME
-    #   value: "value"
 
   ingress:
     enabled: true
@@ -53,15 +49,75 @@ receiver:
       read_timeout: 30s
       write_timeout: 30s
     
-    kafka:
-      broker: "kafka-controller-headless.insightfinder:9092"
-      topic: "data-events"
-      compression: "snappy"
-      retry_max: 3
-      required_acks: -1
-      timeout: 10s
-    
     logging:
       level: "info"
       development: false
       disable_stacktrace: true
+
+processor:
+  replicaCount: 3
+  image:
+    repository: insightfinderinc/nbc-data-receiver
+    pullPolicy: Always
+    tag: "main"
+  imagePullSecrets:
+    - name: regcred
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 256Mi
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  volumeMounts: []
+  volumes: []
+  env: []
+  data_sources:
+    enabled:
+      - "Harmonic"
+    configs:
+      Harmonic:
+
+        # Data source identifier
+        source_name: harmonic
+
+        # Default instance if instance_field cannot be extracted
+        default_instance: "UNKNOWN"
+
+        # Component field mapping (optional)
+        component_field: "alert.asset.title"
+        default_component: "Harmonic-Peacock-SLE-West"
+
+        # Instance identifier field
+        instance_field: "alert.asset.title"
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "alert.core.timestamp"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "test-user_name"
+          license_key: "test-license_key"
+          token: ""
+          project_name: "Harmonic-0812-1"
+          system_name: "NBC System"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 10
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"

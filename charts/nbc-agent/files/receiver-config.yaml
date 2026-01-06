@@ -9,12 +9,12 @@ server:
 
 kafka:
   brokers:
-    - {{ .Values.receiver.config.kafka.broker | quote }}
-  topic: {{ .Values.receiver.config.kafka.topic | quote }}
-  compression: {{ .Values.receiver.config.kafka.compression | quote }}
-  retry_max: {{ .Values.receiver.config.kafka.retry_max }}
-  required_acks: {{ .Values.receiver.config.kafka.required_acks }}
-  timeout: {{ .Values.receiver.config.kafka.timeout }}
+    - {{ .Values.kafka.broker | quote }}
+  topic: {{ .Values.kafka.topic | quote }}
+  compression: {{ .Values.kafka.compression | quote }}
+  retry_max: {{ .Values.kafka.retry_max }}
+  required_acks: {{ .Values.kafka.required_acks }}
+  timeout: {{ .Values.kafka.timeout }}
 
 logging:
   level: {{ .Values.receiver.config.logging.level | quote }}
