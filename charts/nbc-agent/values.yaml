@@ -1,0 +1,57 @@
+receiver:
+  replicaCount: 3
+  
+  image:
+    repository: insightfinderinc/nbc-data-processor
+    pullPolicy: Always
+    tag: ""
+  
+  imagePullSecrets: []
+  
+  podAnnotations: {}
+  
+  podSecurityContext: {}
+  
+  securityContext: {}
+  
+  resources:
+    limits:
+      cpu: 1
+      memory: 512Mi
+    requests:
+      cpu: 1
+      memory: 256Mi
+  
+  nodeSelector: {}
+  
+  tolerations: []
+  
+  affinity: {}
+  
+  volumeMounts: []
+  
+  volumes: []
+  
+  env: []
+    # - name: ENV_VAR_NAME
+    #   value: "value"
+  
+  config:
+    server:
+      host: "0.0.0.0"
+      port: 8080
+      read_timeout: 10s
+      write_timeout: 10s
+    
+    kafka:
+      broker: "kafka-broker-3:9092"
+      topic: "data-events"
+      compression: "snappy"
+      retry_max: 3
+      required_acks: -1
+      timeout: 10s
+    
+    logging:
+      level: "info"
+      development: false
+      disable_stacktrace: true

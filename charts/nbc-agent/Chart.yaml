@@ -1,0 +1,5 @@
+apiVersion: v2
+name: nbc-agent
+description: A Helm chart for InsightFinder / NBC data streaming agent
+type: application
+version: main
