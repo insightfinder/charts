@@ -2,12 +2,12 @@ receiver:
   replicaCount: 3
   
   image:
-    repository: insightfinderinc/nbc-data-processor
+    repository: insightfinderinc/nbc-data-receiver
     pullPolicy: Always
     tag: "main"
   
   imagePullSecrets:
-    - regcred
+    - name: regcred
   
   podAnnotations: {}
   
@@ -17,10 +17,10 @@ receiver:
   
   resources:
     limits:
-      cpu: 1
+      cpu: "1"
       memory: 512Mi
     requests:
-      cpu: 1
+      cpu: "1"
       memory: 256Mi
   
   nodeSelector: {}
@@ -43,7 +43,7 @@ receiver:
       write_timeout: 10s
     
     kafka:
-      broker: "kafka-broker-3:9092"
+      broker: "kafka-controller-headless.insightfinder:9092"
       topic: "data-events"
       compression: "snappy"
       retry_max: 3
