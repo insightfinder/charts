@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nbc-agent.fullname" . }}-processor-datasources
+  labels:
+    {{- include "nbc-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: processor
+data:
+  {{- range $sourceName, $config := .Values.processor.data_sources.configs }}
+  {{ $sourceName }}.yaml: |
+    {{- toYaml $config | nindent 4 }}
+  {{- end }}

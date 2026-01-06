@@ -58,6 +58,11 @@ spec:
             - name: config
               mountPath: /root/config/config.yaml
               subPath: processor-config.yml
+            {{- range $sourceName, $config := .Values.processor.data_sources.configs }}
+            - name: datasources
+              mountPath: /root/config/{{ $sourceName }}.yaml
+              subPath: {{ $sourceName }}.yaml
+            {{- end }}
             {{- with .Values.processor.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -69,6 +74,9 @@ spec:
         - name: config
           configMap:
             name: {{ include "nbc-agent.fullname" . }}-processor-config
+        - name: datasources
+          configMap:
+            name: {{ include "nbc-agent.fullname" . }}-processor-datasources
         {{- with .Values.processor.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
