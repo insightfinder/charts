@@ -12,6 +12,6 @@ spec:
     app.kubernetes.io/component: receiver
   ports:
     - name: http
-      port: {{ .Values.receiver.service.port | default 8080 }}
+      port: 8080
       targetPort: http
       protocol: TCP
