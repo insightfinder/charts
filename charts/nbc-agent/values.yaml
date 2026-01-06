@@ -4,9 +4,10 @@ receiver:
   image:
     repository: insightfinderinc/nbc-data-processor
     pullPolicy: Always
-    tag: ""
+    tag: "main"
   
-  imagePullSecrets: []
+  imagePullSecrets:
+    - regcred
   
   podAnnotations: {}
   
@@ -38,8 +39,6 @@ receiver:
   
   config:
     server:
-      host: "0.0.0.0"
-      port: 8080
       read_timeout: 10s
       write_timeout: 10s
     

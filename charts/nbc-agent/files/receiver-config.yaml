@@ -2,8 +2,8 @@
 # Copy this file to config.yaml and adjust values for your environment
 
 server:
-  host: {{ .Values.receiver.config.server.host | quote }}
-  port: {{ .Values.receiver.config.server.port }}
+  host: 0.0.0.0
+  port: 8080
   read_timeout: {{ .Values.receiver.config.server.read_timeout }}
   write_timeout: {{ .Values.receiver.config.server.write_timeout }}
 
