@@ -36,7 +36,18 @@ receiver:
   env: []
     # - name: ENV_VAR_NAME
     #   value: "value"
-  
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    host: ""
+    path: "/"
+    pathType: "Prefix"
+    tls: []
+    servicePort:
+      name: "http"
+
   config:
     server:
       read_timeout: 30s
