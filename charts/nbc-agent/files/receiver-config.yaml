@@ -25,3 +25,14 @@ logging:
     - "stderr"
   development: {{ .Values.receiver.config.logging.development }}
   disable_stacktrace: {{ .Values.receiver.config.logging.disable_stacktrace }}
+
+{{- if .Values.receiver.config.auth.enabled }}
+auth:
+  enabled: {{ .Values.receiver.config.auth.enabled }}
+  allowed_users:
+{{- range $key, $value := .Values.receiver.config.auth.allowed_users }}
+    {{ $key }}:
+      username: {{ $value.username | quote }}
+      license_key: {{ $value.license_key | quote }}
+{{- end }}
+{{- end }}
