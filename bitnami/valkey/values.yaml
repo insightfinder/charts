@@ -26,7 +26,7 @@ global:
   ##
   security:
     ## @param global.security.allowInsecureImages Allows skipping image verification
-    allowInsecureImages: false
+    allowInsecureImages: true
   valkey:
     password: ""
   ## Compatibility adaptations for Kubernetes platforms
@@ -109,7 +109,7 @@ diagnosticMode:
 ##
 image:
   registry: docker.io
-  repository: bitnami/valkey
+  repository: insightfinderinc/bitnami-valkey
   tag: 8.1.3-debian-12-r3
   digest: ""
   ## Specify a imagePullPolicy
@@ -1172,7 +1172,7 @@ sentinel:
   ##
   image:
     registry: docker.io
-    repository: bitnami/valkey-sentinel
+    repository: insightfinderinc/bitnami-valkey-sentinel
     tag: 8.1.3-debian-12-r3
     digest: ""
     ## Specify a imagePullPolicy
@@ -1659,7 +1659,7 @@ metrics:
   ##
   image:
     registry: docker.io
-    repository: bitnami/redis-exporter
+    repository: insightfinderinc/bitnami-redis-exporter
     tag: 1.76.0-debian-12-r0
     digest: ""
     pullPolicy: IfNotPresent
@@ -2030,7 +2030,7 @@ volumePermissions:
   ##
   image:
     registry: docker.io
-    repository: bitnami/os-shell
+    repository: insightfinderinc/bitnami-os-shell
     tag: 12-debian-12-r51
     digest: ""
     pullPolicy: IfNotPresent
@@ -2086,7 +2086,7 @@ kubectl:
   ##
   image:
     registry: docker.io
-    repository: bitnami/kubectl
+    repository: insightfinderinc/bitnami-kubectl
     tag: 1.33.4-debian-12-r0
     digest: ""
     ## Specify a imagePullPolicy
