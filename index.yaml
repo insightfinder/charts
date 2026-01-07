@@ -504,6 +504,16 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/loki-audit-log-0.1.0/loki-audit-log-0.1.0.tgz
     version: 0.1.0
+  nbc-agent:
+  - apiVersion: v2
+    created: "2026-01-07T04:34:33.592181932Z"
+    description: A Helm chart for InsightFinder / NBC data streaming agent
+    digest: ca08ed467f392ec77b720e931f2077447fcd71a74131aee444207e70b3e95368
+    name: nbc-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/nbc-agent-0.1.0/nbc-agent-0.1.0.tgz
+    version: 0.1.0
   rabbitmq:
   - annotations:
       images: |
@@ -618,4 +628,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-11T19:19:52.889959658Z"
+generated: "2026-01-07T04:34:33.592267081Z"
