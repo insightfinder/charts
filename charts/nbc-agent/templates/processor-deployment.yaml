@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nbc-agent.fullname" . }}-processor
+  labels:
+    {{- include "nbc-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: processor
+spec:
+  replicas: {{ .Values.processor.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nbc-agent.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: processor
+  template:
+    metadata:
+      {{- with .Values.processor.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nbc-agent.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: processor
+    spec:
+      {{- with .Values.processor.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.processor.podSecurityContext | nindent 8 }}
+      containers:
+        - name: processor
+          securityContext:
+            {{- toYaml .Values.processor.securityContext | nindent 12 }}
+          image: "{{ .Values.processor.image.repository }}:{{ .Values.processor.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.processor.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.processor.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/config.yaml
+              subPath: processor-config.yml
+            {{- range $sourceName, $config := .Values.processor.data_sources.configs }}
+            - name: datasources
+              mountPath: /app/config/{{ $sourceName }}.yaml
+              subPath: {{ $sourceName }}.yaml
+            {{- end }}
+            {{- with .Values.processor.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.processor.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "nbc-agent.fullname" . }}-processor-config
+        - name: datasources
+          configMap:
+            name: {{ include "nbc-agent.fullname" . }}-processor-datasources
+        {{- with .Values.processor.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.processor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.processor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.processor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

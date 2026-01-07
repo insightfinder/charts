@@ -1,0 +1,234 @@
+kafka:
+  broker: "kafka-controller-headless.insightfinder:9092"
+  compression: "snappy"
+  retry_max: 3
+  required_acks: -1
+  timeout: 30s
+
+receiver:
+  replicaCount: 3
+  image:
+    repository: insightfinderinc/nbc-data-receiver
+    pullPolicy: Always
+    tag: "main"
+  imagePullSecrets:
+    - name: regcred
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 256Mi
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  volumeMounts: []
+  volumes: []
+  env: []
+
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations: {}
+    host: "nbc-receiver-stg.insightfinder.com"
+    path: "/"
+    pathType: "Prefix"
+    tls: []
+    servicePort:
+      name: "http"
+
+  config:
+    server:
+      read_timeout: 30s
+      write_timeout: 30s
+    
+    logging:
+      level: "info"
+      development: false
+      disable_stacktrace: true
+
+processor:
+  replicaCount: 3
+  image:
+    repository: insightfinderinc/nbc-data-processor
+    pullPolicy: Always
+    tag: "main"
+  imagePullSecrets:
+    - name: regcred
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 256Mi
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  volumeMounts: []
+  volumes: []
+  env: []
+  data_sources:
+    enabled:
+      - "Harmonic"
+      - "Conviva"
+      - "Touchstream"
+      - "Thanos"
+    configs:
+      Conviva:
+        # Data source identifier
+        source_name: Conviva
+
+        # Instance identifier field
+        instance_field: ""
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Conviva"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "timeline.start.timestamp.epoch_ms|alert_time"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "America/New_York"
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          token: ""
+          project_name: "maoyu-test-nbc-agent-conviva"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 10
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Harmonic:
+        # Data source identifier
+        source_name: Harmonic
+
+        # Instance identifier field
+        instance_field: "serviceName|objectName"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Harmonic"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "creationTime"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          token: ""
+          project_name: "maoyu-test-nbc-agent-harmonic"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 10
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Touchstream:
+        # Data source identifier
+        source_name: Touchstream
+
+        # Instance identifier field
+        instance_field: "name|title"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Touchstream"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
+
+        # Timestamp field to extract
+        timestamp_field: "time"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          token: ""
+          project_name: "maoyu-test-nbc-agent-touchstream"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 600
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Thanos:
+        # Data source identifier
+        source_name: Thanos
+
+        # Instance identifier field
+        instance_field: "metric.queue_name|metric.bucket|metric.affected_ci|metric.container|metric.cluster_id"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Thanos"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: "Thanos"
+
+        # Timestamp field to extract
+        timestamp_field: "value.0"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          token: ""
+          project_name: "maoyu-test-nbc-agent-thanos"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 600
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"

@@ -1,0 +1,38 @@
+{{- if .Values.receiver.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "nbc-agent.fullname" . }}-receiver
+  labels:
+    {{- include "nbc-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: receiver
+  {{- with .Values.receiver.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.receiver.ingress.className }}
+  ingressClassName: {{ . | quote }}
+  {{- end }}
+  rules:
+    - {{- if .Values.receiver.ingress.host }}
+      host: {{ .Values.receiver.ingress.host | quote }}
+      {{- end }}
+      http:
+        paths:
+          - path: {{ default "/" .Values.receiver.ingress.path | quote }}
+            pathType: {{ default "Prefix" .Values.receiver.ingress.pathType | quote }}
+            backend:
+              service:
+                name: {{ include "nbc-agent.fullname" . }}-receiver
+                port:
+                  {{- if .Values.receiver.ingress.servicePort.number }}
+                  number: {{ .Values.receiver.ingress.servicePort.number }}
+                  {{- else }}
+                  name: {{ default "http" .Values.receiver.ingress.servicePort.name }}
+                  {{- end }}
+  {{- with .Values.receiver.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

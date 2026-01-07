@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nbc-agent.fullname" . }}-processor-config
+  labels:
+    {{- include "nbc-agent.labels" . | nindent 4 }}
+data:
+  processor-config.yml: |
+{{ tpl (.Files.Get "files/processor-config.yaml") . | indent 4 }}

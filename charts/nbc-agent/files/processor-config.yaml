@@ -1,0 +1,42 @@
+# Application configuration
+app:
+  name: "Data Processor Agent"
+  version: "1.0.0"
+  environment: "development"
+
+kafka:
+  brokers:
+    - {{ .Values.kafka.broker | quote }}
+  topic: {{ include "nbc-agent.fullname" . }}
+  group_id: "data-processor-group"
+  # Consumer settings
+  auto_offset_reset: "latest"  # earliest, latest - use latest to avoid replaying old messages
+  enable_auto_commit: true  # Enable auto-commit to persist offsets
+  session_timeout: 10000  # milliseconds
+  heartbeat_interval: 3000  # milliseconds
+  max_poll_interval: 300000  # 5 minutes
+  max_poll_records: 500
+  # Worker pool settings
+  worker_pool_size: 10
+  batch_size: 1
+  batch_timeout: 5s  # seconds (must include time unit: s, m, h)
+
+logging:
+  level: {{ .Values.receiver.config.logging.level | quote }}
+  encoding: "json"
+  output_paths:
+    - "stdout"
+  error_output_paths:
+    - "stderr"
+  development: {{ .Values.receiver.config.logging.development }}
+  disable_stacktrace: {{ .Values.receiver.config.logging.disable_stacktrace }}
+
+# Data source configurations directory
+data_sources:
+  config_dir: "./config"
+  # List of enabled data sources
+  enabled:
+  {{- range .Values.processor.data_sources.enabled }}
+    - {{ . | quote }}
+  {{- end }}
+  
