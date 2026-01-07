@@ -10,7 +10,7 @@ server:
 kafka:
   brokers:
     - {{ .Values.kafka.broker | quote }}
-  topic: {{ .Values.kafka.topic | quote }}
+  topic: {{ include "nbc-agent.fullname" . }}
   compression: {{ .Values.kafka.compression | quote }}
   retry_max: {{ .Values.kafka.retry_max }}
   required_acks: {{ .Values.kafka.required_acks }}

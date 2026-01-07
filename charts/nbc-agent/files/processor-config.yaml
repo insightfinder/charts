@@ -7,7 +7,7 @@ app:
 kafka:
   brokers:
     - {{ .Values.kafka.broker | quote }}
-  topic: {{ .Values.kafka.topic | quote }}
+  topic: {{ include "nbc-agent.fullname" . }}
   group_id: "data-processor-group"
   # Consumer settings
   auto_offset_reset: "latest"  # earliest, latest - use latest to avoid replaying old messages

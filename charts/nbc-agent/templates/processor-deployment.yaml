@@ -37,30 +37,15 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 30
-            timeoutSeconds: 3
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 3
           resources:
             {{- toYaml .Values.processor.resources | nindent 12 }}
           volumeMounts:
             - name: config
-              mountPath: /root/config/config.yaml
+              mountPath: /app/config/config.yaml
               subPath: processor-config.yml
             {{- range $sourceName, $config := .Values.processor.data_sources.configs }}
             - name: datasources
-              mountPath: /root/config/{{ $sourceName }}.yaml
+              mountPath: /app/config/{{ $sourceName }}.yaml
               subPath: {{ $sourceName }}.yaml
             {{- end }}
             {{- with .Values.processor.volumeMounts }}

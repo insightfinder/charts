@@ -1,6 +1,5 @@
 kafka:
   broker: "kafka-controller-headless.insightfinder:9092"
-  topic: "data-events"
   compression: "snappy"
   retry_max: 3
   required_acks: -1
@@ -83,6 +82,9 @@ processor:
   data_sources:
     enabled:
       - "Harmonic"
+      - "Conviva"
+      - "Touchstream"
+      - "Thanos"
     configs:
       Conviva:
         # Data source identifier
@@ -106,7 +108,7 @@ processor:
         # InsightFinder configuration
         insightfinder:
           user_name: "maoyuwang"
-          license_key: ""
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
           token: ""
           project_name: "maoyu-test-nbc-agent-conviva"
           system_name: "maoyu-test-nbc-agent"
@@ -143,7 +145,7 @@ processor:
         # InsightFinder configuration
         insightfinder:
           user_name: "maoyuwang"
-          license_key: ""
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
           token: ""
           project_name: "maoyu-test-nbc-agent-harmonic"
           system_name: "maoyu-test-nbc-agent"
@@ -180,7 +182,7 @@ processor:
         # InsightFinder configuration
         insightfinder:
           user_name: "maoyuwang"
-          license_key: ""
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
           token: ""
           project_name: "maoyu-test-nbc-agent-touchstream"
           system_name: "maoyu-test-nbc-agent"
@@ -217,7 +219,7 @@ processor:
         # InsightFinder configuration
         insightfinder:
           user_name: "maoyuwang"
-          license_key: ""
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
           token: ""
           project_name: "maoyu-test-nbc-agent-thanos"
           system_name: "maoyu-test-nbc-agent"
