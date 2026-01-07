@@ -57,7 +57,7 @@ receiver:
 processor:
   replicaCount: 3
   image:
-    repository: insightfinderinc/nbc-data-receiver
+    repository: insightfinderinc/nbc-data-processor
     pullPolicy: Always
     tag: "main"
   imagePullSecrets:
