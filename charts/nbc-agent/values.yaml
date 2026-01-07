@@ -53,6 +53,13 @@ receiver:
       development: false
       disable_stacktrace: true
 
+    auth:
+      enabled: true
+      allowed_users:
+        nbc_stg_user:
+          username: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+
 processor:
   replicaCount: 3
   image:
