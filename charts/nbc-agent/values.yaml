@@ -84,37 +84,146 @@ processor:
     enabled:
       - "Harmonic"
     configs:
-      Harmonic:
-
+      Conviva:
         # Data source identifier
-        source_name: harmonic
-
-        # Default instance if instance_field cannot be extracted
-        default_instance: "UNKNOWN"
-
-        # Component field mapping (optional)
-        component_field: "alert.asset.title"
-        default_component: "Harmonic-Peacock-SLE-West"
+        source_name: Conviva
 
         # Instance identifier field
-        instance_field: "alert.asset.title"
+        instance_field: ""
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Conviva"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
 
         # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
-        timestamp_field: "alert.core.timestamp"
+        timestamp_field: "timeline.start.timestamp.epoch_ms|alert_time"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "America/New_York"
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: ""
+          token: ""
+          project_name: "maoyu-test-nbc-agent-conviva"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 10
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Harmonic:
+        # Data source identifier
+        source_name: Harmonic
+
+        # Instance identifier field
+        instance_field: "serviceName|objectName"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Harmonic"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "creationTime"
 
         # Optional timezone of the timestamp (if TZ naive)
         timestamp_timezone: "UTC"
 
+
         # InsightFinder configuration
         insightfinder:
-          user_name: "test-user_name"
-          license_key: "test-license_key"
+          user_name: "maoyuwang"
+          license_key: ""
           token: ""
-          project_name: "Harmonic-0812-1"
-          system_name: "NBC System"
+          project_name: "maoyu-test-nbc-agent-harmonic"
+          system_name: "maoyu-test-nbc-agent"
           project_type: "log"
           containerize: false
           sampling_interval: 10
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Touchstream:
+        # Data source identifier
+        source_name: Touchstream
+
+        # Instance identifier field
+        instance_field: "name|title"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Touchstream"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: ""
+
+        # Timestamp field to extract
+        timestamp_field: "time"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: ""
+          token: ""
+          project_name: "maoyu-test-nbc-agent-touchstream"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 600
+          run_interval: 10
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
+      Thanos:
+        # Data source identifier
+        source_name: Thanos
+
+        # Instance identifier field
+        instance_field: "metric.queue_name|metric.bucket|metric.affected_ci|metric.container|metric.cluster_id"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "Thanos"
+
+        # Component field mapping (optional)
+        component_field: ""
+        default_component: "Thanos"
+
+        # Timestamp field to extract
+        timestamp_field: "value.0"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: ""
+          token: ""
+          project_name: "maoyu-test-nbc-agent-thanos"
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 600
           run_interval: 10
           chunk_size_kb: 2048
           if_url: "https://stg.insightfinder.com"
