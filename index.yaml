@@ -506,6 +506,15 @@ entries:
     version: 0.1.0
   nbc-agent:
   - apiVersion: v2
+    created: "2026-01-07T23:55:30.378052824Z"
+    description: A Helm chart for InsightFinder / NBC data streaming agent
+    digest: 870e93f185cbcc9c4fdee5e57450d2f15154af3b2e16760120124484b7991b0c
+    name: nbc-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/nbc-agent-0.1.1/nbc-agent-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     created: "2026-01-07T04:34:33.592181932Z"
     description: A Helm chart for InsightFinder / NBC data streaming agent
     digest: ca08ed467f392ec77b720e931f2077447fcd71a74131aee444207e70b3e95368
@@ -628,4 +637,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-07T04:34:33.592267081Z"
+generated: "2026-01-07T23:55:30.378113838Z"
