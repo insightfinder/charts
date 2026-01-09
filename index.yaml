@@ -408,6 +408,48 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/ifcron-0.1.0/ifcron-0.1.0.tgz
     version: 0.1.0
+  kafka:
+  - annotations:
+      images: |
+        - name: jmx-exporter
+          image: docker.io/bitnami/jmx-exporter:1.4.0-debian-12-r0
+        - name: kafka
+          image: docker.io/bitnami/kafka:4.0.0-debian-12-r10
+        - name: kubectl
+          image: docker.io/bitnami/kubectl:1.33.4-debian-12-r0
+        - name: os-shell
+          image: docker.io/bitnami/os-shell:12-debian-12-r51
+      licenses: Apache-2.0
+      tanzuCategory: service
+    apiVersion: v2
+    appVersion: 4.0.0
+    created: "2026-01-09T16:17:20.260293227Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: Apache Kafka is a distributed streaming platform designed to build
+      real-time pipelines and can be used as a message broker or as a replacement
+      for a log aggregation solution for big data applications.
+    digest: c09241ee4689626c12696f6983c4c45bd047fe6d97763d1549dbb2e9eaabe63f
+    home: https://bitnami.com
+    icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/kafka/img/kafka-stack-220x234.png
+    keywords:
+    - kafka
+    - streaming
+    - producer
+    - consumer
+    maintainers:
+    - name: Broadcom, Inc. All Rights Reserved.
+      url: https://github.com/bitnami/charts
+    name: kafka
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/kafka
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kafka-32.4.4/kafka-32.4.4.tgz
+    version: 32.4.4
   kafkametriccollectoragent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -720,4 +762,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-01-09T16:17:11.861701772Z"
+generated: "2026-01-09T16:17:20.260347509Z"
