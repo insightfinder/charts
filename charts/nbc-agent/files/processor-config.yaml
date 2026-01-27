@@ -39,4 +39,11 @@ data_sources:
   {{- range .Values.processor.data_sources.enabled }}
     - {{ . | quote }}
   {{- end }}
+
+# Metrics reporting configuration
+metrics:
+  enabled: {{ .Values.processor.metrics.enabled }}
+  data_receiver_url: {{ .Values.processor.metrics.data_receiver_url | quote }}
+  reporting_api_key: {{ .Values.processor.metrics.reporting_api_key | quote }}
+  report_interval: {{ .Values.processor.metrics.report_interval }}
   

@@ -29,6 +29,7 @@ logging:
 {{- if .Values.receiver.config.auth.enabled }}
 auth:
   enabled: {{ .Values.receiver.config.auth.enabled }}
+  inter_agent_api_key: {{ .Values.receiver.config.auth.inter_agent_api_key | quote }}
   allowed_users:
 {{- range $key, $value := .Values.receiver.config.auth.allowed_users }}
     {{ $key }}:
