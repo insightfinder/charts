@@ -8,7 +8,7 @@ kafka:
 # Redis configuration for distributed metrics
 redis:
   enabled: true
-  addr: "redis-cluster.insightfinder.svc.cluster.local:6379"
+  addr: "valkey-primary:6379"
   password: ""
   db: 0
   prefix: "nbcredisdev"  # Environment prefix (nbcredisdev, nbcredisstage, nbcredisprod) - prevents key collisions
@@ -63,9 +63,6 @@ receiver:
 
     auth:
       enabled: true
-      # API key for inter-agent communication (data-processor -> data-receiver)
-      # This should match the reporting_api_key in processor.metrics
-      inter_agent_api_key: "receiver-processor-shared-api-key"
       allowed_users:
         nbc_stg_user:
           username: "maoyuwang"
