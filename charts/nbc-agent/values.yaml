@@ -5,6 +5,14 @@ kafka:
   required_acks: -1
   timeout: 30s
 
+# Redis configuration for distributed metrics
+redis:
+  enabled: true
+  addr: "redis-cluster.insightfinder.svc.cluster.local:6379"
+  password: ""
+  db: 0
+  prefix: "nbcredisdev"  # Environment prefix (nbcredisdev, nbcredisstage, nbcredisprod) - prevents key collisions
+
 receiver:
   replicaCount: 3
   image:
@@ -89,14 +97,6 @@ processor:
   volumeMounts: []
   volumes: []
   env: []
-  
-  # Metrics reporting configuration
-  metrics:
-    enabled: true
-    data_receiver_url: "http://nbc-agent-dev-receiver:8080"
-    # This API key should match inter_agent_api_key in receiver.config.auth
-    reporting_api_key: "receiver-processor-shared-api-key"
-    report_interval: 60  # Report metrics every 60 seconds
   
   data_sources:
     enabled:
