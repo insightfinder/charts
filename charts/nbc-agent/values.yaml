@@ -5,6 +5,14 @@ kafka:
   required_acks: -1
   timeout: 30s
 
+# Redis configuration for distributed metrics
+redis:
+  enabled: true
+  addr: "valkey-primary:6379"
+  password: ""
+  db: 0
+  prefix: "nbcredisdev"  # Environment prefix (nbcredisdev, nbcredisstage, nbcredisprod) - prevents key collisions
+
 receiver:
   replicaCount: 3
   image:
@@ -86,6 +94,7 @@ processor:
   volumeMounts: []
   volumes: []
   env: []
+  
   data_sources:
     enabled:
       - "Harmonic"
@@ -93,21 +102,56 @@ processor:
       - "Touchstream"
       - "Thanos"
     configs:
+      default:
+        # Data source identifier (will be dynamically set from the payload's source field)
+        source_name: "DEFAULT"
+
+        # Instance identifier field
+        instance_field: "alert.core.monitored_item"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "UNKNOWN"
+
+        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
+        default_component: "UNKNOWN"
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "alert.metadata.received_at"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          token: ""
+          project_name: "default-project"  # Will be dynamically set to the source field from payload
+          system_name: "maoyu-test-nbc-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 900
+          run_interval: 900
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
+
       Conviva:
         # Data source identifier
         source_name: Conviva
 
         # Instance identifier field
-        instance_field: ""
+        instance_field: "alert.core.monitored_item"
         # Default instance if instance_field cannot be extracted
         default_instance: "Conviva"
 
         # Component field mapping (optional)
-        component_field: ""
+        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
         default_component: ""
 
         # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
-        timestamp_field: "timeline.start.timestamp.epoch_ms|alert_time"
+        timestamp_field: "alert.metadata.received_at"
 
         # Optional timezone of the timestamp (if TZ naive)
         timestamp_timezone: "America/New_York"
@@ -134,16 +178,16 @@ processor:
         source_name: Harmonic
 
         # Instance identifier field
-        instance_field: "serviceName|objectName"
+        instance_field: "alert.core.monitored_item"
         # Default instance if instance_field cannot be extracted
         default_instance: "Harmonic"
 
         # Component field mapping (optional)
-        component_field: ""
+        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
         default_component: ""
 
         # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
-        timestamp_field: "creationTime"
+        timestamp_field: "alert.metadata.received_at"
 
         # Optional timezone of the timestamp (if TZ naive)
         timestamp_timezone: "UTC"
@@ -171,16 +215,16 @@ processor:
         source_name: Touchstream
 
         # Instance identifier field
-        instance_field: "name|title"
+        instance_field: "alert.core.monitored_item"
         # Default instance if instance_field cannot be extracted
         default_instance: "Touchstream"
 
         # Component field mapping (optional)
-        component_field: ""
+        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
         default_component: ""
 
         # Timestamp field to extract
-        timestamp_field: "time"
+        timestamp_field: "alert.metadata.received_at"
 
         # Optional timezone of the timestamp (if TZ naive)
         timestamp_timezone: "UTC"
@@ -208,16 +252,16 @@ processor:
         source_name: Thanos
 
         # Instance identifier field
-        instance_field: "metric.queue_name|metric.bucket|metric.affected_ci|metric.container|metric.cluster_id"
+        instance_field: "alert.core.monitored_item"
         # Default instance if instance_field cannot be extracted
         default_instance: "Thanos"
 
         # Component field mapping (optional)
-        component_field: ""
+        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
         default_component: "Thanos"
 
         # Timestamp field to extract
-        timestamp_field: "value.0"
+        timestamp_field: "alert.metadata.received_at"
 
         # Optional timezone of the timestamp (if TZ naive)
         timestamp_timezone: "UTC"

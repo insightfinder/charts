@@ -36,3 +36,11 @@ auth:
       license_key: {{ $value.license_key | quote }}
 {{- end }}
 {{- end }}
+
+# Redis configuration for distributed metrics
+redis:
+  enabled: {{ .Values.redis.enabled }}
+  addr: {{ .Values.redis.addr | quote }}
+  password: {{ .Values.redis.password | quote }}
+  db: {{ .Values.redis.db }}
+  prefix: {{ .Values.redis.prefix | quote }}
