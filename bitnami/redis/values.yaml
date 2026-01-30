@@ -27,7 +27,7 @@ global:
   ##
   security:
     ## @param global.security.allowInsecureImages Allows skipping image verification
-    allowInsecureImages: false
+    allowInsecureImages: true
   redis:
     password: ""
   ## Compatibility adaptations for Kubernetes platforms
@@ -118,7 +118,7 @@ diagnosticMode:
 ##
 image:
   registry: registry-1.docker.io
-  repository: bitnami/redis
+  repository: insightfinderinc/bitnami-redis
   tag: latest
   digest: ""
   ## Specify a imagePullPolicy
@@ -1207,7 +1207,7 @@ sentinel:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnami/redis-sentinel
+    repository: insightfinderinc/bitnami-redis-sentinel
     tag: latest
     digest: ""
     ## Specify a imagePullPolicy
@@ -1810,7 +1810,7 @@ metrics:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnami/redis-exporter
+    repository: insightfinderinc/bitnami-redis-exporter
     tag: latest
     digest: ""
     pullPolicy: IfNotPresent
@@ -2194,7 +2194,7 @@ volumePermissions:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnami/os-shell
+    repository: insightfinderinc/bitnami-os-shell
     tag: latest
     digest: ""
     pullPolicy: IfNotPresent
@@ -2262,7 +2262,7 @@ kubectl:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnami/kubectl
+    repository: insightfinderinc/bitnami-kubectl
     tag: latest
     digest: ""
     ## Specify a imagePullPolicy
@@ -2337,7 +2337,7 @@ sysctl:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnami/os-shell
+    repository: insightfinderinc/bitnami-os-shell
     tag: latest
     digest: ""
     pullPolicy: IfNotPresent
