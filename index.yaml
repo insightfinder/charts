@@ -548,6 +548,15 @@ entries:
     version: 0.1.0
   nbc-agent:
   - apiVersion: v2
+    created: "2026-02-09T18:38:14.280622483Z"
+    description: A Helm chart for InsightFinder / NBC data streaming agent
+    digest: 76c5f69c96ffbef080c7d8180de77ce094b24d63f2998327f58713ea8858e425
+    name: nbc-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/nbc-agent-0.1.3/nbc-agent-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     created: "2026-01-30T17:31:33.986427185Z"
     description: A Helm chart for InsightFinder / NBC data streaming agent
     digest: 1d5c6131a4a49e730568e1a2e2359bf2e535c025fe2b44a97a2ffda88ec9a8f0
@@ -771,4 +780,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-01-30T17:31:33.986498377Z"
+generated: "2026-02-09T18:38:14.280699387Z"
