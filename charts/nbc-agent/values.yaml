@@ -13,6 +13,14 @@ redis:
   db: 0
   prefix: "nbcredisdev"  # Environment prefix (nbcredisdev, nbcredisstage, nbcredisprod) - prevents key collisions
 
+servicenow:
+  enabled: false
+  url: "https://instance.service-now.com"
+  username: "your_username"
+  password: "your_password"
+  client_id: "your_client_id"
+  client_secret: "your_client_secret"
+
 receiver:
   replicaCount: 3
   image:
@@ -69,7 +77,7 @@ receiver:
           license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
 
 processor:
-  replicaCount: 3
+  replicaCount: 1
   image:
     repository: insightfinderinc/nbc-data-processor
     pullPolicy: Always
@@ -111,7 +119,7 @@ processor:
         # Default instance if instance_field cannot be extracted
         default_instance: "UNKNOWN"
 
-        component_field: "DATASOURCENAME + alert.additional_fields.product + alert.core.proposition + alert.asset.stream_type"
+        component_field: "alert.core.configuration_item"
         default_component: "UNKNOWN"
 
         # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
