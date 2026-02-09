@@ -47,4 +47,11 @@ redis:
   password: {{ .Values.redis.password | quote }}
   db: {{ .Values.redis.db }}
   prefix: {{ .Values.redis.prefix | quote }}
-  
+
+servicenow:
+  enabled: {{ .Values.servicenow.enabled | default false }}
+  url: {{ .Values.servicenow.url | quote }}
+  username: {{ .Values.servicenow.username | quote }}
+  password: {{ .Values.servicenow.password | quote }}
+  client_id: {{ .Values.servicenow.client_id | quote }}
+  client_secret: {{ .Values.servicenow.client_secret | quote }}
