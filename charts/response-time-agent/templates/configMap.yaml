@@ -20,6 +20,8 @@ data:
     login_user = {{ .Values.agent.login_user }}
     login_pass = {{ .Values.agent.login_pass }}
 
+    sleep_interval = {{ .Values.agent.sleep_interval }}
+
     # Incident Summary and Recommendation LLM parameters
     system_name = {{ .Values.agent.system_name }}
     customer_name = {{ .Values.agent.customer_name }}

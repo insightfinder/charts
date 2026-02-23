@@ -13,6 +13,7 @@ agent:
   llmjudge_url: ""
   login_user: 123
   login_pass: 123
+  sleep_interval: 120
   
   # Incident Summary and Recommendation LLM parameters
   system_name: ""
