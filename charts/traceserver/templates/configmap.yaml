@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "traceserver.fullname" . }}-config
+  labels:
+    {{- include "traceserver.labels" . | nindent 4 }}
+data:
+  application.yml: |
+    grpc:
+      port: {{ .Values.grpc.port }}
+      maxInboundMessageSizeInKB: {{ .Values.grpc.maxInboundMessageSizeInKB }}
+
+    insightFinder:
+      serverUrl: {{ .Values.insightfinder.serverUrl }}
+      serverUri: {{ .Values.insightfinder.serverUri }}
+      checkAndCreateUri: {{ .Values.insightfinder.checkAndCreateUri }}
+      promptUri: {{ .Values.insightfinder.promptUri }}
+      promptProjectName: {{ .Values.insightfinder.promptProjectName | quote }}
+      promptSystemName: {{ .Values.insightfinder.promptSystemName | quote }}
+      connectTimeout: {{ .Values.insightfinder.connectTimeout }}
+      readTimeout: {{ .Values.insightfinder.readTimeout }}
+      writeTimeout: {{ .Values.insightfinder.writeTimeout }}
+
+    jaeger:
+      serverName: {{ .Values.jaeger.serverName }}
+      tlsEnabled: {{ .Values.jaeger.tlsEnabled }}
+      grpcPort: {{ .Values.jaeger.grpcPort }}
+      uiPort: {{ .Values.jaeger.uiPort }}
+      connectTimeout: {{ .Values.jaeger.connectTimeout }}
+      readTimeout: {{ .Values.jaeger.readTimeout }}
+      writeTimeout: {{ .Values.jaeger.writeTimeout }}
+
+    app:
+      traceWorkerNum: {{ .Values.app.traceWorkerNum }}
+      traceDelayInMillis: {{ .Values.app.traceDelayInMillis }}
+      enableTraceLog: {{ .Values.app.enableTraceLog }}
+      enablePromptLog: {{ .Values.app.enablePromptLog }}
+      tls:
+        enabled: {{ .Values.app.tls.enabled }}
+        certificateFile: {{ .Values.app.tls.certificateFile | quote }}
+        privateKeyFile: {{ .Values.app.tls.privateKeyFile | quote }}
+
+    {{- with .Values.data }}
+    data:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
