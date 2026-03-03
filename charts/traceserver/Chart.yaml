@@ -1,0 +1,5 @@
+apiVersion: v2
+name: traceserver
+description: Helm chart for InsightFinder Trace Server
+type: application
+version: 0.1.0

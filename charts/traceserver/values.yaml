@@ -1,0 +1,174 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/traceserver
+  pullPolicy: IfNotPresent
+  tag: "test"
+
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 4618
+  portName: grpc
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  tcpSocket:
+    port: grpc
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+readinessProbe:
+  tcpSocket:
+    port: grpc
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# -- Expose the service via gateway-api GRPCRoute
+# Requires Gateway API resources and suitable controller installed within the cluster
+# (see: https://gateway-api.sigs.k8s.io/guides/)
+grpcRoute:
+  # GRPCRoute enabled.
+  enabled: true
+  # GRPCRoute annotations.
+  annotations: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+  - name: traefik-gateway
+    namespace: traefik
+  # Hostnames matching the gRPC service.
+  hostnames:
+  - stg-traceserver.insightfinder.com
+
+# Application configuration
+grpc:
+  port: 4618
+  maxInboundMessageSizeInKB: 16384
+
+insightfinder:
+  serverUrl: https://stg.insightfinder.com
+  serverUri: /api/v1/customprojectrawdata
+  checkAndCreateUri: /api/v1/check-and-add-custom-project
+  promptUri: /api/v1/customprojectrawdata
+  promptProjectName: ""
+  promptSystemName: ""
+  connectTimeout: 10
+  readTimeout: 15
+  writeTimeout: 15
+
+jaeger:
+  serverName: 172.31.56.88
+  tlsEnabled: false
+  grpcPort: 4317
+  uiPort: 16686
+  connectTimeout: 10
+  readTimeout: 15
+  writeTimeout: 15
+
+app:
+  traceWorkerNum: 8
+  traceDelayInMillis: 10000
+  enableTraceLog: false
+  enablePromptLog: false
+  tls:
+    enabled: false
+    # Path to full-chain certificate file (PEM)
+    certificateFile: ""
+    # Path to the private key file
+    privateKeyFile: ""
+
+# Data processing configuration
+data:
+  overwriteTraceAndSpanIdByUUID: true
+  overwriteUUIDPath: "tags.chat.id"
+  overwriteTimestamp: true
+  overwriteTimestampPath: "tags.x-timestamp"
+  useCustomTokenizer: true
+  attrMapping:
+    prompt_response: # required field
+      fieldPaths:
+        - "tags.recommendations prompt"
+    prompt_token: # required field
+      fieldPaths:
+        - "tags.insightfinder.entity.prompt_token"
+    response_token:
+      fieldPaths:
+        - "tags.insightfinder.entity.eval_token"
+    error: # required field
+      fieldPaths:
+        - "tags.error_messages"
+    username:
+      fieldPaths:
+        - "tags.chat.username"
+        - "tags.username"
+    session_id:
+      fieldPaths:
+        - "tags.uuid"
+  promptExtraction:
+    processPath: "tags.iftracer.entity.name"
+    processNames:
+      - "RunnableSequence.workflow"
+      - "RunnableWithMessageHistory.workflow"
+      - "chat_message_processing"
+    promptConfig:
+      input_prompt:
+        fieldPath: "tags.iftracer.entity.input"
+        valuePath: "inputs"
+      output_prompt:
+        fieldPath: "tags.iftracer.entity.output"
+        valuePath: "outputs"
+  unsuccessResponseExtraction:
+    processPath: "tags.iftracer.entity.name"
+    processNames:
+      - "generate_answer"
+      - "generate_answer_with_context"
+    config:
+      output_prompt:
+        fieldPath: "iftracer.entity.output"
