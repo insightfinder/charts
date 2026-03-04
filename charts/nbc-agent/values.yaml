@@ -134,6 +134,7 @@ processor:
           license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
           token: ""
           project_name: "default-project"  # Will be dynamically set to the source field from payload
+          project_name_suffix: ""  # Will be appended to source name during dynamic project creation
           system_name: "maoyu-test-nbc-agent"
           project_type: "log"
           containerize: false
