@@ -10,37 +10,27 @@ data:
       port: {{ .Values.grpc.port }}
       maxInboundMessageSizeInKB: {{ .Values.grpc.maxInboundMessageSizeInKB }}
 
+    {{- with .Values.insightFinder }}
     insightFinder:
-      serverUrl: {{ .Values.insightFinder.serverUrl }}
-      serverUri: {{ .Values.insightFinder.serverUri }}
-      checkAndCreateUri: {{ .Values.insightFinder.checkAndCreateUri }}
-      promptUri: {{ .Values.insightFinder.promptUri }}
-      promptProjectName: {{ .Values.insightFinder.promptProjectName | quote }}
-      promptSystemName: {{ .Values.insightFinder.promptSystemName | quote }}
-      connectTimeout: {{ .Values.insightFinder.connectTimeout }}
-      readTimeout: {{ .Values.insightFinder.readTimeout }}
-      writeTimeout: {{ .Values.insightFinder.writeTimeout }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
+    {{- with .Values.jaeger }}
     jaeger:
-      serverName: {{ .Values.jaeger.serverName }}
-      tlsEnabled: {{ .Values.jaeger.tlsEnabled }}
-      grpcPort: {{ .Values.jaeger.grpcPort }}
-      uiPort: {{ .Values.jaeger.uiPort }}
-      connectTimeout: {{ .Values.jaeger.connectTimeout }}
-      readTimeout: {{ .Values.jaeger.readTimeout }}
-      writeTimeout: {{ .Values.jaeger.writeTimeout }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
+    {{- with .Values.app }}
     app:
-      traceWorkerNum: {{ .Values.app.traceWorkerNum }}
-      traceDelayInMillis: {{ .Values.app.traceDelayInMillis }}
-      enableTraceLog: {{ .Values.app.enableTraceLog }}
-      enablePromptLog: {{ .Values.app.enablePromptLog }}
-      tls:
-        enabled: {{ .Values.app.tls.enabled }}
-        certificateFile: {{ .Values.app.tls.certificateFile | quote }}
-        privateKeyFile: {{ .Values.app.tls.privateKeyFile | quote }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
     {{- with .Values.data }}
     data:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+
+    {{- with .Values.sensitiveData }}
+    sensitiveData:
       {{- toYaml . | nindent 6 }}
     {{- end }}
