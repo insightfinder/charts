@@ -7,7 +7,7 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.grpc.port }}
       targetPort: grpc
       protocol: TCP
       name: {{ .Values.service.portName }}
