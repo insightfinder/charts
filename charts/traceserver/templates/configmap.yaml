@@ -7,30 +7,32 @@ metadata:
 data:
   application.yml: |
     grpc:
-      port: {{ .Values.grpc.port }}
-      maxInboundMessageSizeInKB: {{ .Values.grpc.maxInboundMessageSizeInKB }}
+      port: {{ .Values.traceserverConfig.grpc.port }}
+      maxInboundMessageSizeInKB: {{ .Values.traceserverConfig.grpc.maxInboundMessageSizeInKB }}
 
-    {{- with .Values.insightFinder }}
+    {{- with .Values.traceserverConfig.insightFinder }}
     insightFinder:
       {{- toYaml . | nindent 6 }}
     {{- end }}
 
-    {{- with .Values.jaeger }}
+    {{- with .Values.traceserverConfig.jaeger }}
     jaeger:
       {{- toYaml . | nindent 6 }}
     {{- end }}
 
-    {{- with .Values.app }}
+    {{- with .Values.traceserverConfig.app }}
     app:
       {{- toYaml . | nindent 6 }}
     {{- end }}
 
-    {{- with .Values.data }}
+    {{- with .Values.traceserverConfig.data }}
     data:
       {{- toYaml . | nindent 6 }}
     {{- end }}
 
-    {{- with .Values.sensitiveData }}
+    {{- with .Values.traceserverConfig.sensitiveData }}
     sensitiveData:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+  otelcol.yaml: |
+    {{- toYaml .Values.otelcolConfig | nindent 4 }}

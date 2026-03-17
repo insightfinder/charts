@@ -1,0 +1,38 @@
+{{- if .Values.httpRoute.enabled -}}
+{{- $otelcolSvcName := printf "%s-otelcol" (include "traceserver.fullname" .) -}}
+{{- $svcPort := last (splitList ":" .Values.otelcolConfig.receivers.otlp.protocols.http.endpoint) | int -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $otelcolSvcName }}
+  labels:
+    {{- include "traceserver.labels" . | nindent 4 }}
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- with .Values.httpRoute.parentRefs }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.httpRoute.rules }}
+    - {{- with .matches }}
+      matches:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .filters }}
+      filters:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        - name: {{ $otelcolSvcName }}
+          port: {{ $svcPort }}
+          weight: 1
+    {{- end }}
+{{- end }}

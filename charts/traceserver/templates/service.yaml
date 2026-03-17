@@ -7,10 +7,26 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.grpc.port }}
+    - port: {{ .Values.traceserverConfig.grpc.port }}
       targetPort: grpc
       protocol: TCP
-      name: {{ .Values.service.portName }}
+      name: grpc
       appProtocol: grpc
+  selector:
+    {{- include "traceserver.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "traceserver.fullname" . }}-otelcol
+  labels:
+    {{- include "traceserver.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ last (splitList ":" .Values.otelcolConfig.receivers.otlp.protocols.http.endpoint) | int }}
+      targetPort: otelcol-http
+      protocol: TCP
+      name: http
   selector:
     {{- include "traceserver.selectorLabels" . | nindent 4 }}
