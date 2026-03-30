@@ -89,6 +89,7 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-dev296992.service-now.com: "ServiceNow Ticket Creation - dev296992.service-now.com"
             ServiceNowNoteRetrieve-dev296992.service-now.com: "ServiceNow Feedback - dev296992.service-now.com"
+            ServiceNowTicketProbing-dev296992.service-now.com: "ServiceNow Ticket Probe - dev296992.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-dev296992.service-now.com:
               enabled: true
@@ -98,6 +99,11 @@ config:
               enabled: true
               window_size: 15
               default_value: 0
+            ServiceNowTicketProbing-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
       production:
         - instancename: app.insightfinder.com
           insightfinder:
@@ -114,6 +120,7 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-dev296992.service-now.com: "ServiceNow Ticket Creation - dev296992.service-now.com"
             ServiceNowNoteRetrieve-dev296992.service-now.com: "ServiceNow Feedback - dev296992.service-now.com"
+            ServiceNowTicketProbing-dev296992.service-now.com: "ServiceNow Ticket Probe - dev296992.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-dev296992.service-now.com:
               enabled: true
@@ -123,6 +130,11 @@ config:
               enabled: true
               window_size: 15
               default_value: 0
+            ServiceNowTicketProbing-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
@@ -138,6 +150,7 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-prism.service-now.com: "ServiceNow Ticket Creation - prism.service-now.com"
             ServiceNowNoteRetrieve-prism.service-now.com: "ServiceNow Feedback - prism.service-now.com"
+            ServiceNowTicketProbing-prism.service-now.com: "ServiceNow Ticket Probe - prism.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-prism.service-now.com:
               enabled: true
@@ -147,6 +160,11 @@ config:
               enabled: true
               window_size: 15
               default_value: 0
+            ServiceNowTicketProbing-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+        
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
@@ -162,6 +180,7 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-prismuat.service-now.com: "ServiceNow Ticket Creation - prismuat.service-now.com"
             ServiceNowNoteRetrieve-prismuat.service-now.com: "ServiceNow Feedback - prismuat.service-now.com"
+            ServiceNowTicketProbing-prismuat.service-now.com: "ServiceNow Ticket Probe - prismuat.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-prismuat.service-now.com:
               enabled: true
@@ -171,6 +190,11 @@ config:
               enabled: true
               window_size: 15
               default_value: 0
+            ServiceNowTicketProbing-prismuat.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
@@ -186,6 +210,7 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-prism.service-now.com: "ServiceNow Ticket Creation - prism.service-now.com"
             ServiceNowNoteRetrieve-prism.service-now.com: "ServiceNow Feedback - prism.service-now.com"
+            ServiceNowTicketProbing-prism.service-now.com: "ServiceNow Ticket Probe - prism.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-prism.service-now.com:
               enabled: true
@@ -195,6 +220,11 @@ config:
               enabled: true
               window_size: 15
               default_value: 0
+            ServiceNowTicketProbing-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
@@ -210,12 +240,17 @@ config:
           metriclistMap:
             ServiceNowTicketCreateDelay-prismqa.service-now.com: "ServiceNow Ticket Creation - prismqa.service-now.com"
             ServiceNowNoteRetrieve-prismqa.service-now.com: "ServiceNow Feedback - prismqa.service-now.com"
+            ServiceNowTicketProbing-prismqa.service-now.com: "ServiceNow Ticket Probe - prismqa.service-now.com"
           fault_tolerance:
             ServiceNowTicketCreateDelay-prismqa.service-now.com:
               enabled: true
               window_size: 15
               default_value: 0
             ServiceNowNoteRetrieve-prismqa.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-prismqa.service-now.com:
               enabled: true
               window_size: 15
               default_value: 0
