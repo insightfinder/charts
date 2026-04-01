@@ -716,6 +716,16 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.0/response-time-agent-0.1.0.tgz
     version: 0.1.0
+  response-time-receiver-agent:
+  - apiVersion: v2
+    created: "2026-04-01T03:17:52.819312741Z"
+    description: A Helm chart for response-time-receiver-agent
+    digest: 032365f3f9dd7f0b03cc15feb4412784f4e12a56a0c3131edf3f64ca183ecda7
+    name: response-time-receiver-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/response-time-receiver-agent-0.1.0/response-time-receiver-agent-0.1.0.tgz
+    version: 0.1.0
   traceserver:
   - apiVersion: v2
     created: "2026-03-03T03:11:36.293862182Z"
@@ -809,4 +819,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-03-04T20:43:48.93999485Z"
+generated: "2026-04-01T03:17:52.819396407Z"
