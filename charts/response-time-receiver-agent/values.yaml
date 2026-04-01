@@ -1,0 +1,256 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/response-time-receiver-agent
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# Expose the service via Gateway API HTTPRoute
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+  hostnames:
+    - servicenow-receiver.insightfinder.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Application configuration — rendered as configs/config.yaml inside the container
+config:
+  agent:
+    server_port: 8080
+    log_level: "DEBUG"
+
+  sampler:
+    enabled: false
+    sampling_interval: 1200
+    server_url: "http://localhost:8080/api/v1/data"
+
+  environment:
+    send_to_all_environments: false
+    environments:
+      staging:
+        - instancename: stg.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: STG-Response-Time
+            metrics_system_name: STG-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 60
+          metriclistMap:
+            ServiceNowTicketCreateDelay-dev296992.service-now.com: "ServiceNow Ticket Creation - dev296992.service-now.com"
+            ServiceNowNoteRetrieve-dev296992.service-now.com: "ServiceNow Feedback - dev296992.service-now.com"
+            ServiceNowTicketProbing-dev296992.service-now.com: "ServiceNow Ticket Probe - dev296992.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
+      production:
+        - instancename: app.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: Prod-Response-Time
+            metrics_system_name: Prod-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 60
+          metriclistMap:
+            ServiceNowTicketCreateDelay-dev296992.service-now.com: "ServiceNow Ticket Creation - dev296992.service-now.com"
+            ServiceNowNoteRetrieve-dev296992.service-now.com: "ServiceNow Feedback - dev296992.service-now.com"
+            ServiceNowTicketProbing-dev296992.service-now.com: "ServiceNow Ticket Probe - dev296992.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-dev296992.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
+        - instancename: nbc.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: NBC-Response-Time
+            metrics_system_name: NBC-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 60
+          metriclistMap:
+            ServiceNowTicketCreateDelay-prism.service-now.com: "ServiceNow Ticket Creation - prism.service-now.com"
+            ServiceNowNoteRetrieve-prism.service-now.com: "ServiceNow Feedback - prism.service-now.com"
+            ServiceNowTicketProbing-prism.service-now.com: "ServiceNow Ticket Probe - prism.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+        
+        - instancename: nbc.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: NBC-Stage-Response-Time
+            metrics_system_name: NBC-Stage-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 60
+          metriclistMap:
+            ServiceNowTicketCreateDelay-prismuat.service-now.com: "ServiceNow Ticket Creation - prismuat.service-now.com"
+            ServiceNowNoteRetrieve-prismuat.service-now.com: "ServiceNow Feedback - prismuat.service-now.com"
+            ServiceNowTicketProbing-prismuat.service-now.com: "ServiceNow Ticket Probe - prismuat.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-prismuat.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-prismuat.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-prismuat.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
+        - instancename: nbc.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: NBC-UAT-Response-Time
+            metrics_system_name: NBC-UAT-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 900
+          metriclistMap:
+            ServiceNowTicketCreateDelay-prism.service-now.com: "ServiceNow Ticket Creation - prism.service-now.com"
+            ServiceNowNoteRetrieve-prism.service-now.com: "ServiceNow Feedback - prism.service-now.com"
+            ServiceNowTicketProbing-prism.service-now.com: "ServiceNow Ticket Probe - prism.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-prism.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+
+        - instancename: nbc.insightfinder.com
+          insightfinder:
+            server_url: https://prod-monitor.insightfinder.com
+            username: user
+            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            metrics_project_name: NBC-Dev-Response-Time
+            metrics_system_name: NBC-Dev-Response-Time
+            metrics_project_type: Metric
+            cloud_type: OnPremise
+            instance_type: OnPremise
+            is_container: false
+            sampling_interval: 900
+          metriclistMap:
+            ServiceNowTicketCreateDelay-prismqa.service-now.com: "ServiceNow Ticket Creation - prismqa.service-now.com"
+            ServiceNowNoteRetrieve-prismqa.service-now.com: "ServiceNow Feedback - prismqa.service-now.com"
+            ServiceNowTicketProbing-prismqa.service-now.com: "ServiceNow Ticket Probe - prismqa.service-now.com"
+          fault_tolerance:
+            ServiceNowTicketCreateDelay-prismqa.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowNoteRetrieve-prismqa.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0
+            ServiceNowTicketProbing-prismqa.service-now.com:
+              enabled: true
+              window_size: 15
+              default_value: 0

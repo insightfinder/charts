@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "response-time-receiver-agent.fullname" . }}-test"
+  labels:
+    {{- include "response-time-receiver-agent.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: curlimages/curl:latest
+      command:
+        - sh
+        - -c
+        - |
+          BASE_URL="http://{{ include "response-time-receiver-agent.fullname" . }}:{{ .Values.service.port }}"
+          FAILED=0
+
+          echo "=== Test 1: Health Check ==="
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/health")
+          if [ "$STATUS" -eq 200 ]; then
+            echo "PASSED: Health check returned 200"
+          else
+            echo "FAILED: Health check returned $STATUS"
+            FAILED=1
+          fi
+
+          echo "=== Test 2: ServiceNow POST ==="
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/api/v1/data" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "environment": "staging",
+              "timestamp": 1763660093000,
+              "agentType": 0,
+              "metriclist": [
+                {"name": "ServiceNowTicketCreateDelay-dev296992.service-now.com", "value": 150.5},
+                {"name": "ServiceNowNoteRetrieve-dev296992.service-now.com", "value": 200.3}
+              ]
+            }')
+          STATUS=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          if [ "$STATUS" -eq 200 ] && echo "$BODY" | grep -q '"success":true'; then
+            echo "PASSED: ServiceNow request processed successfully"
+          else
+            echo "FAILED: status=$STATUS body=$BODY"
+            FAILED=1
+          fi
+
+          exit $FAILED
