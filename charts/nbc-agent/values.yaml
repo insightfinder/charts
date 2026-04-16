@@ -130,8 +130,8 @@ processor:
 
         # InsightFinder configuration
         insightfinder:
-          user_name: "maoyuwang"
-          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          user_name: ""
+          license_key: ""
           token: ""
           project_name: "default-project"  # Will be dynamically set to the source field from payload
           project_name_suffix: ""  # Will be appended to source name during dynamic project creation
@@ -167,8 +167,8 @@ processor:
 
         # InsightFinder configuration
         insightfinder:
-          user_name: "maoyuwang"
-          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          user_name: ""
+          license_key: ""
           token: ""
           project_name: "maoyu-test-nbc-agent-conviva"
           system_name: "maoyu-test-nbc-agent"
@@ -204,8 +204,8 @@ processor:
 
         # InsightFinder configuration
         insightfinder:
-          user_name: "maoyuwang"
-          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          user_name: ""
+          license_key: ""
           token: ""
           project_name: "maoyu-test-nbc-agent-harmonic"
           system_name: "maoyu-test-nbc-agent"
@@ -241,8 +241,8 @@ processor:
 
         # InsightFinder configuration
         insightfinder:
-          user_name: "maoyuwang"
-          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          user_name: ""
+          license_key: ""
           token: ""
           project_name: "maoyu-test-nbc-agent-touchstream"
           system_name: "maoyu-test-nbc-agent"
@@ -278,8 +278,8 @@ processor:
 
         # InsightFinder configuration
         insightfinder:
-          user_name: "maoyuwang"
-          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+          user_name: ""
+          license_key: ""
           token: ""
           project_name: "maoyu-test-nbc-agent-thanos"
           system_name: "maoyu-test-nbc-agent"

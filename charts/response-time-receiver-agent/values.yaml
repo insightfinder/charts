@@ -77,8 +77,8 @@ config:
         - instancename: stg.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: STG-Response-Time
             metrics_system_name: STG-Response-Time
             metrics_project_type: Metric
@@ -108,8 +108,8 @@ config:
         - instancename: app.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: Prod-Response-Time
             metrics_system_name: Prod-Response-Time
             metrics_project_type: Metric
@@ -138,8 +138,8 @@ config:
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: NBC-Response-Time
             metrics_system_name: NBC-Response-Time
             metrics_project_type: Metric
@@ -168,8 +168,8 @@ config:
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: NBC-Stage-Response-Time
             metrics_system_name: NBC-Stage-Response-Time
             metrics_project_type: Metric
@@ -198,8 +198,8 @@ config:
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: NBC-UAT-Response-Time
             metrics_system_name: NBC-UAT-Response-Time
             metrics_project_type: Metric
@@ -228,8 +228,8 @@ config:
         - instancename: nbc.insightfinder.com
           insightfinder:
             server_url: https://prod-monitor.insightfinder.com
-            username: user
-            license_key: 503d383130814926d130f6ccd7a7743f62cc6258
+            username: ""
+            license_key: ""
             metrics_project_name: NBC-Dev-Response-Time
             metrics_system_name: NBC-Dev-Response-Time
             metrics_project_type: Metric
