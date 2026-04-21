@@ -39,7 +39,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: grpc
-              containerPort: {{ .Values.grpc.port }}
+              containerPort: {{ .Values.traceserverConfig.grpc.port }}
               protocol: TCP
           {{- with .Values.livenessProbe }}
           livenessProbe:
@@ -61,8 +61,25 @@ spec:
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+        - name: otelcol
+          image: "otel/opentelemetry-collector-contrib:latest"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--config=/etc/otelcol/otelcol.yaml"
+          ports:
+            - name: otelcol-http
+              containerPort: {{ last (splitList ":" .Values.otelcolConfig.receivers.otlp.protocols.http.endpoint) | int }}
+              protocol: TCP
+          volumeMounts:
+            - name: otelcol-config
+              mountPath: /etc/otelcol/otelcol.yaml
+              subPath: otelcol.yaml
+              readOnly: true
       volumes:
         - name: config
+          configMap:
+            name: {{ include "traceserver.fullname" . }}-config
+        - name: otelcol-config
           configMap:
             name: {{ include "traceserver.fullname" . }}-config
         {{- with .Values.volumes }}

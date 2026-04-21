@@ -7,40 +7,32 @@ metadata:
 data:
   application.yml: |
     grpc:
-      port: {{ .Values.grpc.port }}
-      maxInboundMessageSizeInKB: {{ .Values.grpc.maxInboundMessageSizeInKB }}
+      port: {{ .Values.traceserverConfig.grpc.port }}
+      maxInboundMessageSizeInKB: {{ .Values.traceserverConfig.grpc.maxInboundMessageSizeInKB }}
 
+    {{- with .Values.traceserverConfig.insightFinder }}
     insightFinder:
-      serverUrl: {{ .Values.insightfinder.serverUrl }}
-      serverUri: {{ .Values.insightfinder.serverUri }}
-      checkAndCreateUri: {{ .Values.insightfinder.checkAndCreateUri }}
-      promptUri: {{ .Values.insightfinder.promptUri }}
-      promptProjectName: {{ .Values.insightfinder.promptProjectName | quote }}
-      promptSystemName: {{ .Values.insightfinder.promptSystemName | quote }}
-      connectTimeout: {{ .Values.insightfinder.connectTimeout }}
-      readTimeout: {{ .Values.insightfinder.readTimeout }}
-      writeTimeout: {{ .Values.insightfinder.writeTimeout }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
+    {{- with .Values.traceserverConfig.jaeger }}
     jaeger:
-      serverName: {{ .Values.jaeger.serverName }}
-      tlsEnabled: {{ .Values.jaeger.tlsEnabled }}
-      grpcPort: {{ .Values.jaeger.grpcPort }}
-      uiPort: {{ .Values.jaeger.uiPort }}
-      connectTimeout: {{ .Values.jaeger.connectTimeout }}
-      readTimeout: {{ .Values.jaeger.readTimeout }}
-      writeTimeout: {{ .Values.jaeger.writeTimeout }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
+    {{- with .Values.traceserverConfig.app }}
     app:
-      traceWorkerNum: {{ .Values.app.traceWorkerNum }}
-      traceDelayInMillis: {{ .Values.app.traceDelayInMillis }}
-      enableTraceLog: {{ .Values.app.enableTraceLog }}
-      enablePromptLog: {{ .Values.app.enablePromptLog }}
-      tls:
-        enabled: {{ .Values.app.tls.enabled }}
-        certificateFile: {{ .Values.app.tls.certificateFile | quote }}
-        privateKeyFile: {{ .Values.app.tls.privateKeyFile | quote }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 
-    {{- with .Values.data }}
+    {{- with .Values.traceserverConfig.data }}
     data:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+
+    {{- with .Values.traceserverConfig.sensitiveData }}
+    sensitiveData:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  otelcol.yaml: |
+    {{- toYaml .Values.otelcolConfig | nindent 4 }}
