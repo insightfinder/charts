@@ -64,6 +64,12 @@ config:
     log_level: "INFO"
     filters_include: ""
     filters_exclude: ""
+    mode: "continuous"
+    start_time: ""
+    end_time: ""
+    download_path: ""
+    replay_path: ""
+    stream_chunk_interval: 0
 
   loki:
     base_url: "http://localhost:8080"
@@ -75,7 +81,8 @@ config:
     query_timeout: 60
     max_entries_per_query: 1000
     default_instance_name_field: "app"
-    
+    headers: {}
+
     queries:
       - name: "insightfinder_audit_logs"
         query: '{namespace="insightfinder",pod=~".*appserver.*"} |= `com.insightfinder.models.AuditLog`'
@@ -85,7 +92,8 @@ config:
           type: "audit"
         component_name_field: "container"
         container_name_field: "node_name"
-      
+        headers: {}
+
       - name: "application_errors"
         query: '{namespace="insightfinder"} |~ "ERROR|Exception|FATAL"'
         enabled: true
@@ -94,7 +102,8 @@ config:
           type: "error"
         component_name_field: "container"
         container_name_field: "pod"
-      
+        headers: {}
+
       - name: "kubernetes_events"
         query: '{namespace=~"kube-.*|default"} |= "Event"'
         enabled: true
@@ -104,6 +113,7 @@ config:
         instance_name_field: "container"
         component_name_field: "instance"
         container_name_field: "pod"
+        headers: {}
 
   insightfinder:
     server_url: "https://app.insightfinder.com"

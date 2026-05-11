@@ -37,7 +37,7 @@ spec:
           - name: "LOKI_AGENT_LOG_LEVEL"
             value: "{{ .Values.config.agent.log_level }}"
           - name: "LOKI_AGENT_RUN_INTERVAL"
-            value: "{{ .Values.config.insightfinder.run_interval_in_seconds }}"
+            value: "{{ .Values.config.insightfinder.sampling_interval }}"
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: true
