@@ -1,0 +1,52 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/nbc-metadata-agent
+  tag: main
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# External PostgreSQL connection
+postgres:
+  host: localhost
+  port: 5432
+  database: mydb
+  user: postgres
+  password: postgres
+
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+  hostnames:
+    - nbc-metadata-agent.insightfinder.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 500Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
