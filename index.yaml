@@ -604,6 +604,15 @@ entries:
     version: 0.1.0
   nbc-metadata-agent:
   - apiVersion: v2
+    created: "2026-05-27T08:36:19.870061571Z"
+    description: NBC Metadata Agent
+    digest: fb9bcf19c5c5df7ece15586b7e1d333581cf8744f2a0cf3005e7e57d2360822a
+    name: nbc-metadata-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/nbc-metadata-agent-0.1.1/nbc-metadata-agent-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     created: "2026-05-26T18:50:15.370741922Z"
     description: NBC Metadata Agent
     digest: 00420112c02a1e8b9153d641cae73c8107cf9e79f0ee8dee48d8b650074e78d7
@@ -839,4 +848,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-05-26T18:50:15.370819166Z"
+generated: "2026-05-27T08:36:19.870141391Z"
