@@ -30,7 +30,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /config/application.yaml
+              mountPath: /app/config/application.yaml
               subPath: application.yaml
           livenessProbe:
             httpGet:
