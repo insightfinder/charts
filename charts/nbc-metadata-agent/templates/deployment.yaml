@@ -28,9 +28,10 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          envFrom:
-            - configMapRef:
-                name: {{ include "nbc-metadata-agent.fullname" . }}
+          volumeMounts:
+            - name: config
+              mountPath: /config/application.yaml
+              subPath: application.yaml
           livenessProbe:
             httpGet:
               path: /health
@@ -63,3 +64,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "nbc-metadata-agent.fullname" . }}
