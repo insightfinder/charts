@@ -1,0 +1,46 @@
+# Production Configuration Example
+# Copy this file to config.yaml and adjust values for your environment
+
+server:
+  host: 0.0.0.0
+  port: 8080
+  read_timeout: {{ .Values.receiver.config.server.read_timeout }}
+  write_timeout: {{ .Values.receiver.config.server.write_timeout }}
+
+kafka:
+  brokers:
+    - {{ .Values.kafka.broker | quote }}
+  topic: {{ include "nbc-distrib-agent.fullname" . }}
+  compression: {{ .Values.kafka.compression | quote }}
+  retry_max: {{ .Values.kafka.retry_max }}
+  required_acks: {{ .Values.kafka.required_acks }}
+  timeout: {{ .Values.kafka.timeout }}
+
+logging:
+  level: {{ .Values.receiver.config.logging.level | quote }}
+  encoding: "json"
+  output_paths:
+    - "stdout"
+  error_output_paths:
+    - "stderr"
+  development: {{ .Values.receiver.config.logging.development }}
+  disable_stacktrace: {{ .Values.receiver.config.logging.disable_stacktrace }}
+
+{{- if .Values.receiver.config.auth.enabled }}
+auth:
+  enabled: {{ .Values.receiver.config.auth.enabled }}
+  allowed_users:
+{{- range $key, $value := .Values.receiver.config.auth.allowed_users }}
+    {{ $key }}:
+      username: {{ $value.username | quote }}
+      license_key: {{ $value.license_key | quote }}
+{{- end }}
+{{- end }}
+
+# Redis configuration for distributed metrics
+redis:
+  enabled: {{ .Values.redis.enabled }}
+  addr: {{ .Values.redis.addr | quote }}
+  password: {{ .Values.redis.password | quote }}
+  db: {{ .Values.redis.db }}
+  prefix: {{ .Values.redis.prefix | quote }}

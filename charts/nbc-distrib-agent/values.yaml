@@ -1,0 +1,135 @@
+kafka:
+  broker: "kafka-controller-headless.insightfinder:9092"
+  compression: "snappy"
+  retry_max: 3
+  required_acks: -1
+  timeout: 30s
+
+# Redis configuration for distributed metrics
+redis:
+  enabled: true
+  addr: "valkey-primary:6379"
+  password: ""
+  db: 0
+  prefix: "nbcdistredisdev"  # Environment prefix (nbcdistredisdev, nbcdistredisstage, nbcdistredisprod) - prevents key collisions
+
+receiver:
+  replicaCount: 3
+  image:
+    repository: insightfinderinc/nbc-distrib-receiver
+    pullPolicy: Always
+    tag: "main"
+  imagePullSecrets:
+    - name: regcred
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 256Mi
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  volumeMounts: []
+  volumes: []
+  env: []
+
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations: {}
+    host: "nbcdist-receiver-stg.insightfinder.com"
+    path: "/"
+    pathType: "Prefix"
+    tls: []
+    servicePort:
+      name: "http"
+
+  config:
+    server:
+      read_timeout: 30s
+      write_timeout: 30s
+    
+    logging:
+      level: "info"
+      development: false
+      disable_stacktrace: true
+
+    auth:
+      enabled: true
+      allowed_users:
+        nbc_stg_user:
+          username: "maoyuwang"
+          license_key: "595bf1a9253e982b0e3951a1d8ba634fdae19cb3"
+
+processor:
+  replicaCount: 1
+  image:
+    repository: insightfinderinc/nbc-distrib-processor
+    pullPolicy: Always
+    tag: "main"
+  imagePullSecrets:
+    - name: regcred
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 256Mi
+  
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  volumeMounts: []
+  volumes: []
+  env: []
+  
+  data_sources:
+    enabled: []
+    configs:
+      default:
+        # Data source identifier (will be dynamically set from the payload's source field)
+        source_name: "DEFAULT"
+
+        # Instance identifier field
+        instance_field: "alert.core.monitored_item"
+        # Default instance if instance_field cannot be extracted
+        default_instance: "UNKNOWN"
+
+        component_field: "alert.core.configuration_item"
+        default_component: "UNKNOWN"
+
+        # Timestamp field to extract (use alert.core.timestamp which contains the actual timestamp)
+        timestamp_field: "alert.metadata.received_at"
+
+        # Optional timezone of the timestamp (if TZ naive)
+        timestamp_timezone: "UTC"
+
+        # InsightFinder configuration
+        insightfinder:
+          user_name: ""
+          license_key: ""
+          token: ""
+          project_name: "default-project"  # Will be dynamically set to the source field from payload
+          project_name_suffix: ""  # Will be appended to source name during dynamic project creation
+          system_name: "maoyu-test-nbc-distrib-agent"
+          project_type: "log"
+          containerize: false
+          sampling_interval: 900
+          run_interval: 900
+          chunk_size_kb: 2048
+          if_url: "https://stg.insightfinder.com"
+          if_http_proxy: ""
+          if_https_proxy: ""
+          collector_type: "logfilereplay"
