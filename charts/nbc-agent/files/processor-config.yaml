@@ -5,8 +5,7 @@ app:
   environment: "development"
 
 kafka:
-  brokers:
-    - {{ .Values.kafka.broker | quote }}
+  brokers: {{ toYaml .Values.kafka.brokers | nindent 4 }}
   topic: {{ include "nbc-agent.fullname" . }}
   group_id: "data-processor-group"
   # Consumer settings

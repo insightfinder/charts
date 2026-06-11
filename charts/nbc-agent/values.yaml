@@ -1,5 +1,6 @@
 kafka:
-  broker: "kafka-controller-headless.insightfinder:9092"
+  brokers:
+    - "kafka-controller-headless.insightfinder:9092"
   compression: "snappy"
   retry_max: 3
   required_acks: -1

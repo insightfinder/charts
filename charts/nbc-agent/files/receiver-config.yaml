@@ -8,8 +8,7 @@ server:
   write_timeout: {{ .Values.receiver.config.server.write_timeout }}
 
 kafka:
-  brokers:
-    - {{ .Values.kafka.broker | quote }}
+  brokers: {{ toYaml .Values.kafka.brokers | nindent 4 }}
   topic: {{ include "nbc-agent.fullname" . }}
   compression: {{ .Values.kafka.compression | quote }}
   retry_max: {{ .Values.kafka.retry_max }}
