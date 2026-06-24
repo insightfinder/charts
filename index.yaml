@@ -460,6 +460,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/kafka-32.4.4/kafka-32.4.4.tgz
     version: 32.4.4
+  kafka-collector-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2026-06-24T21:12:21.376593939Z"
+    description: A Helm chart for KafkaCollectorAgent
+    digest: 47ae45a5f50bd4389f759d11f0c90bd7927153937f10b1e66af4313d3e75ad70
+    name: kafka-collector-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kafka-collector-agent-0.1.0/kafka-collector-agent-0.1.0.tgz
+    version: 0.1.0
   kafkametriccollectoragent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -867,4 +878,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-06-11T02:52:26.245437718Z"
+generated: "2026-06-24T21:12:21.376670274Z"
