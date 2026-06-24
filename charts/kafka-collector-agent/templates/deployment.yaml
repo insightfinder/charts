@@ -17,12 +17,16 @@ spec:
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- if $.Values.appArmor.enabled }}
+        container.apparmor.security.beta.kubernetes.io/{{ .Chart.Name }}: runtime/default
+        {{- end }}
       labels:
         {{- include "kafka-collector-agent.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -31,26 +35,32 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsUser: 10001
+            runAsGroup: 10001
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: config
               mountPath: /app/config.properties
               subPath: config.properties
+              readOnly: true
+            - name: logs
+              mountPath: /app/logs
+            - name: tmp
+              mountPath: /tmp
             {{- if or .Values.ssl.keystoreBase64 .Values.ssl.truststoreBase64 }}
             - name: ssl
               mountPath: /app/ssl
               readOnly: true
             {{- end }}
-      volumes:
-        - name: config
-          configMap:
-            name: {{ include "kafka-collector-agent.fullname" . }}-config
-        {{- if or .Values.ssl.keystoreBase64 .Values.ssl.truststoreBase64 }}
-        - name: ssl
-          secret:
-            secretName: {{ include "kafka-collector-agent.fullname" . }}-ssl
-        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -63,3 +73,16 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "kafka-collector-agent.fullname" . }}-config
+        - name: logs
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        {{- if or .Values.ssl.keystoreBase64 .Values.ssl.truststoreBase64 }}
+        - name: ssl
+          secret:
+            secretName: {{ include "kafka-collector-agent.fullname" . }}-ssl
+        {{- end }}
