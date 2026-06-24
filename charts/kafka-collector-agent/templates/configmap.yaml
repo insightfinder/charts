@@ -108,6 +108,9 @@ data:
     {{- if .logTimestampFormat }}
     insight-finder.logTimestampFormat={{ .logTimestampFormat }}
     {{- end }}
+    {{- if .logTimestampTimezone }}
+    insight-finder.logTimestampTimezone={{ .logTimestampTimezone }}
+    {{- end }}
     {{- if .logTimestampFieldPathList }}
     insight-finder.logTimestampFieldPathList={{ .logTimestampFieldPathList }}
     {{- end }}
@@ -119,5 +122,11 @@ data:
     {{- end }}
     {{- if .logMetadataTopics }}
     insight-finder.logMetadataTopics={{ .logMetadataTopics }}
+    {{- end }}
+    {{- if .logMetadataBufferingTime }}
+    insight-finder.logMetadataBufferingTime={{ .logMetadataBufferingTime }}
+    {{- end }}
+    {{- if .vendor }}
+    insight-finder.vendor={{ .vendor }}
     {{- end }}
     {{- end }}
