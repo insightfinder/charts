@@ -1,0 +1,117 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/kafka-collector-agent
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+podAnnotations: {}
+podLabels: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "4"
+        memory: "4Gi"
+      defaultRequest:
+        cpu: "200m"
+        memory: "512Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "12"
+      memory: 12Gi
+      pods: "3"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# SSL/TLS keystore and truststore files (base64-encoded content).
+# When set, files are mounted into the container at /app/ssl/.
+# Reference them in config below as:
+#   insight-finder.keystoreFile=/app/ssl/client.jks
+#   insight-finder.truststoreFile=/app/ssl/clienttrust.jks
+ssl:
+  keystoreBase64: ""
+  truststoreBase64: ""
+
+# config.properties content passed as key=value pairs.
+# kafka clusters: use kafka1.*, kafka2.* prefixes for multiple clusters.
+# insight-finder.*: InsightFinder connection and data parsing settings.
+config:
+  kafka: {}
+  # kafka1:
+  #   bootstrap.servers: "broker1:9092,broker2:9092"
+  #   security.protocol: "SSL"
+  #   group.id: "visa-consumer-group"
+  #   topic: "visa-metrics-topic"
+  #   concurrency: "3"
+  #   auto.offset.reset: "latest"
+  #   session.timeout.ms: "30000"
+  #   enable.auto.commit: "true"
+  #   max.poll.interval.ms: "300000"
+  #   max.poll.records: "500"
+  #   ssl.keystore.location: "/app/ssl/client.jks"
+  #   ssl.keystore.password: ""
+  #   ssl.truststore.location: "/app/ssl/clienttrust.jks"
+  #   ssl.truststore.password: ""
+
+  insightFinder: {}
+  # userName: ""
+  # serverUrl: "https://app.insightfinder.com"
+  # serverUri: "/api/v1/customprojectrawdata"
+  # checkAndCreateUri: "/api/v1/check-and-add-custom-project"
+  # licenseKey: ""
+  # samplingIntervalInSeconds: "300"
+  # projectKey: "project"
+  # instanceKey: "instance"
+  # timestampKey: "timestamp"
+  # metricKey: "metric"
+  # valueKey: "value"
+  # projectDelimiter: "\\|"
+  # projectList: "{'ProjectA': {'project': 'IFProject1','system': 'IFSystem1'}}"
+  # instanceList: ""
+  # metricRegex: ".*"
+  # dataFormat: "String"
+  # dataFormatRegex: ""
+  # agentType: "Streaming"
+  # keystoreFile: ""
+  # keystorePassword: ""
+  # truststoreFile: ""
+  # truststorePassword: ""
+  # bufferingTime: "5"
+  # logParsingInfo: "false"
+  # logSendingData: "true"
+  # kafkaMetricLogInterval: "3600"
+  # fastRecovery: "true"
+  # logProject: "false"
+  # logTimestampFormat: "MMM d, yyyy @ HH:mm:ss.SSS"
+  # logTimestampTimezone: "UTC"
+  # logTimestampFieldPathList: "aip_time_stamp"
+  # logInstanceFieldPathList: "hostname"
+  # logMetadataBufferingTime: "300"
+  # vendor: "visa"
