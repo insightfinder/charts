@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kafka-collector-agent.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kafka-collector-agent.labels" . | nindent 4 }}
+data:
+  config.properties: |-
+    {{- range $clusterName, $clusterProps := .Values.config.kafka }}
+    # {{ $clusterName }} cluster
+    {{- range $key, $val := $clusterProps }}
+    {{ $clusterName }}.{{ $key }}={{ $val }}
+    {{- end }}
+    {{- end }}
+
+    {{- with .Values.config.insightFinder }}
+    {{- if .userName }}
+    insight-finder.userName={{ .userName }}
+    {{- end }}
+    {{- if .serverUrl }}
+    insight-finder.serverUrl={{ .serverUrl }}
+    {{- end }}
+    {{- if .serverUri }}
+    insight-finder.serverUri={{ .serverUri }}
+    {{- end }}
+    {{- if .checkAndCreateUri }}
+    insight-finder.checkAndCreateUri={{ .checkAndCreateUri }}
+    {{- end }}
+    {{- if .licenseKey }}
+    insight-finder.licenseKey={{ .licenseKey }}
+    {{- end }}
+    {{- if .samplingIntervalInSeconds }}
+    insight-finder.samplingIntervalInSeconds={{ .samplingIntervalInSeconds }}
+    {{- end }}
+    {{- if .projectKey }}
+    insight-finder.projectKey={{ .projectKey }}
+    {{- end }}
+    {{- if .instanceKey }}
+    insight-finder.instanceKey={{ .instanceKey }}
+    {{- end }}
+    {{- if .timestampKey }}
+    insight-finder.timestampKey={{ .timestampKey }}
+    {{- end }}
+    {{- if .metricKey }}
+    insight-finder.metricKey={{ .metricKey }}
+    {{- end }}
+    {{- if .valueKey }}
+    insight-finder.valueKey={{ .valueKey }}
+    {{- end }}
+    {{- if .projectDelimiter }}
+    insight-finder.projectDelimiter={{ .projectDelimiter }}
+    {{- end }}
+    {{- if .projectList }}
+    insight-finder.projectList={{ .projectList }}
+    {{- end }}
+    {{- if .instanceList }}
+    insight-finder.instanceList={{ .instanceList }}
+    {{- end }}
+    {{- if .metricRegex }}
+    insight-finder.metricRegex={{ .metricRegex }}
+    {{- end }}
+    {{- if .dataFormat }}
+    insight-finder.dataFormat={{ .dataFormat }}
+    {{- end }}
+    {{- if .dataFormatRegex }}
+    insight-finder.dataFormatRegex={{ .dataFormatRegex }}
+    {{- end }}
+    {{- if .agentType }}
+    insight-finder.agentType={{ .agentType }}
+    {{- end }}
+    {{- if .keystoreFile }}
+    insight-finder.keystoreFile={{ .keystoreFile }}
+    {{- end }}
+    {{- if .keystorePassword }}
+    insight-finder.keystorePassword={{ .keystorePassword }}
+    {{- end }}
+    {{- if .truststoreFile }}
+    insight-finder.truststoreFile={{ .truststoreFile }}
+    {{- end }}
+    {{- if .truststorePassword }}
+    insight-finder.truststorePassword={{ .truststorePassword }}
+    {{- end }}
+    {{- if .bufferingTime }}
+    insight-finder.bufferingTime={{ .bufferingTime }}
+    {{- end }}
+    {{- if .logParsingInfo }}
+    insight-finder.logParsingInfo={{ .logParsingInfo }}
+    {{- end }}
+    {{- if .logSendingData }}
+    insight-finder.logSendingData={{ .logSendingData }}
+    {{- end }}
+    {{- if .kafkaMetricLogInterval }}
+    insight-finder.kafkaMetricLogInterval={{ .kafkaMetricLogInterval }}
+    {{- end }}
+    {{- if .fastRecovery }}
+    insight-finder.fastRecovery={{ .fastRecovery }}
+    {{- end }}
+    {{- if .logProject }}
+    insight-finder.logProject={{ .logProject }}
+    {{- end }}
+    {{- if .logProjectName }}
+    insight-finder.logProjectName={{ .logProjectName }}
+    {{- end }}
+    {{- if .logSystemName }}
+    insight-finder.logSystemName={{ .logSystemName }}
+    {{- end }}
+    {{- if .logTimestampFormat }}
+    insight-finder.logTimestampFormat={{ .logTimestampFormat }}
+    {{- end }}
+    {{- if .logTimestampFieldPathList }}
+    insight-finder.logTimestampFieldPathList={{ .logTimestampFieldPathList }}
+    {{- end }}
+    {{- if .logInstanceFieldPathList }}
+    insight-finder.logInstanceFieldPathList={{ .logInstanceFieldPathList }}
+    {{- end }}
+    {{- if .logComponentFieldPathList }}
+    insight-finder.logComponentFieldPathList={{ .logComponentFieldPathList }}
+    {{- end }}
+    {{- if .logMetadataTopics }}
+    insight-finder.logMetadataTopics={{ .logMetadataTopics }}
+    {{- end }}
+    {{- end }}

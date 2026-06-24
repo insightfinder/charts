@@ -1,0 +1,85 @@
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/kafka-collector-agent
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# SSL/TLS keystore and truststore files (base64-encoded content).
+# When set, files are mounted into the container at /app/ssl/.
+# Reference them in config below as:
+#   insight-finder.keystoreFile=/app/ssl/client.jks
+#   insight-finder.truststoreFile=/app/ssl/clienttrust.jks
+ssl:
+  keystoreBase64: ""
+  truststoreBase64: ""
+
+# config.properties content passed as key=value pairs.
+# kafka clusters: use kafka1.*, kafka2.* prefixes for multiple clusters.
+# insight-finder.*: InsightFinder connection and data parsing settings.
+config:
+  kafka: {}
+  # kafka1:
+  #   bootstrap.servers: "broker1:9092,broker2:9092"
+  #   security.protocol: "SSL"
+  #   group.id: "visa-consumer-group"
+  #   topic: "visa-metrics-topic"
+  #   concurrency: "3"
+  #   auto.offset.reset: "latest"
+  #   session.timeout.ms: "30000"
+  #   enable.auto.commit: "true"
+  #   max.poll.interval.ms: "300000"
+  #   max.poll.records: "500"
+  #   ssl.keystore.location: "/app/ssl/client.jks"
+  #   ssl.keystore.password: ""
+  #   ssl.truststore.location: "/app/ssl/clienttrust.jks"
+  #   ssl.truststore.password: ""
+
+  insightFinder: {}
+  # userName: ""
+  # serverUrl: "https://app.insightfinder.com"
+  # serverUri: "/api/v1/customprojectrawdata"
+  # checkAndCreateUri: "/api/v1/check-and-add-custom-project"
+  # licenseKey: ""
+  # samplingIntervalInSeconds: "300"
+  # projectKey: "project"
+  # instanceKey: "instance"
+  # timestampKey: "timestamp"
+  # metricKey: "metric"
+  # valueKey: "value"
+  # projectDelimiter: "\\|"
+  # projectList: "{'ProjectA': {'project': 'IFProject1','system': 'IFSystem1'}}"
+  # instanceList: ""
+  # metricRegex: ".*"
+  # dataFormat: "String"
+  # dataFormatRegex: ""
+  # agentType: "Streaming"
+  # keystoreFile: ""
+  # keystorePassword: ""
+  # truststoreFile: ""
+  # truststorePassword: ""
+  # bufferingTime: "5"
+  # logParsingInfo: "false"
+  # logSendingData: "true"
+  # kafkaMetricLogInterval: "3600"
+  # fastRecovery: "true"
+  # logProject: "false"
