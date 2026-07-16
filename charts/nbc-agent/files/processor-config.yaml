@@ -54,3 +54,15 @@ servicenow:
   password: {{ .Values.servicenow.password | quote }}
   client_id: {{ .Values.servicenow.client_id | quote }}
   client_secret: {{ .Values.servicenow.client_secret | quote }}
+
+# Data quality configuration (optional)
+dataquality:
+  enabled: {{ .Values.dataquality.enabled | default false }}
+  insightfinder:
+    endpoint: {{ .Values.dataquality.insightfinder.endpoint | quote }}
+    username: {{ .Values.dataquality.insightfinder.username | quote }}
+    licensekey: {{ .Values.dataquality.insightfinder.licensekey | quote }}
+  projects:
+  {{- range $source, $project := .Values.dataquality.projects }}
+    {{ $source | quote }}: {{ $project | quote }}
+  {{- end }}

@@ -22,6 +22,17 @@ servicenow:
   client_id: "your_client_id"
   client_secret: "your_client_secret"
 
+# Data quality configuration (optional)
+# When enabled, data for a mapped source is also sent to its data quality project.
+dataquality:
+  enabled: false
+  insightfinder:
+    endpoint: ""
+    username: ""
+    licensekey: ""
+  projects: {}
+    # Conviva: "conviva-model-v1"
+
 receiver:
   replicaCount: 3
   image:
