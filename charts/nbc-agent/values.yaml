@@ -5,6 +5,8 @@ kafka:
   retry_max: 3
   required_acks: -1
   timeout: 30s
+  batch_size: 100
+  batch_timeout: 2s
 
 # Redis configuration for distributed metrics
 redis:
