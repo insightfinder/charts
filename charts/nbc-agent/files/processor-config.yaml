@@ -17,8 +17,8 @@ kafka:
   max_poll_records: 500
   # Worker pool settings
   worker_pool_size: 10
-  batch_size: 1
-  batch_timeout: 5s  # seconds (must include time unit: s, m, h)
+  batch_size: {{ .Values.kafka.batch_size }}
+  batch_timeout: {{ .Values.kafka.batch_timeout }}  # must include time unit: s, m, h
 
 logging:
   level: {{ .Values.receiver.config.logging.level | quote }}
