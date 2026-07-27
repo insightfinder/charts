@@ -1,0 +1,101 @@
+# Default values for if-globalview-streaming.
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/globalview_streaming
+  pullPolicy: Always
+  # Tag example: "latest@sha256:..."
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "2"
+        memory: "2Gi"
+      defaultRequest:
+        cpu: "200m"
+        memory: "200Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "4"
+      memory: 4Gi
+      pods: "2"
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 500Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# One entry per GlobalView system -> target log project. Each becomes a separate
+# config file in conf.d/, and the agent processes them all on each run.
+configs:
+  - globalview:
+      # Base URL of the InsightFinder backend that serves the GlobalView timeline API.
+      gv_url: https://app.insightfinder.com
+      # Credentials of the user that owns the GlobalView system (sent as X-User-Name / X-License-Key).
+      gv_user_name: 
+      gv_license_key: 
+      # Display name of the GlobalView system to pull the timeline for (required).
+      gv_system_name:
+      # Restrict to one event type: trace, loganomaly, metricanomaly, incident, deployment, all. Empty = all.
+      timeline_event_type: incident
+      # Include prediction entries (true/false).
+      predict: false
+      # Which list to stream: raw (timelineList) | consolidated | both.
+      timeline_source: both
+      # Subtract this many seconds from "now" for the end of the live query window.
+      query_time_offset_seconds: 0
+      # History mode window (UTC): "2020-04-14 00:00:00,2020-04-15 00:00:00". Empty = live.
+      his_time_range:
+      # Verify TLS certs when calling the GlobalView API (true/false).
+      verify_certs: true
+      # Keep only records whose start time falls inside the query window (true/false).
+      only_start_in_window: true
+      agent_http_proxy:
+      agent_https_proxy:
+
+    insightfinder:
+      # Target InsightFinder LOG project.
+      user_name:
+      license_key:
+      project_name:
+      # System the project belongs to; used only when the project is first created.
+      system_name:
+      # Keep as log for this agent.
+      project_type: log
+      # Sampling interval (minutes) assigned to the project when it is first created.
+      sampling_interval: 10
+      # How often (minutes) the agent runs; also the live query window length.
+      run_interval: 10
+      # Optional per-run wall-clock timeout in seconds (defaults to run_interval).
+      worker_timeout:
+      # Max size to limit chunks sent to IF to, as kb.
+      chunk_size_kb: 2048
+      if_url: https://app.insightfinder.com
+      if_http_proxy:
+      if_https_proxy:

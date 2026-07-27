@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "if-globalview-streaming.fullname" . }}-config-cm
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-globalview-streaming.labels" . | nindent 4 }}
+data:
+{{- range $i, $v := .Values.configs }}
+  {{ printf "config%d.ini" $i }}: |-
+    [globalview]
+    # Base URL of the InsightFinder backend that serves the GlobalView timeline API.
+    gv_url = {{ $v.globalview.gv_url | default "https://app.insightfinder.com" }}
+    # Credentials of the user that owns the GlobalView system (sent as X-User-Name / X-License-Key).
+    gv_user_name = {{ $v.globalview.gv_user_name }}
+    gv_license_key = {{ $v.globalview.gv_license_key }}
+    # Display name of the GlobalView system to pull the timeline for (required).
+    gv_system_name = {{ $v.globalview.gv_system_name }}
+    # Restrict to one event type: trace, loganomaly, metricanomaly, incident, deployment, all. Empty = all.
+    timeline_event_type = {{ $v.globalview.timeline_event_type }}
+    # Include prediction entries (true/false).
+    predict = {{ $v.globalview.predict }}
+    # Which list to stream: raw (timelineList) | consolidated | both.
+    timeline_source = {{ $v.globalview.timeline_source | default "raw" }}
+    # Subtract this many seconds from "now" for the end of the live query window.
+    query_time_offset_seconds = {{ $v.globalview.query_time_offset_seconds | default 0 }}
+    # History mode window (UTC): "2020-04-14 00:00:00,2020-04-15 00:00:00". Empty = live.
+    his_time_range = {{ $v.globalview.his_time_range }}
+    # Verify TLS certs when calling the GlobalView API (true/false).
+    verify_certs = {{ $v.globalview.verify_certs }}
+    # Keep only records whose start time falls inside the query window (true/false).
+    only_start_in_window = {{ $v.globalview.only_start_in_window }}
+    agent_http_proxy = {{ $v.globalview.agent_http_proxy }}
+    agent_https_proxy = {{ $v.globalview.agent_https_proxy }}
+
+    [insightfinder]
+    # Target InsightFinder LOG project.
+    user_name = {{ $v.insightfinder.user_name }}
+    license_key = {{ $v.insightfinder.license_key }}
+    project_name = {{ $v.insightfinder.project_name }}
+    # System the project belongs to; used only when the project is first created.
+    system_name = {{ $v.insightfinder.system_name }}
+    # Keep as log for this agent.
+    project_type = {{ $v.insightfinder.project_type | default "log" }}
+    # Sampling interval (minutes) assigned to the project when it is first created.
+    sampling_interval = {{ $v.insightfinder.sampling_interval | default 10 }}
+    # How often (minutes) the agent runs; also the live query window length.
+    run_interval = {{ $v.insightfinder.run_interval | default 5 }}
+    # Optional per-run wall-clock timeout in seconds (used by cron.py; defaults to run_interval).
+    worker_timeout = {{ $v.insightfinder.worker_timeout }}
+    # Max size to limit chunks sent to IF to, as kb.
+    chunk_size_kb = {{ $v.insightfinder.chunk_size_kb | default 2048 }}
+    if_url = {{ $v.insightfinder.if_url | default "https://app.insightfinder.com" }}
+    if_http_proxy = {{ $v.insightfinder.if_http_proxy }}
+    if_https_proxy = {{ $v.insightfinder.if_https_proxy }}
+{{- end }}

@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "if-globalview-streaming.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-globalview-streaming.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "if-globalview-streaming.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # roll pods when the config changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $.Values.appArmor.enabled }}
+        container.apparmor.security.beta.kubernetes.io/{{ .Chart.Name }}: runtime/default
+        {{- end }}
+      labels:
+        {{- include "if-globalview-streaming.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "if-globalview-streaming.fullname" . }}
+      restartPolicy: Always
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsUser: 10001
+            runAsGroup: 10001
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: gv-config
+              mountPath: /app/conf.d/
+            - name: tmp-volume
+              mountPath: /tmp
+          startupProbe:
+            exec:
+              command: ["pgrep", "-f", "cron.py"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 10
+          readinessProbe:
+            exec:
+              command: ["pgrep", "-f", "cron.py"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pgrep", "-f", "cron.py"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: gv-config
+          configMap:
+            name: {{ include "if-globalview-streaming.fullname" . }}-config-cm
+        - name: tmp-volume
+          emptyDir:
+            sizeLimit: 128Mi
