@@ -66,3 +66,11 @@ dataquality:
   {{- range $source, $project := .Values.dataquality.projects }}
     {{ $source | quote }}: {{ $project | quote }}
   {{- end }}
+
+# NBC Metadata Agent (SLEM) configuration (optional)
+nbc_metadata:
+  enabled: {{ .Values.nbc_metadata.enabled | default false }}
+  url: {{ .Values.nbc_metadata.url | quote }}
+  username: {{ .Values.nbc_metadata.username | quote }}
+  password: {{ .Values.nbc_metadata.password | quote }}
+  timeout: {{ .Values.nbc_metadata.timeout | default 10 }}
