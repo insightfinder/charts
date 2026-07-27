@@ -7,7 +7,7 @@ image:
   repository: insightfinderinc/globalview_streaming
   pullPolicy: Always
   # Tag example: "latest@sha256:..."
-  tag: "test"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -56,12 +56,12 @@ affinity: {}
 configs:
   - globalview:
       # Base URL of the InsightFinder backend that serves the GlobalView timeline API.
-      gv_url: https://stg.insightfinder.com
+      gv_url: https://app.insightfinder.com
       # Credentials of the user that owns the GlobalView system (sent as X-User-Name / X-License-Key).
-      gv_user_name: admin_nbc
-      gv_license_key: 7761f6ff1dbb8761b29162ae04365aa19c6688cb
+      gv_user_name: 
+      gv_license_key: 
       # Display name of the GlobalView system to pull the timeline for (required).
-      gv_system_name: NBC Stage
+      gv_system_name:
       # Restrict to one event type: trace, loganomaly, metricanomaly, incident, deployment, all. Empty = all.
       timeline_event_type: incident
       # Include prediction entries (true/false).
@@ -81,11 +81,11 @@ configs:
 
     insightfinder:
       # Target InsightFinder LOG project.
-      user_name: user
-      license_key: a333bd39662ad1edf64e99e97e4b776109827234
-      project_name: NBC-Stage-GV-Incidents-Test
+      user_name:
+      license_key:
+      project_name:
       # System the project belongs to; used only when the project is first created.
-      system_name: NBC-Testing-Internal
+      system_name:
       # Keep as log for this agent.
       project_type: log
       # Sampling interval (minutes) assigned to the project when it is first created.
@@ -96,6 +96,6 @@ configs:
       worker_timeout:
       # Max size to limit chunks sent to IF to, as kb.
       chunk_size_kb: 2048
-      if_url: https://stg.insightfinder.com
+      if_url: https://app.insightfinder.com
       if_http_proxy:
       if_https_proxy:
