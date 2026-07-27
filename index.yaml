@@ -128,6 +128,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-event-push-agent-0.0.1/if-event-push-agent-0.0.1.tgz
     version: 0.0.1
+  if-globalview-streaming:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-07-27T16:58:53.18794404Z"
+    description: A Helm chart for the globalview_streaming agent from InsightFinder
+    digest: 338a1274a60dfd573bd8fa3fe25d6022836823e3959b01955d82884a7b681e44
+    name: if-globalview-streaming
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-globalview-streaming-0.1.0/if-globalview-streaming-0.1.0.tgz
+    version: 0.1.0
   if-grafana-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -905,4 +916,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-07-22T12:13:18.263885344Z"
+generated: "2026-07-27T16:58:53.188018342Z"
