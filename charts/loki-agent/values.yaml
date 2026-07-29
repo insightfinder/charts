@@ -72,15 +72,15 @@ config:
     stream_chunk_interval: 0
 
   loki:
-    base_url: "http://localhost:8080"
-    username: "admin"
-    password: "admin"
+    base_url: "http://loki-gateway.monitor.svc.cluster.local"
+    username: ""
+    password: ""
     verify_ssl: false
     max_concurrent_requests: 10
     max_retries: 3
     query_timeout: 60
     max_entries_per_query: 1000
-    default_instance_name_field: "app"
+    default_instance_name_field: "container"
     headers: {}
 
     queries:
