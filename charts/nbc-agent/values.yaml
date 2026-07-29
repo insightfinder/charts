@@ -35,6 +35,19 @@ dataquality:
   projects: {}
     # Conviva: "conviva-model-v1"
 
+# NBC Metadata Agent (SLEM) configuration (optional)
+# When enabled, the processor derives a Video Asset PID from Touchstream/Harmonic
+# SLE alerts, looks up the matching SLEM catalog entry (vendorEventID for
+# Touchstream, eventId for Harmonic) via the nbc-metadata-agent service, and
+# unpacks the result into tags.LEM_* fields. Eligible sources, stream types,
+# and propositions are hardcoded in the processor, not configured here.
+nbc_metadata:
+  enabled: false
+  url: "http://nbc-metadata-agent:8080"
+  username: "admin"
+  password: "admin"
+  timeout: 10
+
 receiver:
   replicaCount: 3
   image:
