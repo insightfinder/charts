@@ -61,6 +61,7 @@ spec:
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+        {{- if .Values.otel.enabled }}
         - name: otelcol
           image: "otel/opentelemetry-collector-contrib:latest"
           imagePullPolicy: IfNotPresent
@@ -75,13 +76,16 @@ spec:
               mountPath: /etc/otelcol/otelcol.yaml
               subPath: otelcol.yaml
               readOnly: true
+        {{- end }}
       volumes:
         - name: config
           configMap:
             name: {{ include "traceserver.fullname" . }}-config
+        {{- if .Values.otel.enabled }}
         - name: otelcol-config
           configMap:
             name: {{ include "traceserver.fullname" . }}-config
+        {{- end }}
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

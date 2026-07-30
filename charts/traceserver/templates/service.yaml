@@ -14,6 +14,7 @@ spec:
       appProtocol: {{ ternary "https" "kubernetes.io/h2c" .Values.traceserverConfig.app.tls.enabled }}
   selector:
     {{- include "traceserver.selectorLabels" . | nindent 4 }}
+{{- if .Values.otel.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -30,3 +31,4 @@ spec:
       name: http
   selector:
     {{- include "traceserver.selectorLabels" . | nindent 4 }}
+{{- end }}

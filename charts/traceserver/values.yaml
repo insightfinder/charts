@@ -111,6 +111,11 @@ grpcRoute:
   rules:
   - {}
 
+# -- Enable the otelcol sidecar container, its Service, and its HTTPRoute.
+# Disable if traces are ingested another way and the built-in collector isn't needed.
+otel:
+  enabled: true
+
 # Otelcol configuration
 otelcolConfig:
   receivers:

@@ -1,4 +1,4 @@
-{{- if .Values.httpRoute.enabled -}}
+{{- if and .Values.httpRoute.enabled .Values.otel.enabled -}}
 {{- $otelcolSvcName := printf "%s-otelcol" (include "traceserver.fullname" .) -}}
 {{- $svcPort := last (splitList ":" .Values.otelcolConfig.receivers.otlp.protocols.http.endpoint) | int -}}
 apiVersion: gateway.networking.k8s.io/v1
