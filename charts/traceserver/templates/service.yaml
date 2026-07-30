@@ -11,7 +11,7 @@ spec:
       targetPort: grpc
       protocol: TCP
       name: grpc
-      appProtocol: grpc
+      appProtocol: {{ ternary "https" "kubernetes.io/h2c" .Values.traceserverConfig.app.tls.enabled }}
   selector:
     {{- include "traceserver.selectorLabels" . | nindent 4 }}
 ---

@@ -91,6 +91,26 @@ httpRoute:
         type: PathPrefix
         value: /
 
+# -- Expose the grpc trace-ingestion service via gateway-api GRPCRoute
+# Requires Gateway API resources (incl. the GRPCRoute CRD) and a suitable controller
+# installed within the cluster (see: https://gateway-api.sigs.k8s.io/guides/)
+grpcRoute:
+  # GRPCRoute enabled.
+  enabled: false
+  # GRPCRoute annotations.
+  annotations: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+  - name: traefik-gateway
+    namespace: traefik
+    sectionName: websecure
+  # Hostnames matching for gRPC-over-HTTP/2.
+  hostnames:
+  - stg-traceserver.insightfinder.com
+  # List of rules and filters applied. Omit `matches` on a rule for catch-all routing.
+  rules:
+  - {}
+
 # Otelcol configuration
 otelcolConfig:
   receivers:
