@@ -1,27 +1,27 @@
-{{- if and .Values.httpRoute.enabled .Values.otel.enabled -}}
-{{- $otelcolSvcName := printf "%s-otelcol" (include "traceserver.fullname" .) -}}
-{{- $svcPort := last (splitList ":" .Values.otelcolConfig.receivers.otlp.protocols.http.endpoint) | int -}}
+{{- if .Values.grpcRoute.enabled -}}
+{{- $svcName := include "traceserver.fullname" . -}}
+{{- $svcPort := .Values.traceserverConfig.grpc.port -}}
 apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+kind: GRPCRoute
 metadata:
-  name: {{ $otelcolSvcName }}
+  name: {{ $svcName }}
   labels:
     {{- include "traceserver.labels" . | nindent 4 }}
-  {{- with .Values.httpRoute.annotations }}
+  {{- with .Values.grpcRoute.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   parentRefs:
-    {{- with .Values.httpRoute.parentRefs }}
+    {{- with .Values.grpcRoute.parentRefs }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.httpRoute.hostnames }}
+  {{- with .Values.grpcRoute.hostnames }}
   hostnames:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   rules:
-    {{- range .Values.httpRoute.rules }}
+    {{- range .Values.grpcRoute.rules }}
     - {{- with .matches }}
       matches:
       {{- toYaml . | nindent 8 }}
@@ -31,7 +31,7 @@ spec:
       {{- toYaml . | nindent 8 }}
       {{- end }}
       backendRefs:
-        - name: {{ $otelcolSvcName }}
+        - name: {{ $svcName }}
           port: {{ $svcPort }}
           weight: 1
     {{- end }}
