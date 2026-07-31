@@ -150,6 +150,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-grafana-agent-0.0.1/if-grafana-agent-0.0.1.tgz
     version: 0.0.1
+  if-insightfinder-rawlogs:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-07-31T21:51:53.777401298Z"
+    description: A Helm chart for insightfinder_rawlogs from InsightFinder
+    digest: eb55aba03a567f7cf1c0da4eb8f4357cc4042866e729e2b1fd9bca26b42c839f
+    name: if-insightfinder-rawlogs
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-insightfinder-rawlogs-0.1.0/if-insightfinder-rawlogs-0.1.0.tgz
+    version: 0.1.0
   if-kubeactions:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -944,4 +955,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-07-30T15:12:30.780781416Z"
+generated: "2026-07-31T21:51:53.777456096Z"
