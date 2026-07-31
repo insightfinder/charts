@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "if-insightfinder-rawlogs.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-insightfinder-rawlogs.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "if-insightfinder-rawlogs.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # restarts the pod when the rendered config changes
+        checksum/config: {{ toYaml .Values.config | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $.Values.appArmor.enabled }}
+        container.apparmor.security.beta.kubernetes.io/{{ .Chart.Name }}: runtime/default
+        {{- end }}
+      labels:
+        {{- include "if-insightfinder-rawlogs.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "if-insightfinder-rawlogs.fullname" . }}
+      restartPolicy: Always
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "cron.py"]
+          args: ["-c", "/app/conf/config.yaml"]
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsUser: 10001
+            runAsGroup: 10001
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- if .Values.licenseKeySecret.enabled }}
+            - name: IF_SOURCE_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.licenseKeySecret.name }}
+                  key: {{ .Values.licenseKeySecret.sourceKey }}
+            - name: IF_DEST_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.licenseKeySecret.name }}
+                  key: {{ .Values.licenseKeySecret.destKey }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: rawlogs-config
+              mountPath: /app/conf/
+              readOnly: true
+            - name: logs-volume
+              mountPath: /app/logs
+            - name: tmp-volume
+              mountPath: /tmp
+          startupProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - cron.py
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 10
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - cron.py
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - cron.py
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: rawlogs-config
+        configMap:
+          name: {{ include "if-insightfinder-rawlogs.fullname" . }}-config-cm
+      - name: logs-volume
+        emptyDir:
+          sizeLimit: 512Mi
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 128Mi

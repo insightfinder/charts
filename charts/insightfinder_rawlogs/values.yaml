@@ -1,0 +1,142 @@
+# Default values for if-insightfinder-rawlogs.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Must stay 1. The agent has no leader election, so extra replicas would each
+# run the same window and send duplicate data.
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/insightfinder_rawlogs
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "8"
+        memory: "8Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "500Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "24"
+      memory: 24Gi
+      pods: "3"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 200m
+    memory: 200Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Read the license keys from an existing Secret instead of putting them in
+# config below. The agent picks these up from the IF_SOURCE_LICENSE_KEY and
+# IF_DEST_LICENSE_KEY environment variables, which take precedence over config.
+licenseKeySecret:
+  enabled: false
+  name: ""
+  sourceKey: source-license-key
+  destKey: dest-license-key
+
+# Rendered verbatim into /app/conf/config.yaml.
+config:
+  source:
+    # InsightFinder server to export logs FROM
+    url: https://app.insightfinder.com
+    # sent as X-User-Name; the account authenticating this request
+    user_name:
+    # sent as X-License-Key; leave empty when using licenseKeySecret above
+    license_key:
+    # whose projects to read from; usually the same as user_name, but can differ. Defaults to user_name.
+    data_user_name:
+
+    # REQUIRED: map of source project -> destination project
+    projects: {}
+      # source-project-name: destination-project-name
+
+    verify_ssl: true
+    # request timeout, in seconds
+    timeout_seconds: 300
+    proxies: {}
+    # http:
+    # https:
+
+  destination:
+    # InsightFinder server to send logs TO
+    url: https://app.insightfinder.com
+    user_name:
+    # leave empty when using licenseKeySecret above
+    license_key:
+    # used only when auto-creating a destination project
+    system_name:
+    # log or logreplay
+    project_type: log
+    # only used if the destination project doesn't exist yet and gets auto-created; has no effect on an existing project
+    sampling_interval_seconds: 60
+    auto_create_projects: true
+    # max size per ingest request
+    chunk_size_kb: 2048
+    verify_ssl: true
+    timeout_seconds: 120
+    proxies: {}
+
+  collection:
+    # live window length; also how often cron.py triggers a run
+    interval_seconds: 600
+    # If true (default), window end is snapped to the nearest interval_seconds
+    # clock boundary (e.g. :00/:10/:20 for a 600s interval). If false, window
+    # end is the exact trigger time instead.
+    align_to_interval: true
+    # lag behind "now", to allow for source indexing delay
+    offset_seconds: 0
+    # cap per export request's range; defaults to interval_seconds
+    # only matters for large windows (e.g. a multi-day replay); a normal live run doesn't need this set
+    slice_seconds:
+    # Leave empty here. A replay is a one-shot backfill, so cron.py refuses to
+    # start when it is set - run it as a separate one-off Job instead.
+    replay:
+    # how many time-slices to fetch/send at once; only relevant if slice_seconds splits the window into more than one
+    workers: 4
+
+  transform:
+    # send {rawData, patternId, patternName, eventType} instead of just rawData
+    include_metadata: false
+    # prepended to every instance name
+    instance_prefix: ''
+    # regex on source instanceName; empty keeps everything
+    # matches anywhere in the name (not anchored); non-matching instances are dropped entirely, not just excluded from the count
+    instance_whitelist: ''
+    # used when an event has no instanceName
+    default_instance_name: unknown
+
+  logging:
+    level: INFO
+    # empty sends logs to stdout only, so they are visible via kubectl logs
+    file:
+    rotate: true
+    backup_count: 14
