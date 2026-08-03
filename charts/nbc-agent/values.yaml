@@ -95,6 +95,12 @@ receiver:
       level: "info"
       development: false
       disable_stacktrace: true
+    
+    security:
+      enabled: false
+      allowedUserAgents:
+        - "Go-http-client/*"
+      alertOnTestData: false
 
     auth:
       enabled: true
