@@ -127,7 +127,7 @@ config:
       table: incident
       sysparm_query: "active=true^priority<=2"
       data_fields: ""
-      instance_field: "cmdb_ci.name,business_service.name,assignment_group.name"
+      instance_field: "cmdb_ci"
       default_instance_name: "servicenow-incident"
 
   insightfinder:
