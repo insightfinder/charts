@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "if-servicenow-agent.fullname" . }}-config-cm
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "if-servicenow-agent.labels" . | nindent 4 }}
+data:
+  config.ini: |-
+    [servicenow]
+    ## ---- connection --------------------------------------------------------
+    # Instance base URL, no trailing path. e.g. https://acme.service-now.com
+    base_url = {{ .Values.config.servicenow.base_url }}
+
+    # oauth2 | basic -- credentials are supplied via env vars, see the Secret
+    # rendered by this chart (credentials.authType must match this).
+    auth_type = {{ .Values.config.servicenow.auth_type | default "oauth2" }}
+
+    ## ---- transport -----------------------------------------------------------
+    verify_certs = {{ .Values.config.servicenow.verify_certs | default true }}
+    ca_certs = {{ .Values.config.servicenow.ca_certs }}
+    agent_http_proxy = {{ .Values.config.servicenow.agent_http_proxy }}
+    agent_https_proxy = {{ .Values.config.servicenow.agent_https_proxy }}
+
+    ## ---- querying --------------------------------------------------------
+    query_chunk_size = {{ .Values.config.servicenow.query_chunk_size | default 1000 }}
+    # Every run queries exactly the last [insightfinder] sampling_interval seconds
+    # back from now (minus this offset) -- no state is kept between runs, so
+    # run_interval and sampling_interval below must match.
+    query_time_offset_seconds = {{ .Values.config.servicenow.query_time_offset_seconds | default 0 }}
+    his_time_range = {{ .Values.config.servicenow.his_time_range }}
+
+    ## ---- defaults inherited by every [query:NAME] section below ------------
+    timestamp_field = {{ .Values.config.servicenow.timestamp_field | default "sys_created_on" }}
+    timestamp_format = {{ .Values.config.servicenow.timestamp_format | default "YYYY-MM-DD HH:mm:ss" }}
+    timezone = {{ .Values.config.servicenow.timezone | default "UTC" }}
+    target_timestamp_timezone = {{ .Values.config.servicenow.target_timestamp_timezone | default "UTC" }}
+    instance_field = {{ .Values.config.servicenow.instance_field }}
+    instance_field_regex = {{ .Values.config.servicenow.instance_field_regex }}
+    instance_whitelist = {{ .Values.config.servicenow.instance_whitelist }}
+    default_instance_name = {{ .Values.config.servicenow.default_instance_name }}
+    data_fields = {{ .Values.config.servicenow.data_fields }}
+    project_name = {{ .Values.config.servicenow.project_name }}
+
+    ## =========================================================================
+    ## QUERIES -- one [query:NAME] section per ServiceNow query. NAME must be
+    ## unique; it is attached to every record as data._query.
+    ## =========================================================================
+    {{- range $q := .Values.config.queries }}
+
+    [query:{{ $q.name }}]
+    table = {{ $q.table }}
+    {{- if hasKey $q "sysparm_query" }}
+    sysparm_query = {{ $q.sysparm_query }}
+    {{- end }}
+    {{- if hasKey $q "data_fields" }}
+    data_fields = {{ $q.data_fields }}
+    {{- end }}
+    {{- if hasKey $q "timestamp_field" }}
+    timestamp_field = {{ $q.timestamp_field }}
+    {{- end }}
+    {{- if hasKey $q "timestamp_format" }}
+    timestamp_format = {{ $q.timestamp_format }}
+    {{- end }}
+    {{- if hasKey $q "timezone" }}
+    timezone = {{ $q.timezone }}
+    {{- end }}
+    {{- if hasKey $q "target_timestamp_timezone" }}
+    target_timestamp_timezone = {{ $q.target_timestamp_timezone }}
+    {{- end }}
+    {{- if hasKey $q "instance_field" }}
+    instance_field = {{ $q.instance_field }}
+    {{- end }}
+    {{- if hasKey $q "instance_field_regex" }}
+    instance_field_regex = {{ $q.instance_field_regex }}
+    {{- end }}
+    {{- if hasKey $q "instance_whitelist" }}
+    instance_whitelist = {{ $q.instance_whitelist }}
+    {{- end }}
+    {{- if hasKey $q "default_instance_name" }}
+    default_instance_name = {{ $q.default_instance_name }}
+    {{- end }}
+    {{- if hasKey $q "project_name" }}
+    project_name = {{ $q.project_name }}
+    {{- end }}
+    {{- end }}
+
+    [insightfinder]
+    user_name = {{ .Values.config.insightfinder.user_name }}
+    license_key = {{ .Values.config.insightfinder.license_key }}
+    token = {{ .Values.config.insightfinder.token }}
+    project_name = {{ .Values.config.insightfinder.project_name }}
+    system_name = {{ .Values.config.insightfinder.system_name }}
+    # This agent only supports LOG.
+    project_type = {{ .Values.config.insightfinder.project_type | default "log" }}
+    containerize = {{ .Values.config.insightfinder.containerize | default "no" }}
+    enable_holistic_model = {{ .Values.config.insightfinder.enable_holistic_model | default false }}
+    sampling_interval = {{ .Values.config.insightfinder.sampling_interval | default 10 }}
+    frequency_sampling_interval = {{ .Values.config.insightfinder.frequency_sampling_interval | default 10 }}
+    log_compression_interval = {{ .Values.config.insightfinder.log_compression_interval | default 1 }}
+    enable_log_rotation = {{ .Values.config.insightfinder.enable_log_rotation | default false }}
+    log_backup_count = {{ .Values.config.insightfinder.log_backup_count | default 14 }}
+    run_interval = {{ .Values.config.insightfinder.run_interval | default 10 }}
+    worker_timeout = {{ .Values.config.insightfinder.worker_timeout }}
+    chunk_size_kb = {{ .Values.config.insightfinder.chunk_size_kb | default 2048 }}
+    if_url = {{ .Values.config.insightfinder.if_url | default "https://app.insightfinder.com" }}
+    if_http_proxy = {{ .Values.config.insightfinder.if_http_proxy }}
+    if_https_proxy = {{ .Values.config.insightfinder.if_https_proxy }}
