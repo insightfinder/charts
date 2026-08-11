@@ -4,6 +4,8 @@ metadata:
   name: {{ include "traceserver.fullname" . }}
   labels:
     {{- include "traceserver.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
