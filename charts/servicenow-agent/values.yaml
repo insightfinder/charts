@@ -1,0 +1,155 @@
+# Default values for if-servicenow-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: insightfinderinc/servicenow-agent
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+appArmor:
+  enabled: false
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "4"
+        memory: "4Gi"
+      defaultRequest:
+        cpu: "200m"
+        memory: "200Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "12"
+      memory: 12Gi
+      pods: "3"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 200m
+    memory: 200Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# cron.py's own scheduling knobs (see Dockerfile CMD `cron.py -g 1 -o 10 -p 4`).
+# group_size/offset stagger multiple config.ini files inside one pod; this chart
+# only ever renders one, so these rarely need to change.
+cron:
+  group_size: 1
+  offset: 10
+  # Number of worker processes the agent uses for multithreading (-p).
+  processes: 4
+
+# Credentials are never written to conf.d/config.ini -- the agent reads them
+# from the environment (see servicenow-agent/example.env and README
+# "Credentials (.env)"). By default this chart renders them into a Secret and
+# injects them via envFrom. Set existingSecret to the name of a Secret you
+# manage yourself (e.g. synced from Vault) to skip creating one -- it must
+# contain the same keys templates/secret.yaml would (SERVICENOW_OAUTH_* for
+# oauth2, or SERVICENOW_USERNAME/SERVICENOW_PASSWORD for basic).
+credentials:
+  # Name of a pre-existing Secret to use instead of creating one. When set,
+  # templates/secret.yaml is skipped and everything below is ignored.
+  existingSecret: ""
+  # oauth2 | basic -- must match config.servicenow.auth_type below.
+  authType: oauth2
+  oauth2:
+    clientId: ""
+    clientSecret: ""
+    username: ""
+    password: ""
+  basic:
+    username: ""
+    password: ""
+
+config:
+  servicenow:
+    # required. Instance base URL, no trailing path. e.g. https://acme.service-now.com
+    base_url: ""
+    # oauth2 | basic -- keep in sync with credentials.authType above.
+    auth_type: oauth2
+    verify_certs: true
+    ca_certs: ""
+    agent_http_proxy: ""
+    agent_https_proxy: ""
+    # records per page (sysparm_limit). ServiceNow's own default is 10000 max.
+    query_chunk_size: 1000
+    # Backs the query window's upper bound off by this much, absorbing clock
+    # skew between this host and the instance. run_interval and
+    # sampling_interval (below, under insightfinder) must match, since no
+    # cursor/state is kept between runs.
+    query_time_offset_seconds: 0
+    # Replay a fixed range instead of the live sampling_interval-sized window.
+    # Example: "2026-01-01 00:00:00,2026-01-08 00:00:00"
+    his_time_range: ""
+
+    ## defaults inherited by every query below unless overridden per-query
+    timestamp_field: sys_created_on
+    timestamp_format: "YYYY-MM-DD HH:mm:ss"
+    timezone: UTC
+    target_timestamp_timezone: UTC
+    instance_field: ""
+    instance_field_regex: ""
+    instance_whitelist: ""
+    default_instance_name: ""
+    # Comma-separated list of ServiceNow fields to fetch/send. Leave blank to
+    # fetch and send every field on the record.
+    data_fields: ""
+    # Default InsightFinder project for query data; overridable per-query.
+    project_name: ""
+
+  # One entry per ServiceNow query ([query:NAME] section in config.ini).
+  # `name` must be unique -- it's attached to every record as data._query.
+  # Any field left unset here falls back to config.servicenow's default above.
+  queries:
+    - name: P1P2_Incidents
+      table: incident
+      sysparm_query: "active=true^priority<=2"
+      data_fields: ""
+      instance_field: "cmdb_ci"
+      default_instance_name: "servicenow-incident"
+
+  insightfinder:
+    user_name: ""
+    license_key: ""
+    token: ""
+    project_name: ""
+    # System owning the project. Falls back to project_name on auto-create.
+    system_name: ""
+    # This agent only supports LOG.
+    project_type: log
+    containerize: "no"
+    enable_holistic_model: false
+    # Must match run_interval below -- see config.servicenow.query_time_offset_seconds.
+    sampling_interval: 10
+    frequency_sampling_interval: 10
+    log_compression_interval: 1
+    enable_log_rotation: false
+    log_backup_count: 14
+    run_interval: 10
+    worker_timeout: ""
+    chunk_size_kb: 2048
+    if_url: "https://app.insightfinder.com"
+    if_http_proxy: ""
+    if_https_proxy: ""
