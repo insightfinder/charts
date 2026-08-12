@@ -429,6 +429,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/if-redis-agent-1.0.0/if-redis-agent-1.0.0.tgz
     version: 1.0.0
+  if-servicenow-agent:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-08-12T00:11:48.582114169Z"
+    description: A Helm chart for the ServiceNow ticket collector agent from InsightFinder
+    digest: 3491b734eb43de4887e48d6d162863c18c005c1c3a554ed92ea41d0cf7fe1598
+    name: if-servicenow-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-servicenow-agent-0.1.0/if-servicenow-agent-0.1.0.tgz
+    version: 0.1.0
   if-vcenter-agent:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -973,4 +984,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-08-11T15:49:51.577823968Z"
+generated: "2026-08-12T00:11:48.582171549Z"
