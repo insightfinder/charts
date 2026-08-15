@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "nbc-agent.labels" . | nindent 4 }}
     app.kubernetes.io/component: processor
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.processor.replicaCount }}
   selector:
