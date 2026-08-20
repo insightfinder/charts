@@ -66,6 +66,10 @@ dataquality:
   {{- range $source, $project := .Values.dataquality.projects }}
     {{ $source | quote }}: {{ $project | quote }}
   {{- end }}
+  {{- if .Values.dataquality.targets }}
+  targets:
+  {{- toYaml .Values.dataquality.targets | nindent 4 }}
+  {{- end }}
 
 # NBC Metadata Agent (SLEM) configuration (optional)
 nbc_metadata:
