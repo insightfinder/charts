@@ -48,6 +48,13 @@ nbc_metadata:
   password: "admin"
   timeout: 10
 
+# Global Commerce (GC) escalation field extraction (optional)
+# When enabled, alerts from the "gc" source are enriched with GC escalation
+# fields for the listed countries.
+globalCommerce:
+  enabled: false
+  countries: []
+
 receiver:
   replicaCount: 3
   image:
