@@ -34,6 +34,13 @@ dataquality:
     licensekey: ""
   projects: {}
     # Conviva: "conviva-model-v1"
+  targets: []
+    # - insightfinder:
+    #     endpoint: "https://stg.insightfinder.com"
+    #     username: ""
+    #     licensekey: ""
+    #   projects:
+    #     conviva: "conviva-model-v1"
 
 # NBC Metadata Agent (SLEM) configuration (optional)
 # When enabled, the processor derives a Video Asset PID from Touchstream/Harmonic
