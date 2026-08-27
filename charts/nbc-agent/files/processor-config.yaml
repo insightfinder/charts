@@ -78,3 +78,11 @@ nbc_metadata:
   username: {{ .Values.nbc_metadata.username | quote }}
   password: {{ .Values.nbc_metadata.password | quote }}
   timeout: {{ .Values.nbc_metadata.timeout | default 10 }}
+
+# Global Commerce (GC) escalation field extraction (optional)
+globalCommerce:
+  enabled: {{ .Values.globalCommerce.enabled | default false }}
+  countries:
+  {{- range .Values.globalCommerce.countries }}
+    - {{ . | quote }}
+  {{- end }}
