@@ -82,6 +82,7 @@ nbc_metadata:
 # Global Commerce (GC) escalation field extraction (optional)
 globalCommerce:
   enabled: {{ .Values.globalCommerce.enabled | default false }}
+  useNewGCWorkflow: {{ .Values.globalCommerce.useNewGCWorkflow | default false }}
   countries:
   {{- range .Values.globalCommerce.countries }}
     - {{ . | quote }}
