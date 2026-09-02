@@ -60,6 +60,7 @@ nbc_metadata:
 # fields for the listed countries.
 globalCommerce:
   enabled: false
+  useNewGCWorkflow: false
   countries: []
 
 receiver:

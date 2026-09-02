@@ -43,3 +43,11 @@ redis:
   password: {{ .Values.redis.password | quote }}
   db: {{ .Values.redis.db }}
   prefix: {{ .Values.redis.prefix | quote }}
+
+security:
+  enabled: {{ .Values.receiver.config.security.enabled }}
+  allowedUserAgents:
+  {{- range .Values.receiver.config.security.allowedUserAgents }}
+    - {{ . | quote }}
+  {{- end }}
+  alertOnTestData: {{ .Values.receiver.config.security.alertOnTestData }}
