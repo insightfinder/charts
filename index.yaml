@@ -986,6 +986,18 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/traceserver-0.1.0/traceserver-0.1.0.tgz
     version: 0.1.0
+  ubs-agent:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-09-02T22:09:06.802321548Z"
+    description: A Helm chart running the UBS Azure Blob feed agent as a daily Kubernetes
+      CronJob
+    digest: 4d15b7a9d63c6396a5cb780b5b572f3dbd031a055c548a484b4a46ce1551c07a
+    name: ubs-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/ubs-agent-0.1.0/ubs-agent-0.1.0.tgz
+    version: 0.1.0
   valkey:
   - annotations:
       images: |
@@ -1069,4 +1081,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-09-01T20:22:25.565207369Z"
+generated: "2026-09-02T22:09:06.802412808Z"
