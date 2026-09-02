@@ -1,0 +1,123 @@
+# Default values for ubs-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: insightfinderinc/ubs-agent
+  pullPolicy: Always
+  # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# The agent runs once, downloads what's new, streams it, and exits -- so it
+# is scheduled as a CronJob rather than a long-running Deployment.
+# Default: once per day at 01:00 UTC.
+schedule: "0 1 * * *"
+timeZone: "UTC"
+concurrencyPolicy: Forbid
+suspend: false
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
+startingDeadlineSeconds: 300
+# Give up retrying a run and let the next schedule try again.
+backoffLimit: 2
+# Hard ceiling on how long a single run may take before it's killed.
+activeDeadlineSeconds: 3600
+
+podAnnotations: {}
+podLabels: {}
+
+appArmor:
+  enabled: false
+
+serviceAccount:
+  # Set false to have the pod use an existing ServiceAccount instead (see `name`).
+  create: true
+  annotations: {}
+  name: ""
+
+# Azure authentication for StorageService (azure.identity.DefaultAzureCredential).
+azure:
+  # Client ID of the managed identity / workload identity used to read the
+  # blob container. Required.
+  clientId: ""
+  # Set true on AKS clusters using Azure AD Workload Identity -- adds the
+  # azure.workload.identity/use label to the pod so the webhook injects
+  # AZURE_TENANT_ID / AZURE_FEDERATED_TOKEN_FILE alongside AZURE_CLIENT_ID.
+  # The ServiceAccount must be annotated with azure.workload.identity/client-id
+  # (see serviceAccount.annotations).
+  workloadIdentity:
+    enabled: false
+
+# Azure Blob Storage container the agent reads feed files from.
+storage:
+  account: ""
+  container: ""
+
+limitRange:
+  enabled: false
+  limits:
+    - default:
+        cpu: "1"
+        memory: "1Gi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      type: Container
+
+resourceQuota:
+  enabled: false
+  spec:
+    hard:
+      cpu: "2"
+      memory: 2Gi
+      pods: "2"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Rendered verbatim into /app/config.yaml (see UBSAgent's config.py /
+# README). Kept in a Secret rather than a ConfigMap because
+# insightfinder.licensekey lives here too -- the app has no env-var
+# override for it.
+config:
+  fileDownload:
+    # Local download directory inside the container; must match the `data`
+    # emptyDir mount path in templates/cronjob.yaml.
+    destination: /app/data
+    # Optional blob name prefix filter.
+    prefix: ""
+
+  insightfinder:
+    url: https://app.insightfinder.com
+    username: ""
+    licensekey: ""
+    project: ""
+
+  transform:
+    # Prefix each field key with "<table>@".
+    include_group_name: true
+
+  # One entry per feed table name (taken from each file's HEADER row) to the
+  # ordered list of column names for that table. A file whose table has no
+  # matching entry here is skipped with an error logged.
+  mapping: {}
+    # PRODUCT_KYC:
+    #   - operation_type
+    #   - abbreviation
+    #   - description
+    #   - active
