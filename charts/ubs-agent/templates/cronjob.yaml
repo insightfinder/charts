@@ -61,6 +61,8 @@ spec:
                   value: {{ .Values.storage.container | quote }}
                 - name: AZURE_CLIENT_ID
                   value: {{ .Values.azure.clientId | quote }}
+                - name: API_VERSION
+                  value: {{ .Values.apiVersion | quote }}
               securityContext:
                 {{- toYaml .Values.securityContext | nindent 16 }}
               resources:
