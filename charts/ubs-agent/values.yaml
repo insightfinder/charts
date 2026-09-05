@@ -12,6 +12,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# API version passed to the agent as the API_VERSION env var.
+apiVersion: ""
+
 # The agent runs once, downloads what's new, streams it, and exits -- so it
 # is scheduled as a CronJob rather than a long-running Deployment.
 # Default: once per day at 01:00 UTC.
