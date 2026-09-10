@@ -1,0 +1,56 @@
+# Temporal server + its own dedicated Postgres, for the ARI on-call
+# code-analysis-fix agent's workflow durability. See Chart.yaml for scope.
+
+namespace: insightfinder
+
+temporal:
+  image:
+    repository: temporalio/auto-setup
+    tag: "1.22"
+    pullPolicy: IfNotPresent
+  replicas: 1
+  # gRPC frontend port. github-agent's ONCALL_TEMPORAL_ADDRESS points at
+  # "<release-name>:7233" (in-namespace short DNS) using this port.
+  port: 7233
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  # temporalio/auto-setup always creates a namespace literally called
+  # "default" on first boot -- this is the only namespace guaranteed to
+  # exist without an extra registration step, so it's the one github-agent's
+  # own deployment should point ONCALL_TEMPORAL_NAMESPACE at. Documented here
+  # rather than templated, since changing it means adding a namespace-create
+  # step this chart does not (yet) run -- see Chart NOTES.txt.
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  port: 5432
+  database: temporal
+  username: temporal
+  # Overridden per-environment by whoever installs this chart (e.g. via a
+  # FluxCD HelmRelease `values:` block). Plaintext here is only this chart's
+  # own dev/test default -- matches this repo's existing convention (e.g.
+  # insightfinder-keda's rabbitmq.host carries a real password the same way).
+  password: temporal
+  persistence:
+    enabled: true
+    size: 10Gi
+    # Empty = cluster default StorageClass.
+    storageClassName: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+podAnnotations: {}
+imagePullSecrets: []

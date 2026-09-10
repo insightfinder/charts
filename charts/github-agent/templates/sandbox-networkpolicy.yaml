@@ -1,0 +1,53 @@
+# Isolation for the ephemeral sandbox Job pods (untrusted repo code AND a
+# per-task credential both pass through them): limit egress to DNS + the
+# public internet (repo provider API, LLM provider API), explicitly denying
+# the cluster's own private IP ranges so a sandboxed task can never reach
+# internal InsightFinder infra the way a shared bastion key could.
+#
+# NOTE: a NetworkPolicy resource is enforced only if the cluster's CNI
+# actually implements it (Calico, Cilium, etc.) -- EKS's default VPC CNI
+# does NOT enforce NetworkPolicy without one of those also installed. This
+# is a real, not-yet-verified dependency; confirm the target cluster has an
+# enforcing CNI before relying on this for actual isolation.
+{{- if .Values.sandboxNetworkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "github-agent.fullname" . }}-sandbox
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "github-agent.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: github-agent-sandbox
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []  # nothing needs to reach IN to a sandbox pod
+  egress:
+    # DNS -- needed to resolve github.com/api.anthropic.com at all.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Public internet only -- explicitly excludes the private ranges a
+    # cluster's own pod/service/node CIDRs live in, so this can never reach
+    # internal InsightFinder infra regardless of which of those ranges this
+    # particular cluster uses.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+{{- end }}

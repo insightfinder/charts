@@ -1,0 +1,13 @@
+apiVersion: v2
+name: github-agent
+description: >
+  The A2A/MCP-compat service (POST /jsonrpc, POST /mcp, POST
+  /tools/execute_fix_in_sandbox/stream) that insightfinder-mcp-service's
+  codefix-sandbox agent calls as a named MCP server. Spawns its own isolated
+  K8s Job (the "opencode" sandbox container) per code-fix task, orchestrated
+  via a Temporal workflow (see the sibling `temporal` chart, which this
+  release depends on being reachable). Source: ActionAIAgent/services/
+  github-agent.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

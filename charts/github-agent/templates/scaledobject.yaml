@@ -1,0 +1,29 @@
+# Autoscales the github-agent Deployment on real backlog (open
+# CodeAnalysisFixWorkflow count, from GET /metrics/queue-depth) rather than a
+# fixed replica count -- review feedback: "incident volume is bursty... idle
+# workers cost nothing when quiet." Assumes the KEDA operator itself is
+# already installed cluster-wide (same assumption charts/insightfinder-keda
+# already makes -- this chart only declares the ScaledObject CRD, not KEDA).
+{{- if .Values.autoscaling.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "github-agent.fullname" . }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "github-agent.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "github-agent.fullname" . }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicaCount }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicaCount }}
+  pollingInterval: {{ .Values.autoscaling.pollingInterval }}
+  cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod }}
+  triggers:
+    - type: metrics-api
+      metadata:
+        targetValue: {{ .Values.autoscaling.targetQueueDepthPerReplica | quote }}
+        url: "http://{{ include "github-agent.fullname" . }}:{{ .Values.port }}/metrics/queue-depth"
+        valueLocation: "queueDepth"
+        method: "GET"
+{{- end }}

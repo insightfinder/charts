@@ -1,0 +1,59 @@
+namespace: insightfinder
+
+image:
+  repository: docker.io/insightfinderinc/github-agent
+  tag: latest
+  # Always, not IfNotPresent: CI pushes new builds to the same "latest" tag
+  # (see .github/workflows/github-agent-build.yaml in ActionAIAgent) --
+  # without this a node that already cached "latest" would never pick up a
+  # new build. There is no Flux image-automation wiring yet to instead bump
+  # an immutable tag here on every build (deliberate follow-up, not done).
+  pullPolicy: Always
+
+replicas: 1
+port: 8006
+
+temporal:
+  # Address/namespace of the `temporal` chart release in this same
+  # namespace (see helm-charts/charts/temporal) -- this release assumes
+  # that chart is already installed. temporalio/auto-setup only creates a
+  # namespace literally called "default" on first boot, see that chart's
+  # NOTES.txt, hence the default here.
+  address: "temporal:7233"
+  namespace: "default"
+  taskQueue: "oncall-fix-queue"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+serviceAccount:
+  # RBAC github-agent needs to spawn/watch/clean up its own sandbox Jobs
+  # (batch/jobs, pods/log, secrets) -- see templates/rbac.yaml.
+  create: true
+
+sandboxNetworkPolicy:
+  # Restricts the sandbox Job pods' egress to DNS + public internet (repo
+  # provider / LLM provider APIs), denying the cluster's own private ranges
+  # -- see templates/sandbox-networkpolicy.yaml for the real caveat: this is
+  # a no-op unless the cluster's CNI enforces NetworkPolicy at all.
+  enabled: true
+
+autoscaling:
+  # Requires the KEDA operator already installed cluster-wide (same
+  # assumption charts/insightfinder-keda makes) -- this chart only declares
+  # the ScaledObject CRD. See templates/scaledobject.yaml.
+  enabled: true
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  pollingInterval: 15
+  cooldownPeriod: 300
+  # Scale out once open workflows per replica exceed this.
+  targetQueueDepthPerReplica: 3
+
+podAnnotations: {}
+imagePullSecrets: []

@@ -1,0 +1,7 @@
+Temporal server: {{ include "temporal.fullname" . }}.{{ .Values.namespace | default .Release.Namespace }}.svc.cluster.local:{{ .Values.temporal.port }}
+
+temporalio/auto-setup creates exactly one namespace on first boot, literally
+named "default" -- no other namespace exists until someone registers one
+(e.g. via the temporal/admin-tools CLI). Point any client's *_TEMPORAL_ADDRESS
+at the address above and its *_TEMPORAL_NAMESPACE at "default" unless a
+namespace has been registered separately.
