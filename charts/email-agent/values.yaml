@@ -46,7 +46,14 @@ mainAgent:
   taskQueue: "main-agent-queue"
   smtp:
     host: "smtp.yeah.net"
+    # 465 is implicit SSL, which is what the send path uses. Port 587 is
+    # STARTTLS and would need a code change, so prefer 465 where the provider
+    # offers both (Gmail does).
     port: 465
+    # Address recipients see, when it differs from the account used to log in
+    # -- e.g. authenticating as a shared mailbox but sending as support@.
+    # Empty falls back to smtp-username.
+    from: ""
   resources:
     requests:
       cpu: 100m

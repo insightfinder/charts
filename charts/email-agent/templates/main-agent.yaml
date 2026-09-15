@@ -47,6 +47,10 @@ spec:
           value: {{ .Values.mainAgent.smtp.host | quote }}
         - name: SMTP_PORT
           value: {{ .Values.mainAgent.smtp.port | quote }}
+        {{- with .Values.mainAgent.smtp.from }}
+        - name: SMTP_FROM
+          value: {{ . | quote }}
+        {{- end }}
         - name: SMTP_USERNAME
           valueFrom:
             secretKeyRef:
