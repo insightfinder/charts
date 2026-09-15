@@ -148,6 +148,12 @@ traceserverConfig:
     port: 4618
     maxInboundMessageSizeInKB: 16384
 
+  # Native OTLP/HTTP trace receiver (POST /v1/traces, application/x-protobuf or
+  # application/json). Shares the TLS settings under `app.tls` below.
+  http:
+    port: 4619
+    maxInboundMessageSizeInKB: 16384
+
   insightFinder:
     serverUrl: https://stg.insightfinder.com
     serverUri: /api/v1/customprojectrawdata

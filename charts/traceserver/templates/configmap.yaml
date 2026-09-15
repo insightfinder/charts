@@ -10,6 +10,11 @@ data:
       port: {{ .Values.traceserverConfig.grpc.port }}
       maxInboundMessageSizeInKB: {{ .Values.traceserverConfig.grpc.maxInboundMessageSizeInKB }}
 
+    {{- with .Values.traceserverConfig.http }}
+    http:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+
     {{- with .Values.traceserverConfig.insightFinder }}
     insightFinder:
       {{- toYaml . | nindent 6 }}

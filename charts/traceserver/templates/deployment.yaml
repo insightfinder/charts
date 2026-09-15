@@ -43,6 +43,11 @@ spec:
             - name: grpc
               containerPort: {{ .Values.traceserverConfig.grpc.port }}
               protocol: TCP
+            {{- with .Values.traceserverConfig.http }}
+            - name: http
+              containerPort: {{ .port }}
+              protocol: TCP
+            {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
