@@ -43,6 +43,14 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -51,9 +59,6 @@ spec:
             - name: models
               mountPath: /app/conf.d/llm_models.yaml
               subPath: llm_models.yaml
-            - name: sites-url
-              mountPath: /app/conf.d/sites_url.yaml
-              subPath: sites_url.yaml
             - name: accelerators
               mountPath: /app/conf.d/accelerators.yaml
               subPath: accelerators.yaml
@@ -61,9 +66,6 @@ spec:
         - name: models
           configMap:
             name: kservectl-models
-        - name: sites-url
-          configMap:
-            name: kservectl-sites-url
         - name: accelerators
           configMap:
             name: kservectl-accelerators

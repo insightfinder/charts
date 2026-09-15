@@ -2,19 +2,29 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "kservectl.fullname" . }}
+# Exactly the verbs src/kservectl/serving/service.py issues, and no others: the
+# service reads one InferenceService at a time, creates and deletes them, patches
+# the KServe stop annotation, and lists the ones it deployed from a HuggingFace id
+# (by label, for GET /api/v1/hf_models). It never watches them, and it owns no
+# Deployments -- KServe's controller and the Knative autoscaler do that.
 rules:
   - apiGroups: ["serving.kserve.io"]
     resources: ["inferenceservices"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    verbs: ["get", "list", "create", "patch", "delete"]
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["list", "get"]
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["apps"]
-    resources: ["deployments/scale"]
-    verbs: ["get", "update", "patch"]
+    verbs: ["list"]
+  # Lets POST /api/v1/hf_model store a user-supplied hf_token in a Secret so the
+  # model pod can pull that user's private HuggingFace repo. `create` only, on
+  # purpose: kservectl derives the secret name from a digest of the token, so a new
+  # token creates a new secret and an existing one is never rewritten. Granting no
+  # read or update means a compromise of this service cannot exfiltrate or clobber
+  # the namespace's other secrets (hf-secret, regcred, s3creds, basic-auth).
+  # Deploys that use the shared hf-secret need none of this: the kubelet resolves
+  # that secret for the model pod, which never involves this service account.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -27,24 +27,19 @@ service:
   type: ClusterIP
   port: 80
 
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    # nginx.ingress.kubernetes.io/auth-type: basic
-    # Make sure to create this secret in the namespace beforehand
-    nginx.ingress.kubernetes.io/auth-secret: kservectl-auth
-    # The user name by default is user. You can change it to whatever you want.
-    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - user"
-  hosts:
-    - host: gateway-gke-stg.insightfinder.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls:
-    - secretName: ingress-tls
-      hosts:
-        - gateway-gke-stg.insightfinder.com
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+  hostnames:
+    - kservectl-stage.insightfinder.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 resources:
   requests:
@@ -56,19 +51,26 @@ resources:
 
 livenessProbe:
   httpGet:
-    path: /docs
+    path: /healthz
     port: http
+  initialDelaySeconds: 10
+  periodSeconds: 20
+  timeoutSeconds: 3
+  failureThreshold: 3
 readinessProbe:
   httpGet:
-    path: /docs
+    path: /readyz
     port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
 
 nodeSelector: {}
 tolerations: []
 affinity: {}
 
-models:
-  {}
+models: {}
   # Example model configurations
   # smollm2:
   #   model_id: HuggingFaceTB/SmolLM2-135M-Instruct
@@ -82,13 +84,3 @@ models:
   #     limits:
   #       cpu: 1
   #       memory: 2Gi
-
-sites_url:
-  {}
-  # Example site URLs for different platforms
-  # aws:
-  #   kservectl: http://insightfinder-kservectl.modelserving.svc.cluster.local
-  #   llm-trace-proxy: http://insightfinder-llm-trace-proxy.modelserving.svc.cluster.local
-  # gcp:
-  #   kservectl: https://gateway-gke-stg.insightfinder.com
-  #   llm-trace-proxy: https://gke-stg-llm-proxy.insightfinder.com
