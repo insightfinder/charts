@@ -1,0 +1,122 @@
+# Chart-wide values these templates reference. They were supplied by the
+# insightfinder umbrella chart when these templates lived inside it; this is a
+# standalone chart, so they are declared here. podAntiAffinity in particular
+# must exist: the worker Deployment reads .Values.podAntiAffinity.enabled
+# directly (not through `with`), so a missing map fails to render.
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+podAnnotations: {}
+podAntiAffinity:
+  enabled: false
+  topologyKey: kubernetes.io/hostname
+
+ariOncallAgent:
+  enabled: false
+  image:
+    repository: docker.io/insightfinderinc/ari-oncall-agent
+    pullPolicy: Always
+    tag: "main"
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  api:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+      className: "nginx"
+      annotations: {}
+      hosts:
+        - "ari-oncall-agent.insightfinder.com"
+      tls:
+        enabled: false
+        secretName: ingress-tls
+  worker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  persistence:
+    repoCache:
+      enabled: false
+      existingClaim: ""
+      storageClassName: ""
+      size: 20Gi
+  existingSecret: ""
+  temporalHost: "temporal.internal.example.com:7233"
+  temporalNamespace: "oncall-ari-agent"
+  temporalTaskQueue: "oncall-ari-fix-queue"
+  temporalTlsEnabled: true
+  temporalApiKey: ""
+  agentApiKeys: "change-me"
+  agentName: "ARI On-Call Agent"
+  agentPublicUrl: "https://ari-oncall-agent.insightfinder.com"
+  sandboxRoot: "/var/lib/ari-agent/sandbox"
+  repoCacheRoot: "/var/lib/ari-agent/repo-cache"
+  opencodeBin: "opencode"
+  githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
+  logLevel: "info"
+
+temporal:
+  enabled: false
+  mode: "dev"
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    port: 7233
+  dev:
+    image:
+      repository: temporalio/temporal
+      tag: "1.9.1"
+      pullPolicy: IfNotPresent
+    uiPort: 8233
+    dbFilename: "/data/temporal.db"
+    persistence:
+      enabled: false
+      existingClaim: ""
+      storageClassName: ""
+      size: 5Gi
+  image:
+    repository: temporalio/auto-setup
+    tag: "1.32.0"
+    pullPolicy: IfNotPresent
+  postgresql:
+    host: "postgres.example.com"
+    port: 5432
+    user: "temporal"
+    password: ""
+    databaseName: "temporal"
+    visibilityDatabaseName: "temporal_visibility"
+    existingSecret: ""
+    secretKey: password
+  skipDbCreate: false
+  skipSchemaSetup: false
+  defaultNamespace: "default"
+  defaultNamespaceRetention: "72h"
+  web:
+    enabled: true
+    image:
+      repository: temporalio/ui
+      tag: "2.54.1"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 8080
+    corsOrigins: ""
+

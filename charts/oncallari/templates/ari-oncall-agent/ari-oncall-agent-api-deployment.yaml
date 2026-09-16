@@ -1,0 +1,72 @@
+{{- if .Values.ariOncallAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-ari-oncall-agent-api" (include "insightfinder.fullname" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ariOncallAgent.api.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-oncall-agent-api
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-oncall-agent-api
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-ari-oncall-agent-api" .Chart.Name }}
+          image: "{{ .Values.ariOncallAgent.image.repository }}:{{ .Values.ariOncallAgent.image.tag }}"
+          imagePullPolicy: {{ .Values.ariOncallAgent.image.pullPolicy }}
+          command: ["uvicorn", "ari_agent.main:app", "--host", "0.0.0.0", "--port", "8000"]
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariOncallAgentSecretName" . }}
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 15
+          resources:
+            {{- toYaml .Values.ariOncallAgent.api.resources | nindent 12 }}
+      {{- with .Values.ariOncallAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariOncallAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariOncallAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-oncall-agent-api
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariOncallAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

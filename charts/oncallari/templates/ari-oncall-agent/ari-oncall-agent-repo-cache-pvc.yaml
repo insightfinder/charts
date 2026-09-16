@@ -1,0 +1,20 @@
+{{- if and .Values.ariOncallAgent.enabled .Values.ariOncallAgent.persistence.repoCache.enabled (not .Values.ariOncallAgent.persistence.repoCache.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "insightfinder.ariOncallAgentRepoCacheClaimName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  # ReadWriteMany so every worker replica mounts the same cache instead of
+  # each keeping an independent, replica-local one — see the agent's own
+  # docs/design.md §6.
+  accessModes:
+    - ReadWriteMany
+  {{- with .Values.ariOncallAgent.persistence.repoCache.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.ariOncallAgent.persistence.repoCache.size }}
+{{- end }}

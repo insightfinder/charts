@@ -1,0 +1,102 @@
+{{- if and .Values.temporal.enabled (eq .Values.temporal.mode "postgres") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-temporal" (include "insightfinder.fullname" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  # More than 1 replica is not safe here: this is a single combined process
+  # (frontend/history/matching/worker all in one), and the Temporal server
+  # does not expect multiple independent instances writing against the same
+  # persistence store outside its own internal cluster-membership protocol,
+  # which this single-process deployment does not set up. Scale by giving
+  # this one pod more `resources`, or move to the real multi-service
+  # topology (see the comment on `temporal:` in values.yaml) if that stops
+  # being enough.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-temporal
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-temporal
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-temporal" .Chart.Name }}
+          image: "{{ .Values.temporal.image.repository }}:{{ .Values.temporal.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.image.pullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: 7233
+              protocol: TCP
+          env:
+            - name: DB
+              value: "postgres12_pgx"
+            - name: DB_PORT
+              value: {{ .Values.temporal.postgresql.port | quote }}
+            - name: POSTGRES_SEEDS
+              value: {{ .Values.temporal.postgresql.host | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.temporal.postgresql.user | quote }}
+            - name: POSTGRES_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "insightfinder.temporalSecretName" . }}
+                  key: {{ .Values.temporal.postgresql.secretKey }}
+            - name: DBNAME
+              value: {{ .Values.temporal.postgresql.databaseName | quote }}
+            - name: VISIBILITY_DBNAME
+              value: {{ .Values.temporal.postgresql.visibilityDatabaseName | quote }}
+            - name: SKIP_DB_CREATE
+              value: {{ .Values.temporal.skipDbCreate | quote }}
+            - name: SKIP_SCHEMA_SETUP
+              value: {{ .Values.temporal.skipSchemaSetup | quote }}
+            - name: DEFAULT_NAMESPACE
+              value: {{ .Values.temporal.defaultNamespace | quote }}
+            - name: DEFAULT_NAMESPACE_RETENTION
+              value: {{ .Values.temporal.defaultNamespaceRetention | quote }}
+            - name: DYNAMIC_CONFIG_FILE_PATH
+              value: "config/dynamicconfig/development-sql.yaml"
+            - name: TEMPORAL_ADDRESS
+              value: "127.0.0.1:7233"
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "127.0.0.1:7233"
+          readinessProbe:
+            tcpSocket:
+              port: 7233
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 7233
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.temporal.resources | nindent 12 }}
+      {{- with .Values.temporal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
