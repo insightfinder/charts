@@ -39,5 +39,7 @@ data:
     sensitiveData:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+  {{- if .Values.otel.enabled }}
   otelcol.yaml: |
     {{- toYaml .Values.otelcolConfig | nindent 4 }}
+  {{- end }}

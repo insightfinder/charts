@@ -49,3 +49,49 @@ Selector labels
 app.kubernetes.io/name: {{ include "traceserver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Render a Gateway API route. Expects a dict:
+  root, kind (HTTPRoute|GRPCRoute), name, route (values block), service, port
+*/}}
+{{- define "traceserver.route" -}}
+{{- $root := .root -}}
+{{- $service := .service -}}
+{{- $port := .port -}}
+{{- $gateway := $root.Values.gateway | default dict -}}
+{{- $parentRefs := .route.parentRefs | default $gateway.parentRefs -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: {{ .kind }}
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- include "traceserver.labels" $root | nindent 4 }}
+  {{- with .route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- with $parentRefs }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .route.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .route.rules }}
+    - {{- with .matches }}
+      matches:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .filters }}
+      filters:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        - name: {{ $service }}
+          port: {{ $port }}
+          weight: 1
+    {{- end }}
+{{- end }}

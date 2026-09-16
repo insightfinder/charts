@@ -69,7 +69,17 @@ tolerations: []
 
 affinity: {}
 
-# -- Expose the service via gateway-api HTTPRoute
+# -- Gateway attachment shared by httpRoute and grpcRoute; either may override.
+# Their hostnames must NOT overlap: a Listener accepts only one of an HTTPRoute and a
+# GRPCRoute per hostname and rejects the other with Accepted=False.
+gateway:
+  # Which Gateways these Routes are attached to.
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+
+# -- Expose the traceserver OTLP/HTTP receiver (/v1/traces) via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
 # (see: https://gateway-api.sigs.k8s.io/guides/)
 httpRoute:
@@ -77,41 +87,33 @@ httpRoute:
   enabled: false
   # HTTPRoute annotations.
   annotations: {}
-  # Which Gateways this Route is attached to.
-  parentRefs:
-  - name: traefik-gateway
-    namespace: traefik
-  # Hostnames matching HTTP header.
+  # Overrides gateway.parentRefs when non-empty.
+  parentRefs: []
+  # Hostnames matching HTTP header. Must not overlap grpcRoute.hostnames.
   hostnames:
-  - stg-otelcol.insightfinder.com
-  # List of rules and filters applied.
+    - test-traceserver-http.insightfinder.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /v1/traces
 
 # -- Expose the grpc trace-ingestion service via gateway-api GRPCRoute
 # Requires Gateway API resources (incl. the GRPCRoute CRD) and a suitable controller
 # installed within the cluster (see: https://gateway-api.sigs.k8s.io/guides/)
 grpcRoute:
-  # GRPCRoute enabled.
   enabled: false
-  # GRPCRoute annotations.
   annotations: {}
-  # Which Gateways this Route is attached to.
-  parentRefs:
-  - name: traefik-gateway
-    namespace: traefik
-    sectionName: websecure
-  # Hostnames matching for gRPC-over-HTTP/2.
+  # Overrides gateway.parentRefs when non-empty.
+  parentRefs: []
+  # Hostnames matching for gRPC-over-HTTP/2. Must not overlap httpRoute.hostnames.
   hostnames:
-  - stg-traceserver.insightfinder.com
+    - test-traceserver.insightfinder.com
   # List of rules and filters applied. Omit `matches` on a rule for catch-all routing.
   rules:
-  - {}
+    - {}
 
-# -- Enable the otelcol sidecar container, its Service, and its HTTPRoute.
+# -- Enable the otelcol sidecar container and its Service.
 # Disable if traces are ingested another way and the built-in collector isn't needed.
 otel:
   enabled: true
@@ -148,8 +150,6 @@ traceserverConfig:
     port: 4618
     maxInboundMessageSizeInKB: 16384
 
-  # Native OTLP/HTTP trace receiver (POST /v1/traces, application/x-protobuf or
-  # application/json). Shares the TLS settings under `app.tls` below.
   http:
     port: 4619
     maxInboundMessageSizeInKB: 16384
@@ -237,5 +237,5 @@ traceserverConfig:
   sensitiveData:
     sensitiveDataFilterEnabled: false
     sensitiveDataRegex:
-      - 'SELECT'
+      - "SELECT"
     replacement: ""
