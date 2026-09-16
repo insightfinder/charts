@@ -12,6 +12,13 @@ spec:
       protocol: TCP
       name: grpc
       appProtocol: {{ ternary "https" "kubernetes.io/h2c" .Values.traceserverConfig.app.tls.enabled }}
+    {{- with .Values.traceserverConfig.http }}
+    - port: {{ .port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      appProtocol: {{ ternary "https" "http" $.Values.traceserverConfig.app.tls.enabled }}
+    {{- end }}
   selector:
     {{- include "traceserver.selectorLabels" . | nindent 4 }}
 {{- if .Values.otel.enabled }}
