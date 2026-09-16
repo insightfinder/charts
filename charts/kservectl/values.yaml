@@ -92,14 +92,15 @@ accelerators:
   # CPU only, and deliberately not pinned to any GPU nodegroup:
   # cpu-only: {cpu: 1, memory: 2Gi, gpu: 0, node_selector: {}}
 
-# The node label an accelerator's key is matched against, and what POST /api/v1/isvcs
-# sizes a deploy for when it names none. Both optional.
+# The node label an accelerator's key is matched against, and what sizing
+# POST /api/v1/inferenceservices uses when a deploy names none. Both optional.
 node_selector_key: ""
 default_accelerator: ""
 
-# The isvcs this cluster predefines, rendered into conf.d/presets.yaml. The key is the
-# name each one deploys as, and `PUT /api/v1/isvcs/<key>` is what brings it up. An entry
-# names an accelerator rather than writing its own resources or node selector.
+# The inference services this cluster predefines, rendered into conf.d/presets.yaml. The
+# key is the name each one deploys as, and `PUT /api/v1/inferenceservices/<key>` brings
+# it up. An entry names an accelerator rather than writing its own resources or node
+# selector.
 presets:
   {}
   # smollm2:

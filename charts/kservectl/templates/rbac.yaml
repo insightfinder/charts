@@ -5,7 +5,7 @@ metadata:
 # Exactly the verbs src/kservectl/serving/service.py issues, and no others: the
 # service reads one InferenceService at a time, creates and deletes them, patches
 # the KServe stop annotation, and lists the ones it deployed from a HuggingFace id
-# (by label, for GET /api/v1/hf_models). It never watches them, and it owns no
+# (by label, for GET /api/v1/inferenceservices). It never watches them, and it owns no
 # Deployments -- KServe's controller and the Knative autoscaler do that.
 rules:
   - apiGroups: ["serving.kserve.io"]
@@ -14,8 +14,8 @@ rules:
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["list"]
-  # Lets POST /api/v1/hf_model store a user-supplied hf_token in a Secret so the
-  # model pod can pull that user's private HuggingFace repo. `create` only, on
+  # Lets POST /api/v1/inferenceservices store a user-supplied hf_token in a Secret so
+  # the model pod can pull that user's private HuggingFace repo. `create` only, on
   # purpose: kservectl derives the secret name from a digest of the token, so a new
   # token creates a new secret and an existing one is never rewritten. Granting no
   # read or update means a compromise of this service cannot exfiltrate or clobber
