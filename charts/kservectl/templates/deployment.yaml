@@ -56,16 +56,16 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: models
-              mountPath: /app/conf.d/llm_models.yaml
-              subPath: llm_models.yaml
+            - name: presets
+              mountPath: /app/conf.d/presets.yaml
+              subPath: presets.yaml
             - name: accelerators
               mountPath: /app/conf.d/accelerators.yaml
               subPath: accelerators.yaml
       volumes:
-        - name: models
+        - name: presets
           configMap:
-            name: kservectl-models
+            name: kservectl-presets
         - name: accelerators
           configMap:
             name: kservectl-accelerators
