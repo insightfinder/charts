@@ -951,6 +951,15 @@ entries:
     version: 0.1.0
   traceserver:
   - apiVersion: v2
+    created: "2026-09-16T18:20:17.014860762Z"
+    description: Helm chart for InsightFinder Trace Server
+    digest: 1cd90dabe7666e795e8272f36ac22d98fb70b563018faf8c19bbdf19b52f7c70
+    name: traceserver
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/traceserver-0.1.4/traceserver-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
     created: "2026-08-11T15:49:51.577679137Z"
     description: Helm chart for InsightFinder Trace Server
     digest: aaa8a0f9794de62e6ac45701ae5f4e36833dc9b3808f04b6cf9385b5d9489df3
@@ -1081,4 +1090,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-09-02T22:09:06.802412808Z"
+generated: "2026-09-16T18:20:17.23276207Z"
