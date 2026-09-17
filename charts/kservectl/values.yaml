@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: docker.io/insightfinderinc/kservectl
   pullPolicy: Always
-  tag: "latest"
+  tag: "test"
 
 imagePullSecrets:
   - name: regcred
@@ -100,8 +100,7 @@ affinity: {}
 # a default set here would be *added* to whatever a cluster declares, leaving it
 # offering GPU types it does not have. A cluster that declares none fails kservectl's
 # startup by name, which is the right way to find out.
-accelerators:
-  {}
+accelerators: {}
   # nvidia-t4-16gb-x1:
   #   cpu: 3
   #   memory: 14Gi
@@ -129,8 +128,7 @@ node_selector_key: ""
 # key is the name each one deploys as, and `PUT /api/v1/inferenceservices/<key>` brings
 # it up. An entry names an accelerator rather than writing its own resources or node
 # selector.
-presets:
-  {}
+presets: {}
   # smollm2:
   #   model_id: HuggingFaceTB/SmolLM2-135M-Instruct
   #   accelerator: cpu-only
