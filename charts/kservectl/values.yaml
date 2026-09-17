@@ -85,7 +85,7 @@ affinity: {}
 # runs with its own `node_selector`. Requests and limits are generated from these and
 # are always equal, which is what puts a GPU pod in the Guaranteed QoS class.
 #
-# `kservectl discover accelerators --cluster X` prints this block, read off a live
+# `kservectl accelerator discover --cluster X` prints this block, read off a live
 # cluster's nodegroups.
 #
 # Empty on purpose, and not defaulted: Helm merges maps rather than replacing them, so
