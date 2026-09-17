@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "email-agent.subagent.fullname" . }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "email-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: email-subagent
+spec:
+  replicas: {{ .Values.emailSubagent.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "email-agent.subagent.fullname" . }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ include "email-agent.subagent.fullname" . }}
+        app.kubernetes.io/component: email-subagent
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: email-subagent
+        image: "{{ .Values.emailSubagent.image.repository }}:{{ .Values.emailSubagent.image.tag }}"
+        imagePullPolicy: {{ .Values.emailSubagent.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.emailSubagent.port }}
+        env:
+        - name: EMAIL_SUBAGENT_TEMPORAL_ADDRESS
+          value: {{ .Values.temporal.address | quote }}
+        - name: EMAIL_SUBAGENT_TEMPORAL_NAMESPACE
+          value: {{ .Values.temporal.namespace | quote }}
+        - name: EMAIL_SUBAGENT_TEMPORAL_TASK_QUEUE
+          value: {{ .Values.emailSubagent.taskQueue | quote }}
+        - name: EMAIL_SUBAGENT_DRAFT_DELAY_SECONDS
+          value: {{ .Values.emailSubagent.draftDelaySeconds | quote }}
+        {{- include "email-agent.tracingEnv" . | nindent 8 }}
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretName }}
+              key: anthropic-api-key
+        resources:
+          {{- toYaml .Values.emailSubagent.resources | nindent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.emailSubagent.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.emailSubagent.port }}
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "email-agent.subagent.fullname" . }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "email-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: email-subagent
+spec:
+  selector:
+    app: {{ include "email-agent.subagent.fullname" . }}
+  ports:
+  - port: {{ .Values.emailSubagent.port }}
+    targetPort: {{ .Values.emailSubagent.port }}
+    name: http

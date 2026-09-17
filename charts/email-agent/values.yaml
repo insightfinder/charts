@@ -1,0 +1,87 @@
+namespace: insightfinder
+
+# Both agents talk to the same already-running Temporal server; only the task
+# queue differs, and that is set per-component below.
+temporal:
+  address: "temporal-test-server:7233"
+  namespace: "default"
+
+# Both agents export to the same traceserver under the same identity -- that
+# is what makes their spans land in one project as a single multi-component
+# trace, so these are deliberately not per-component.
+tracing:
+  enabled: true
+  # In-cluster address of an existing traceserver instance. Accepts a
+  # comma-separated list, in which case the same spans are exported to every
+  # endpoint.
+  otlpEndpoint: "http://traceserver-llm-labs.traceserver.svc.cluster.local:4618"
+  ifUser: "demoUser"
+  # Must be a Workflow-type project (shown as "Multi-component" on the AI
+  # Trace page). A Model-type project accepts the data but never displays it.
+  ifProject: ""
+  ifSystem: "email-agent"
+
+# One Secret for both components -- they share the trace license key, and
+# splitting it in two only duplicated that key. Credentials are NEVER stored
+# in this chart; create it out-of-band before installing:
+#   kubectl create secret generic email-agent-secrets -n insightfinder \
+#     --from-literal=anthropic-api-key='...' \
+#     --from-literal=smtp-username='...' \
+#     --from-literal=smtp-password='...' \
+#     --from-literal=if-trace-license-key='...'
+# anthropic-api-key, smtp-username and smtp-password are required;
+# if-trace-license-key is optional at the Pod level (see the deployments'
+# `optional: true`) but traces are dropped server-side without it.
+secretName: email-agent-secrets
+
+mainAgent:
+  image:
+    repository: docker.io/insightfinderinc/main-agent
+    tag: latest
+    # Always, not IfNotPresent -- CI pushes new builds to the same "latest"
+    # tag, same convention as the other agent charts in this repo.
+    pullPolicy: Always
+  replicas: 1
+  port: 8007
+  taskQueue: "main-agent-queue"
+  smtp:
+    host: "smtp.yeah.net"
+    # 465 is implicit SSL, which is what the send path uses. Port 587 is
+    # STARTTLS and would need a code change, so prefer 465 where the provider
+    # offers both (Gmail does).
+    port: 465
+    # Address recipients see, when it differs from the account used to log in
+    # -- e.g. authenticating as a shared mailbox but sending as support@.
+    # Empty falls back to smtp-username.
+    from: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+emailSubagent:
+  image:
+    repository: docker.io/insightfinderinc/email-subagent
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  port: 8008
+  taskQueue: "email-subagent-queue"
+  # Artificial pause before drafting, so the workflow's latency is legible on
+  # AW's trace view (the real model call is ~1.5s). Demo-only. Raising it past
+  # ~4 minutes would exceed the activity and HTTP timeouts sized around it in
+  # the two services' code -- see the email-agent README.
+  draftDelaySeconds: 90
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+podAnnotations: {}
+imagePullSecrets: []
