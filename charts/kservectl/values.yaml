@@ -11,6 +11,12 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+# Namespace kservectl manages InferenceServices in. Empty means the release's own,
+# which is the only one this chart's Role and RoleBinding authorise it in.
+namespace: ""
+
+logLevel: INFO
+
 serviceAccount:
   create: true
   automount: true
@@ -27,24 +33,19 @@ service:
   type: ClusterIP
   port: 80
 
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    # nginx.ingress.kubernetes.io/auth-type: basic
-    # Make sure to create this secret in the namespace beforehand
-    nginx.ingress.kubernetes.io/auth-secret: kservectl-auth
-    # The user name by default is user. You can change it to whatever you want.
-    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - user"
-  hosts:
-    - host: gateway-gke-stg.insightfinder.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls:
-    - secretName: ingress-tls
-      hosts:
-        - gateway-gke-stg.insightfinder.com
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+  hostnames:
+    - kservectl-stage.insightfinder.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 resources:
   requests:
@@ -54,41 +55,66 @@ resources:
     cpu: "500m"
     memory: "512Mi"
 
+# The app's own probes. Liveness checks nothing but the process, so a failing
+# dependency cannot get a healthy container restarted; readiness loads both config
+# files, and fails while either of them is unreadable.
 livenessProbe:
   httpGet:
-    path: /docs
+    path: /healthz
     port: http
+  initialDelaySeconds: 10
+  periodSeconds: 20
+  timeoutSeconds: 3
+  failureThreshold: 3
 readinessProbe:
   httpGet:
-    path: /docs
+    path: /readyz
     port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
 
 nodeSelector: {}
 tolerations: []
 affinity: {}
 
-models:
+# What each GPU type gives a pod, rendered into conf.d/accelerators.yaml. The key is
+# the value this cluster's GPU nodegroups carry under `node_selector_key`, so a pod is
+# pinned by its key alone; an entry that is not a node label value has to say where it
+# runs with its own `node_selector`. Requests and limits are generated from these and
+# are always equal, which is what puts a GPU pod in the Guaranteed QoS class.
+#
+# `kservectl accelerator discover --cluster X` prints this block, read off a live
+# cluster's nodegroups.
+#
+# Empty on purpose, and not defaulted: Helm merges maps rather than replacing them, so
+# a default set here would be *added* to whatever a cluster declares, leaving it
+# offering GPU types it does not have. A cluster that declares none fails kservectl's
+# startup by name, which is the right way to find out.
+accelerators:
   {}
-  # Example model configurations
+  # nvidia-t4-16gb-x1: {cpu: 3, memory: 14Gi, gpu: 1}
+  # CPU only, and deliberately not pinned to any GPU nodegroup:
+  # cpu-only: {cpu: 1, memory: 2Gi, gpu: 0, node_selector: {}}
+
+# The node label an accelerator's key is matched against. Optional; kservectl's own
+# default is `insightfinder.com/accelerator`.
+#
+# There is no `default_accelerator` any more: sizing is never guessed, so a deploy that
+# names no accelerator is refused. A values file that still sets that key -- or any of
+# the other keys 0.1.x read -- fails this chart's render by name, naming what to write
+# instead (`kservectl.validateValues` in _helpers.tpl).
+node_selector_key: ""
+
+# The inference services this cluster predefines, rendered into conf.d/presets.yaml. The
+# key is the name each one deploys as, and `PUT /api/v1/inferenceservices/<key>` brings
+# it up. An entry names an accelerator rather than writing its own resources or node
+# selector.
+presets:
+  {}
   # smollm2:
   #   model_id: HuggingFaceTB/SmolLM2-135M-Instruct
+  #   accelerator: cpu-only
   #   backend: huggingface
-  #   saved_on_pvc: false
   #   min_replicas: 1
-  #   resources:
-  #     requests:
-  #       cpu: 1
-  #       memory: 2Gi
-  #     limits:
-  #       cpu: 1
-  #       memory: 2Gi
-
-sites_url:
-  {}
-  # Example site URLs for different platforms
-  # aws:
-  #   kservectl: http://insightfinder-kservectl.modelserving.svc.cluster.local
-  #   llm-trace-proxy: http://insightfinder-llm-trace-proxy.modelserving.svc.cluster.local
-  # gcp:
-  #   kservectl: https://gateway-gke-stg.insightfinder.com
-  #   llm-trace-proxy: https://gke-stg-llm-proxy.insightfinder.com

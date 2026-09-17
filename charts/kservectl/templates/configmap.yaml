@@ -1,24 +1,32 @@
+{{- include "kservectl.validateValues" . -}}
+{{/* Rendered key by key rather than with toYaml: toYaml iterates the values map in Go's
+     random order, so the same values produce a different ConfigMap body on every render.
+     `range` sorts, and toJson is valid YAML. */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kservectl-accelerators
+  name: {{ include "kservectl.fullname" . }}-accelerators
+  labels:
+    {{- include "kservectl.labels" . | nindent 4 }}
 data:
-{{ (.Files.Glob "files/accelerators.yaml").AsConfig | indent 2 }}
+  accelerators.yaml: |
+    {{- with .Values.node_selector_key }}
+    node_selector_key: {{ . }}
+    {{- end }}
+    accelerators:{{ if not .Values.accelerators }} {}{{ end }}
+      {{- range $name, $spec := .Values.accelerators }}
+      {{ $name }}: {{ toJson $spec }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kservectl-models
+  name: {{ include "kservectl.fullname" . }}-presets
+  labels:
+    {{- include "kservectl.labels" . | nindent 4 }}
 data:
-  llm_models.yaml: |
-    models:
-{{ .Values.models | toYaml | indent 6 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kservectl-sites-url
-data:
-  sites_url.yaml: |
-    sites_url:
-{{ .Values.sites_url | toYaml | indent 6 }}
+  presets.yaml: |
+    presets:{{ if not .Values.presets }} {}{{ end }}
+      {{- range $name, $spec := .Values.presets }}
+      {{ $name }}: {{ toJson $spec }}
+      {{- end }}
