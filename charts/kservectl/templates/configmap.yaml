@@ -1,3 +1,4 @@
+{{- include "kservectl.validateValues" . -}}
 {{/* Rendered key by key rather than with toYaml: toYaml iterates the values map in Go's
      random order, so the same values produce a different ConfigMap body on every render.
      `range` sorts, and toJson is valid YAML. */}}
@@ -11,9 +12,6 @@ data:
   accelerators.yaml: |
     {{- with .Values.node_selector_key }}
     node_selector_key: {{ . }}
-    {{- end }}
-    {{- with .Values.default_accelerator }}
-    default_accelerator: {{ . }}
     {{- end }}
     accelerators:{{ if not .Values.accelerators }} {}{{ end }}
       {{- range $name, $spec := .Values.accelerators }}

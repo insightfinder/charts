@@ -94,14 +94,18 @@ affinity: {}
 # startup by name, which is the right way to find out.
 accelerators:
   {}
-  # nvidia-l40s-48gb: {cpu: 2, memory: 28Gi, gpu: 1}
+  # nvidia-t4-16gb-x1: {cpu: 3, memory: 14Gi, gpu: 1}
   # CPU only, and deliberately not pinned to any GPU nodegroup:
   # cpu-only: {cpu: 1, memory: 2Gi, gpu: 0, node_selector: {}}
 
-# The node label an accelerator's key is matched against, and what sizing
-# POST /api/v1/inferenceservices uses when a deploy names none. Both optional.
+# The node label an accelerator's key is matched against. Optional; kservectl's own
+# default is `insightfinder.com/accelerator`.
+#
+# There is no `default_accelerator` any more: sizing is never guessed, so a deploy that
+# names no accelerator is refused. A values file that still sets that key -- or any of
+# the other keys 0.1.x read -- fails this chart's render by name, naming what to write
+# instead (`kservectl.validateValues` in _helpers.tpl).
 node_selector_key: ""
-default_accelerator: ""
 
 # The inference services this cluster predefines, rendered into conf.d/presets.yaml. The
 # key is the name each one deploys as, and `PUT /api/v1/inferenceservices/<key>` brings
