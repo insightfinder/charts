@@ -114,10 +114,15 @@ tolerations: []
 affinity: {}
 
 # Rendered verbatim into /app/config.yaml (see UBSAgent's config.py /
-# README). Kept in a Secret rather than a ConfigMap because
-# insightfinder.licensekey lives here too -- the app has no env-var
-# override for it.
+# README). The license key is not part of this block -- see `licenseKey`
+# below.
 config:
+  # Optional, e.g. "2026-09-01" - leave blank to use today's date.
+  historicalDate: ""
+
+  # Optional, default true - see UBSAgent's README for details.
+  uniqueTimestamps: true
+
   fileDownload:
     # Local download directory inside the container; must match the `data`
     # emptyDir mount path in templates/cronjob.yaml.
@@ -128,7 +133,6 @@ config:
   insightfinder:
     url: https://app.insightfinder.com
     username: ""
-    licensekey: ""
     project: ""
 
   transform:
@@ -144,3 +148,12 @@ config:
     #   - abbreviation
     #   - description
     #   - active
+
+# InsightFinder license key, delivered as the LICENSE_KEY env var.
+licenseKey:
+  # Ignored when existingSecret is set.
+  value: ""
+  # Name of a pre-existing Secret containing the license key.
+  existingSecret: ""
+  # Key within existingSecret (or the chart's own auto-created Secret).
+  existingSecretKey: "LICENSE_KEY"
