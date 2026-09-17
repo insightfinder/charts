@@ -2,6 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "kservectl.fullname" . }}
+  labels:
+    {{- include "kservectl.labels" . | nindent 4 }}
 # Exactly the verbs src/kservectl/serving/service.py issues, and no others: the
 # service reads one InferenceService at a time, creates and deletes them, patches
 # the KServe stop annotation, and lists the ones it deployed from a HuggingFace id
@@ -30,9 +32,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "kservectl.fullname" . }}
+  labels:
+    {{- include "kservectl.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
-    name: {{ include "kservectl.fullname" . }}
+    name: {{ include "kservectl.serviceAccountName" . }}
 roleRef:
   kind: Role
   name: {{ include "kservectl.fullname" . }}

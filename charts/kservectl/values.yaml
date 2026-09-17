@@ -11,6 +11,12 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+# Namespace kservectl manages InferenceServices in. Empty means the release's own,
+# which is the only one this chart's Role and RoleBinding authorise it in.
+namespace: ""
+
+logLevel: INFO
+
 serviceAccount:
   create: true
   automount: true
