@@ -87,3 +87,7 @@ globalCommerce:
   {{- range .Values.globalCommerce.countries }}
     - {{ . | quote }}
   {{- end }}
+  # true: journey proposition/CDN filtering is handled by the InfrastructureCore
+  # backend (nbc.global_commerce.journey_filter project setting). false (default):
+  # this agent filters locally, matching pre-migration behavior.
+  gcBackend: {{ .Values.globalCommerce.gcBackend | default false }}
