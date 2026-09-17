@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ printf "%s-ari-oncall-agent-api" (include "insightfinder.fullname" .) }}
+  name: {{ include "insightfinder.ariOncallAgentApiServiceName" . }}
   labels:
     {{- include "insightfinder.labels" . | nindent 4 }}
 spec:

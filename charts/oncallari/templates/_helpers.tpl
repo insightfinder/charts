@@ -62,15 +62,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 ARI On-Call Agent
 */}}
 {{- define "insightfinder.ariOncallAgentApiServiceName" -}}
-{{- printf "%s-ari-oncall-agent-api" (include "insightfinder.fullname" .) }}
+{{- printf "%s-api" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariOncallAgentWorkerName" -}}
+{{- printf "%s-worker" (include "insightfinder.fullname" .) }}
 {{- end }}
 
 {{- define "insightfinder.ariOncallAgentSecretName" -}}
-{{- .Values.ariOncallAgent.existingSecret | default (printf "%s-ari-oncall-agent-secret" (include "insightfinder.fullname" .)) }}
+{{- .Values.ariOncallAgent.existingSecret | default (printf "%s-secret" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
 {{- define "insightfinder.ariOncallAgentRepoCacheClaimName" -}}
-{{- .Values.ariOncallAgent.persistence.repoCache.existingClaim | default (printf "%s-ari-oncall-agent-repo-cache" (include "insightfinder.fullname" .)) }}
+{{- .Values.ariOncallAgent.persistence.repoCache.existingClaim | default (printf "%s-repo-cache" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
 {{/*
@@ -86,4 +90,16 @@ Temporal
 
 {{- define "insightfinder.temporalWebServiceName" -}}
 {{- printf "%s-temporal-web" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.temporalUiIngressName" -}}
+{{- printf "%s-temporal-ui" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.temporalBasicAuthMiddlewareName" -}}
+{{- printf "%s-temporal-basic-auth" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.temporalBasicAuthSecretName" -}}
+{{- .Values.temporal.ingress.basicAuth.secretName | default (printf "%s-temporal-basicauth" (include "insightfinder.fullname" .)) }}
 {{- end }}

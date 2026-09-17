@@ -39,13 +39,19 @@ ariOncallAgent:
       type: ClusterIP
     ingress:
       enabled: false
-      className: "nginx"
+      # This chart is currently only deployed on the Traefik-ingress test
+      # cluster -- override if a future environment uses a different
+      # ingress controller.
+      className: "traefik"
       annotations: {}
       hosts:
         - "ari-oncall-agent.insightfinder.com"
       tls:
         enabled: false
-        secretName: ingress-tls
+        # Left blank so Traefik falls back to its default TLSStore
+        # (the cluster-wide *.insightfinder.com wildcard cert) instead of
+        # looking for a named Secret that doesn't exist in this namespace.
+        secretName: ""
   worker:
     replicaCount: 1
     resources:
@@ -141,4 +147,30 @@ temporal:
       type: ClusterIP
       port: 8080
     corsOrigins: ""
+  # Exposes the Temporal Web UI outside the cluster. Points at the
+  # dev-mode server's own "ui" port when temporal.mode is "dev", or at
+  # the separate temporal-web Service when mode is "postgres".
+  #
+  # `temporal server start-dev` (dev mode) ships with NO authentication of
+  # its own -- basicAuth defaults to enabled so this is never opened up
+  # unprotected by accident. Disable it only if something else in front
+  # (a VPN, an authenticating proxy) already gates access.
+  ingress:
+    enabled: false
+    className: "traefik"
+    annotations: {}
+    host: ""
+    tls:
+      enabled: false
+      secretName: ""
+    basicAuth:
+      enabled: true
+      # Name of an existing traefik.io/v1alpha1 Secret (key: `users`,
+      # htpasswd format) to reuse. Leave blank to have this chart create
+      # one from `htpasswd` below.
+      secretName: ""
+      # An htpasswd-format "user:hash" line (apr1/bcrypt), e.g. the output
+      # of `htpasswd -nbB <user> <password>`. Required when basicAuth is
+      # enabled and secretName is blank.
+      htpasswd: ""
 
