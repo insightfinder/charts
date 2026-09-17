@@ -527,6 +527,15 @@ entries:
     version: 0.1.0
   kservectl:
   - apiVersion: v2
+    created: "2026-09-17T09:24:30.361766022Z"
+    description: A Helm chart to control kserve inference services
+    digest: 710832d1c496e390cb6b376d242b2bc0f98212031444e6eb2b2f8d883d185014
+    name: kservectl
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/kservectl-0.2.2/kservectl-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
     appVersion: 0.2.0
     created: "2026-09-17T06:36:56.084111791Z"
     description: A Helm chart to control kserve inference services
@@ -1111,4 +1120,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-09-17T06:36:56.084195846Z"
+generated: "2026-09-17T09:24:30.361953023Z"
