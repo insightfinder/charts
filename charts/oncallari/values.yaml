@@ -80,6 +80,13 @@ ariOncallAgent:
   temporalTaskQueue: "oncall-ari-fix-queue"
   temporalTlsEnabled: true
   temporalApiKey: ""
+  # Base64-encoded 32-byte AES-256 key. When set, the agent encrypts every
+  # workflow/activity payload before Temporal persists it, instead of
+  # leaving request secrets (LLM api_key, repo pat/ssh_key) as plaintext in
+  # Temporal's event history / Web UI. Generate one with:
+  #   python3 -c "import base64, os; print(base64.b64encode(os.urandom(32)).decode())"
+  # Leave blank only for a throwaway/local install — required for any real deployment.
+  temporalPayloadEncryptionKey: ""
   agentApiKeys: "change-me"
   agentName: "ARI On-Call Agent"
   agentPublicUrl: "https://ari-oncall-agent.insightfinder.com"
