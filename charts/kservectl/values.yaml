@@ -85,8 +85,16 @@ affinity: {}
 # runs with its own `node_selector`. Requests and limits are generated from these and
 # are always equal, which is what puts a GPU pod in the Guaranteed QoS class.
 #
+# `cpu` and `memory` are the pod's; `gpu_memory_gb` is one card's VRAM, which is the
+# number that decides whether a model's weights fit and is reported on
+# `GET /api/v1/accelerators` rather than used. `default_dtype` is the precision
+# everything placed here is served at unless an inference service names its own -- a
+# property of the card, since a T4 has no bfloat16 at all, so a bf16-capable
+# accelerator writes it once here instead of in every preset. `display_name` and
+# `description` are for whatever renders the picker.
+#
 # `kservectl accelerator discover --cluster X` prints this block, read off a live
-# cluster's nodegroups.
+# cluster's nodegroups, `gpu_memory_gb` included.
 #
 # Empty on purpose, and not defaulted: Helm merges maps rather than replacing them, so
 # a default set here would be *added* to whatever a cluster declares, leaving it
@@ -94,7 +102,17 @@ affinity: {}
 # startup by name, which is the right way to find out.
 accelerators:
   {}
-  # nvidia-t4-16gb-x1: {cpu: 3, memory: 14Gi, gpu: 1}
+  # nvidia-t4-16gb-x1:
+  #   cpu: 3
+  #   memory: 14Gi
+  #   gpu: 1
+  #   gpu_memory_gb: 16
+  #   display_name: NVIDIA T4 16GB x1
+  #   description: One T4. Turing, so no bfloat16 -- weights are served at half precision.
+  #
+  # A card that can serve bf16 says so once, rather than every preset on it remembering:
+  # nvidia-l40s-48gb-x1: {cpu: 6, memory: 56Gi, gpu: 1, gpu_memory_gb: 48, default_dtype: auto}
+  #
   # CPU only, and deliberately not pinned to any GPU nodegroup:
   # cpu-only: {cpu: 1, memory: 2Gi, gpu: 0, node_selector: {}}
 
