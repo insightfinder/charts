@@ -26,6 +26,42 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- if and .Values.temporal.enabled .Values.ariOncallAgent.ensureTemporalNamespace }}
+      # The worker exits at startup if its Temporal namespace does not exist:
+      #   Worker validation failed: Namespace <name> is not found
+      # `temporal server start-dev` only ever auto-creates "default", so a
+      # fresh install CrashLoops until someone registers the namespace by
+      # hand. Registering one that already exists is a harmless error, so
+      # this is safe to run on every pod start.
+      #
+      # Only applies to the Temporal this chart deploys -- a managed cluster
+      # does its own provisioning and will generally refuse namespace
+      # creation, hence the two conditions.
+      initContainers:
+        - name: ensure-temporal-namespace
+          image: "{{ .Values.temporal.dev.image.repository }}:{{ .Values.temporal.dev.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.dev.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -u
+              ADDR="{{ include "insightfinder.temporalServiceName" . }}:{{ .Values.temporal.service.port }}"
+              NS="{{ .Values.ariOncallAgent.temporalNamespace }}"
+              echo "waiting for temporal at $ADDR"
+              for i in $(seq 1 60); do
+                if temporal operator namespace list --address "$ADDR" >/dev/null 2>&1; then
+                  break
+                fi
+                sleep 2
+              done
+              if temporal operator namespace describe --address "$ADDR" --namespace "$NS" >/dev/null 2>&1; then
+                echo "namespace $NS already registered"
+              else
+                echo "registering namespace $NS"
+                temporal operator namespace create --address "$ADDR" --namespace "$NS"                   --retention {{ .Values.ariOncallAgent.temporalNamespaceRetention | quote }}
+              fi
+{{- end }}
       containers:
         - name: {{ printf "%s-ari-oncall-agent-worker" .Chart.Name }}
           image: "{{ .Values.ariOncallAgent.image.repository }}:{{ .Values.ariOncallAgent.image.tag }}"

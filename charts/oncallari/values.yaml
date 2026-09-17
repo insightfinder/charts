@@ -16,7 +16,13 @@ ariOncallAgent:
   image:
     repository: docker.io/insightfinderinc/ari-oncall-agent
     pullPolicy: Always
-    tag: "main"
+    # CI publishes a tag per branch (main/staging/test) plus a timestamped
+    # one. "main" is not among those built yet, so it cannot be the default:
+    # a release pinned to it fails ImagePullBackOff before anything else can
+    # be diagnosed. Deploying a different branch is an install-time override,
+    # not a chart edit:
+    #   helm install ... --set ariOncallAgent.image.tag=main
+    tag: "test"
   affinity: {}
   nodeSelector: {}
   tolerations: []
@@ -58,6 +64,13 @@ ariOncallAgent:
   existingSecret: ""
   temporalHost: "temporal.internal.example.com:7233"
   temporalNamespace: "oncall-ari-agent"
+  # Register temporalNamespace from an init container on every worker pod
+  # start. `temporal server start-dev` only auto-creates "default", so
+  # without this a fresh install CrashLoops until someone registers it by
+  # hand. Ignored unless temporal.enabled -- a managed cluster provisions
+  # its own namespaces and will usually refuse creation.
+  ensureTemporalNamespace: true
+  temporalNamespaceRetention: "72h"
   temporalTaskQueue: "oncall-ari-fix-queue"
   temporalTlsEnabled: true
   temporalApiKey: ""
@@ -88,10 +101,19 @@ temporal:
     uiPort: 8233
     dbFilename: "/data/temporal.db"
     persistence:
-      enabled: false
+      # start-dev keeps everything in one SQLite file. On an emptyDir that
+      # file dies with the pod, taking the registered namespaces and all
+      # workflow history with it -- a node rotation left the worker
+      # CrashLooping for hours because its namespace had silently vanished.
+      # A claim costs one small volume and makes a restart uneventful.
+      enabled: true
       existingClaim: ""
       storageClassName: ""
       size: 5Gi
+      # uid/gid the temporalio/temporal image runs as. Applied as the pod's
+      # fsGroup so the provisioned volume is writable -- without it start-dev
+      # cannot create its SQLite file and CrashLoops.
+      fsGroup: 1000
   image:
     repository: temporalio/auto-setup
     tag: "1.32.0"

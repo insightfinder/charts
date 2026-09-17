@@ -27,6 +27,17 @@ spec:
         {{- include "insightfinder.selectorLabels" . | nindent 8 }}
         app: if-temporal
     spec:
+      {{- if .Values.temporal.dev.persistence.enabled }}
+      # temporalio/temporal runs as uid 1000 ("temporal"), but a freshly
+      # provisioned block volume mounts root-owned, so start-dev cannot
+      # create its SQLite file:
+      #   failed setting up schema: unable to create SQLite admin DB:
+      #   unable to open database file (14)
+      # fsGroup makes the kubelet hand the volume to that group. Only needed
+      # for a real volume -- an emptyDir is already writable.
+      securityContext:
+        fsGroup: {{ .Values.temporal.dev.persistence.fsGroup }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
