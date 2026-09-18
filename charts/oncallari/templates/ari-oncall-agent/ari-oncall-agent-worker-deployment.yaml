@@ -1,0 +1,113 @@
+{{- if .Values.ariOncallAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insightfinder.ariOncallAgentWorkerName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ariOncallAgent.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-oncall-agent-worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-oncall-agent-worker
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if and .Values.temporal.enabled .Values.ariOncallAgent.ensureTemporalNamespace }}
+      # The worker exits at startup if its Temporal namespace does not exist:
+      #   Worker validation failed: Namespace <name> is not found
+      # `temporal server start-dev` only ever auto-creates "default", so a
+      # fresh install CrashLoops until someone registers the namespace by
+      # hand. Registering one that already exists is a harmless error, so
+      # this is safe to run on every pod start.
+      #
+      # Only applies to the Temporal this chart deploys -- a managed cluster
+      # does its own provisioning and will generally refuse namespace
+      # creation, hence the two conditions.
+      initContainers:
+        - name: ensure-temporal-namespace
+          image: "{{ .Values.temporal.dev.image.repository }}:{{ .Values.temporal.dev.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.dev.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -u
+              ADDR="{{ include "insightfinder.temporalServiceName" . }}:{{ .Values.temporal.service.port }}"
+              NS="{{ .Values.ariOncallAgent.temporalNamespace }}"
+              echo "waiting for temporal at $ADDR"
+              for i in $(seq 1 60); do
+                if temporal operator namespace list --address "$ADDR" >/dev/null 2>&1; then
+                  break
+                fi
+                sleep 2
+              done
+              if temporal operator namespace describe --address "$ADDR" --namespace "$NS" >/dev/null 2>&1; then
+                echo "namespace $NS already registered"
+              else
+                echo "registering namespace $NS"
+                temporal operator namespace create --address "$ADDR" --namespace "$NS"                   --retention {{ .Values.ariOncallAgent.temporalNamespaceRetention | quote }}
+              fi
+{{- end }}
+      containers:
+        - name: {{ printf "%s-ari-oncall-agent-worker" .Chart.Name }}
+          image: "{{ .Values.ariOncallAgent.image.repository }}:{{ .Values.ariOncallAgent.image.tag }}"
+          imagePullPolicy: {{ .Values.ariOncallAgent.image.pullPolicy }}
+          command: ["python", "-m", "ari_agent.orchestration.worker"]
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariOncallAgentSecretName" . }}
+          volumeMounts:
+            - name: sandbox
+              mountPath: {{ .Values.ariOncallAgent.sandboxRoot }}
+            - name: repo-cache
+              mountPath: {{ .Values.ariOncallAgent.repoCacheRoot }}
+          resources:
+            {{- toYaml .Values.ariOncallAgent.worker.resources | nindent 12 }}
+      volumes:
+        - name: sandbox
+          emptyDir: {}
+        - name: repo-cache
+          {{- if .Values.ariOncallAgent.persistence.repoCache.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariOncallAgentRepoCacheClaimName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.ariOncallAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariOncallAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariOncallAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-oncall-agent-worker
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariOncallAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

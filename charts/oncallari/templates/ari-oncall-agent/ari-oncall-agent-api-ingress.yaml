@@ -1,0 +1,39 @@
+{{- if and .Values.ariOncallAgent.enabled .Values.ariOncallAgent.api.ingress.enabled }}
+{{- $ariOncallAgentApiService := include "insightfinder.ariOncallAgentApiServiceName" . }}
+{{ $fullname := include "insightfinder.fullname" . }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ printf "%s-api-ingress" $fullname }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  annotations:
+  {{- with .Values.ariOncallAgent.api.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ariOncallAgent.api.ingress.className }}
+  {{- if and .Values.ariOncallAgent.api.ingress.hosts .Values.ariOncallAgent.api.ingress.tls.enabled }}
+  tls:
+    - hosts:
+      {{- .Values.ariOncallAgent.api.ingress.hosts | toYaml | nindent 6 }}
+      {{- with .Values.ariOncallAgent.api.ingress.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ariOncallAgent.api.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $ariOncallAgentApiService }}
+              port:
+                number: 80
+    {{- end }}
+{{- end }}

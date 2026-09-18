@@ -1,0 +1,183 @@
+# Chart-wide values these templates reference. They were supplied by the
+# insightfinder umbrella chart when these templates lived inside it; this is a
+# standalone chart, so they are declared here. podAntiAffinity in particular
+# must exist: the worker Deployment reads .Values.podAntiAffinity.enabled
+# directly (not through `with`), so a missing map fails to render.
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+podAnnotations: {}
+podAntiAffinity:
+  enabled: false
+  topologyKey: kubernetes.io/hostname
+
+ariOncallAgent:
+  enabled: false
+  image:
+    repository: docker.io/insightfinderinc/ari-oncall-agent
+    pullPolicy: Always
+    # CI publishes a tag per branch (main/staging/test) plus a timestamped
+    # one. "main" is not among those built yet, so it cannot be the default:
+    # a release pinned to it fails ImagePullBackOff before anything else can
+    # be diagnosed. Deploying a different branch is an install-time override,
+    # not a chart edit:
+    #   helm install ... --set ariOncallAgent.image.tag=main
+    tag: "test"
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  api:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+      # This chart is currently only deployed on the Traefik-ingress test
+      # cluster -- override if a future environment uses a different
+      # ingress controller.
+      className: "traefik"
+      annotations: {}
+      hosts:
+        - "ari-oncall-agent.insightfinder.com"
+      tls:
+        enabled: false
+        # Left blank so Traefik falls back to its default TLSStore
+        # (the cluster-wide *.insightfinder.com wildcard cert) instead of
+        # looking for a named Secret that doesn't exist in this namespace.
+        secretName: ""
+  worker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  persistence:
+    repoCache:
+      enabled: false
+      existingClaim: ""
+      storageClassName: ""
+      size: 20Gi
+  existingSecret: ""
+  temporalHost: "temporal.internal.example.com:7233"
+  temporalNamespace: "oncall-ari-agent"
+  # Register temporalNamespace from an init container on every worker pod
+  # start. `temporal server start-dev` only auto-creates "default", so
+  # without this a fresh install CrashLoops until someone registers it by
+  # hand. Ignored unless temporal.enabled -- a managed cluster provisions
+  # its own namespaces and will usually refuse creation.
+  ensureTemporalNamespace: true
+  temporalNamespaceRetention: "72h"
+  temporalTaskQueue: "oncall-ari-fix-queue"
+  temporalTlsEnabled: true
+  temporalApiKey: ""
+  # Base64-encoded 32-byte AES-256 key. When set, the agent encrypts every
+  # workflow/activity payload before Temporal persists it, instead of
+  # leaving request secrets (LLM api_key, repo pat/ssh_key) as plaintext in
+  # Temporal's event history / Web UI. Generate one with:
+  #   python3 -c "import base64, os; print(base64.b64encode(os.urandom(32)).decode())"
+  # Leave blank only for a throwaway/local install — required for any real deployment.
+  temporalPayloadEncryptionKey: ""
+  agentApiKeys: "change-me"
+  agentName: "ARI On-Call Agent"
+  agentPublicUrl: "https://ari-oncall-agent.insightfinder.com"
+  sandboxRoot: "/var/lib/ari-agent/sandbox"
+  repoCacheRoot: "/var/lib/ari-agent/repo-cache"
+  opencodeBin: "opencode"
+  githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
+  logLevel: "info"
+
+temporal:
+  enabled: false
+  mode: "dev"
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  service:
+    type: ClusterIP
+    port: 7233
+  dev:
+    image:
+      repository: temporalio/temporal
+      tag: "1.9.1"
+      pullPolicy: IfNotPresent
+    uiPort: 8233
+    dbFilename: "/data/temporal.db"
+    persistence:
+      # start-dev keeps everything in one SQLite file. On an emptyDir that
+      # file dies with the pod, taking the registered namespaces and all
+      # workflow history with it -- a node rotation left the worker
+      # CrashLooping for hours because its namespace had silently vanished.
+      # A claim costs one small volume and makes a restart uneventful.
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      size: 5Gi
+      # uid/gid the temporalio/temporal image runs as. Applied as the pod's
+      # fsGroup so the provisioned volume is writable -- without it start-dev
+      # cannot create its SQLite file and CrashLoops.
+      fsGroup: 1000
+  image:
+    repository: temporalio/auto-setup
+    tag: "1.32.0"
+    pullPolicy: IfNotPresent
+  postgresql:
+    host: "postgres.example.com"
+    port: 5432
+    user: "temporal"
+    password: ""
+    databaseName: "temporal"
+    visibilityDatabaseName: "temporal_visibility"
+    existingSecret: ""
+    secretKey: password
+  skipDbCreate: false
+  skipSchemaSetup: false
+  defaultNamespace: "default"
+  defaultNamespaceRetention: "72h"
+  web:
+    enabled: true
+    image:
+      repository: temporalio/ui
+      tag: "2.54.1"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 8080
+    corsOrigins: ""
+  # Exposes the Temporal Web UI outside the cluster. Points at the
+  # dev-mode server's own "ui" port when temporal.mode is "dev", or at
+  # the separate temporal-web Service when mode is "postgres".
+  #
+  # `temporal server start-dev` (dev mode) ships with NO authentication of
+  # its own -- basicAuth defaults to enabled so this is never opened up
+  # unprotected by accident. Disable it only if something else in front
+  # (a VPN, an authenticating proxy) already gates access.
+  ingress:
+    enabled: false
+    className: "traefik"
+    annotations: {}
+    host: ""
+    tls:
+      enabled: false
+      secretName: ""
+    basicAuth:
+      enabled: true
+      # Name of an existing traefik.io/v1alpha1 Secret (key: `users`,
+      # htpasswd format) to reuse. Leave blank to have this chart create
+      # one from `htpasswd` below.
+      secretName: ""
+      # An htpasswd-format "user:hash" line (apr1/bcrypt), e.g. the output
+      # of `htpasswd -nbB <user> <password>`. Required when basicAuth is
+      # enabled and secretName is blank.
+      htpasswd: ""
+

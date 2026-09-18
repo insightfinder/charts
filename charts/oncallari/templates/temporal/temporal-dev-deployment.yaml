@@ -1,0 +1,110 @@
+{{- if and .Values.temporal.enabled (eq .Values.temporal.mode "dev") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-temporal" (include "insightfinder.fullname" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  # Single instance: `server start-dev` is one process holding the only
+  # copy of the SQLite file: a second replica can't share it and isn't a
+  # path to more capacity here anyway (see the `temporal:` comment in
+  # values.yaml for when to move to the real multi-service topology).
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-temporal
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-temporal
+    spec:
+      {{- if .Values.temporal.dev.persistence.enabled }}
+      # temporalio/temporal runs as uid 1000 ("temporal"), but a freshly
+      # provisioned block volume mounts root-owned, so start-dev cannot
+      # create its SQLite file:
+      #   failed setting up schema: unable to create SQLite admin DB:
+      #   unable to open database file (14)
+      # fsGroup makes the kubelet hand the volume to that group. Only needed
+      # for a real volume -- an emptyDir is already writable.
+      securityContext:
+        fsGroup: {{ .Values.temporal.dev.persistence.fsGroup }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-temporal" .Chart.Name }}
+          image: "{{ .Values.temporal.dev.image.repository }}:{{ .Values.temporal.dev.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.dev.image.pullPolicy }}
+          # Not intended for production use (Temporal's own words) — it
+          # skips some HTTP security checks to make local/simple use
+          # easier. `--ip 0.0.0.0` is required for the gRPC/UI ports to be
+          # reachable from other pods at all (defaults to localhost-only).
+          # `start-dev` has no retention flag — the auto-created "default"
+          # namespace gets the server's built-in default; change it after
+          # the fact with `temporal operator namespace update --retention`
+          # against this pod if you need something else.
+          args:
+            - "server"
+            - "start-dev"
+            - "--ip"
+            - "0.0.0.0"
+            - "--port"
+            - {{ .Values.temporal.service.port | quote }}
+            - "--ui-port"
+            - {{ .Values.temporal.dev.uiPort | quote }}
+            - "--db-filename"
+            - {{ .Values.temporal.dev.dbFilename | quote }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.temporal.service.port }}
+              protocol: TCP
+            - name: ui
+              containerPort: {{ .Values.temporal.dev.uiPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.temporal.resources | nindent 12 }}
+      volumes:
+        - name: data
+          {{- if .Values.temporal.dev.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.temporal.dev.persistence.existingClaim | default (printf "%s-temporal-data" (include "insightfinder.fullname" .)) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.temporal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

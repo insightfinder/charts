@@ -1,0 +1,25 @@
+{{- if and .Values.temporal.enabled .Values.temporal.ingress.enabled .Values.temporal.ingress.basicAuth.enabled }}
+{{- if not .Values.temporal.ingress.basicAuth.secretName }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "insightfinder.temporalBasicAuthSecretName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+type: Opaque
+data:
+  users: {{ required "temporal.ingress.basicAuth.htpasswd is required when temporal.ingress.basicAuth.enabled=true and basicAuth.secretName is blank" .Values.temporal.ingress.basicAuth.htpasswd | b64enc | quote }}
+---
+{{- end }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "insightfinder.temporalBasicAuthMiddlewareName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  basicAuth:
+    secret: {{ include "insightfinder.temporalBasicAuthSecretName" . }}
+{{- end }}
