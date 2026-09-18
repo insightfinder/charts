@@ -803,6 +803,17 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/nbc-metadata-agent-0.1.0/nbc-metadata-agent-0.1.0.tgz
     version: 0.1.0
+  oncallari:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-09-18T15:52:15.07413346Z"
+    description: ARI On-Call Agent (A2A API + Temporal worker) and its Temporal server
+    digest: 721264879089cecb6957f6d72fd14296fd37df028c683042bbdbc11aedcf4534
+    name: oncallari
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/oncallari-0.1.0/oncallari-0.1.0.tgz
+    version: 0.1.0
   rabbitmq:
   - annotations:
       images: |
@@ -1129,4 +1140,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-09-17T20:22:06.685939426Z"
+generated: "2026-09-18T15:52:15.074321309Z"
