@@ -78,6 +78,36 @@ ARI On-Call Agent
 {{- end }}
 
 {{/*
+ARI Jenkins Agent
+
+Distinct "-jenkins-*" suffixes (rather than reusing the oncall agent's
+"-api"/"-worker"/"-secret") so both agents' resources can coexist under one
+Helm release without name collisions -- these are two independently
+toggleable agent kinds sharing one chart and one Temporal dev server, not
+variants of the same deployment.
+*/}}
+{{- define "insightfinder.ariJenkinsAgentApiServiceName" -}}
+{{- printf "%s-jenkins-api" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariJenkinsAgentWorkerName" -}}
+{{- printf "%s-jenkins-worker" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariJenkinsAgentSecretName" -}}
+{{- .Values.ariJenkinsAgent.existingSecret | default (printf "%s-jenkins-secret" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{/*
+Shared multi-agent Ingress (routes one domain's path prefixes to each
+agent kind's own, already-existing API Service -- see values.yaml's
+sharedIngress block and templates/shared-agents-ingress.yaml)
+*/}}
+{{- define "insightfinder.sharedAgentsStripPrefixMiddlewareName" -}}
+{{- printf "%s-agents-strip-prefix" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{/*
 Temporal
 */}}
 {{- define "insightfinder.temporalServiceName" -}}

@@ -1,16 +1,16 @@
-{{- if .Values.ariOncallAgent.enabled }}
+{{- if .Values.ariJenkinsAgent.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "insightfinder.ariOncallAgentApiServiceName" . }}
+  name: {{ include "insightfinder.ariJenkinsAgentApiServiceName" . }}
   labels:
     {{- include "insightfinder.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.ariOncallAgent.api.replicaCount }}
+  replicas: {{ .Values.ariJenkinsAgent.api.replicaCount }}
   selector:
     matchLabels:
       {{- include "insightfinder.selectorLabels" . | nindent 6 }}
-      app: if-ari-oncall-agent-api
+      app: if-ari-jenkins-agent-api
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,7 +19,7 @@ spec:
       {{- end }}
       labels:
         {{- include "insightfinder.selectorLabels" . | nindent 8 }}
-        app: if-ari-oncall-agent-api
+        app: if-ari-jenkins-agent-api
     spec:
       automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
@@ -27,20 +27,20 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ printf "%s-ari-oncall-agent-api" .Chart.Name }}
-          image: "{{ .Values.ariOncallAgent.api.image.repository }}:{{ .Values.ariOncallAgent.api.image.tag }}"
-          imagePullPolicy: {{ .Values.ariOncallAgent.api.image.pullPolicy }}
+        - name: {{ printf "%s-ari-jenkins-agent-api" .Chart.Name }}
+          image: "{{ .Values.ariJenkinsAgent.api.image.repository }}:{{ .Values.ariJenkinsAgent.api.image.tag }}"
+          imagePullPolicy: {{ .Values.ariJenkinsAgent.api.image.pullPolicy }}
           command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
           env:
             - name: AGENT_KIND
-              value: "oncall"
+              value: "jenkins"
           ports:
             - name: http
               containerPort: 8000
               protocol: TCP
           envFrom:
             - secretRef:
-                name: {{ include "insightfinder.ariOncallAgentSecretName" . }}
+                name: {{ include "insightfinder.ariJenkinsAgentSecretName" . }}
           readinessProbe:
             httpGet: { path: /healthz, port: 8000 }
             initialDelaySeconds: 5
@@ -48,14 +48,14 @@ spec:
             httpGet: { path: /healthz, port: 8000 }
             initialDelaySeconds: 15
           resources:
-            {{- toYaml .Values.ariOncallAgent.api.resources | nindent 12 }}
-      {{- with .Values.ariOncallAgent.nodeSelector }}
+            {{- toYaml .Values.ariJenkinsAgent.api.resources | nindent 12 }}
+      {{- with .Values.ariJenkinsAgent.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.ariOncallAgent.affinity }}
+      {{- if .Values.ariJenkinsAgent.affinity }}
       affinity:
-        {{- toYaml .Values.ariOncallAgent.affinity | nindent 8 }}
+        {{- toYaml .Values.ariJenkinsAgent.affinity | nindent 8 }}
       {{- else if .Values.podAntiAffinity.enabled }}
       affinity:
         podAntiAffinity:
@@ -65,10 +65,10 @@ spec:
               labelSelector:
                 matchLabels:
                   {{- include "insightfinder.selectorLabels" . | nindent 18 }}
-                  app: if-ari-oncall-agent-api
+                  app: if-ari-jenkins-agent-api
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
       {{- end }}
-      {{- with .Values.ariOncallAgent.tolerations }}
+      {{- with .Values.ariJenkinsAgent.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
