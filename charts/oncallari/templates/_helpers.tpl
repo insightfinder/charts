@@ -77,6 +77,10 @@ ARI On-Call Agent
 {{- .Values.ariOncallAgent.persistence.repoCache.existingClaim | default (printf "%s-repo-cache" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
+{{- define "insightfinder.ariOncallAgentBuildCacheClaimName" -}}
+{{- .Values.ariOncallAgent.persistence.buildCache.existingClaim | default (printf "%s-build-cache" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
 {{/*
 ARI Jenkins Agent
 

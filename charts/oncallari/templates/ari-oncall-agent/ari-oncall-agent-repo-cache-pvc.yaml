@@ -6,11 +6,17 @@ metadata:
   labels:
     {{- include "insightfinder.labels" . | nindent 4 }}
 spec:
-  # ReadWriteMany so every worker replica mounts the same cache instead of
+  # ReadWriteMany lets every worker replica mount the same cache instead of
   # each keeping an independent, replica-local one — see the agent's own
-  # docs/design.md §6.
+  # docs/design.md §6. Only meaningful with a storage class that actually
+  # supports it (e.g. EFS/NFS); AWS EBS (this chart's default `gp3` class)
+  # is ReadWriteOnce-only, so the default here is RWO — still a real fix
+  # for a single-replica worker (repo-cache now survives pod restarts/OOM
+  # kills instead of living on emptyDir), just not shared across replicas.
+  # Override to ReadWriteMany once ariOncallAgent.worker.replicaCount > 1
+  # on a cluster whose storageClassName actually backs it.
   accessModes:
-    - ReadWriteMany
+    - {{ .Values.ariOncallAgent.persistence.repoCache.accessMode }}
   {{- with .Values.ariOncallAgent.persistence.repoCache.storageClassName }}
   storageClassName: {{ . }}
   {{- end }}

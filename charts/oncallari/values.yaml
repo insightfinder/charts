@@ -83,10 +83,43 @@ ariOncallAgent:
         memory: 2Gi
   persistence:
     repoCache:
-      enabled: false
+      # PVC-backed instead of the previous emptyDir: confirmed live that
+      # emptyDir loses the whole mirror cache on every pod restart,
+      # including the frequent OOMKilled restarts this worker was already
+      # hitting (verify's build tooling is the main memory spike -- see
+      # ariOncallAgent.worker.resources) -- so the cache was rarely warm
+      # for more than a few hours at a time.
+      enabled: true
+      existingClaim: ""
+      # This cluster's only StorageClass today is `gp3` (AWS EBS via
+      # ebs.csi.aws.com), which is ReadWriteOnce-only -- see the PVC
+      # template's own comment for why accessMode defaults to RWO rather
+      # than RWX.
+      storageClassName: ""
+      accessMode: ReadWriteOnce
+      # Kept small (5Gi) on purpose: the agent's own LRU eviction
+      # (common/cache_gc.py) kicks in well before this fills, deleting the
+      # least-recently-used repo mirrors first — see the agent's own
+      # docs/design.md §6 and settings.cache_evict_low_water/high_water.
+      size: 5Gi
+    buildCache:
+      # verify's own $HOME (mvn/go/npm dependency caches, ~/.m2/Go module
+      # cache/~/.npm) — confirmed live there was previously no cache here
+      # at all (not even emptyDir-backed, just the container's own
+      # ephemeral root fs), so every single verify run paid a full cold
+      # dependency download on top of the actual build/test, which was the
+      # dominant reason verify routinely outlasted callers' own patience
+      # timeouts (see the agent's own capabilities.yaml verify.timeout_seconds
+      # and docs/design.md). Separate PVC from repoCache on purpose: this
+      # one is written to by arbitrary build tooling the target repo
+      # brings, not just git.
+      enabled: true
       existingClaim: ""
       storageClassName: ""
-      size: 20Gi
+      accessMode: ReadWriteOnce
+      # Same LRU-eviction reasoning as repoCache above — kept small (5Gi)
+      # on purpose, not sized to hold every dependency ever downloaded.
+      size: 5Gi
   existingSecret: ""
   temporalHost: "temporal.internal.example.com:7233"
   temporalNamespace: "oncall-ari-agent"
@@ -112,7 +145,27 @@ ariOncallAgent:
   agentPublicUrl: "https://ari-oncall-agent.insightfinder.com"
   sandboxRoot: "/var/lib/ari-agent/sandbox"
   repoCacheRoot: "/var/lib/ari-agent/repo-cache"
+  buildCacheRoot: "/var/lib/ari-agent/build-cache"
+  # Caps concurrent Temporal activities (clone/analyze/verify/... steps,
+  # across all in-flight requests) this worker process runs at once —
+  # Temporal's SDK default is 100, far more than the worker.resources
+  # limits below can sustain once `verify`'s go/maven/npm build tooling is
+  # in the mix. Confirmed live via repeated OOMKilled restarts. Raise only
+  # alongside more CPU/memory in worker.resources.
+  maxConcurrentActivities: 3
+  # LRU-eviction thresholds shared by both repoCache and buildCache (see
+  # common/cache_gc.py) — below cacheEvictLowWater fraction free on that
+  # PVC, least-recently-used entries are deleted until back above
+  # cacheEvictHighWater. Both PVCs are deliberately small (5Gi, see
+  # persistence above), so eviction is expected to run regularly, not an
+  # edge case.
+  cacheEvictLowWater: 0.15
+  cacheEvictHighWater: 0.30
   opencodeBin: "opencode"
+  # publish_pr's primary path is deterministic (git subprocess + a direct
+  # GitHub REST API call, see the agent's own docs/design.md §5) -- this
+  # MCP server is kept only as its fallback for when that primary path
+  # fails, still routed through a dedicated opencode agent.
   githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
   logLevel: "info"
 

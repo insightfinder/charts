@@ -78,6 +78,8 @@ spec:
               mountPath: {{ .Values.ariOncallAgent.sandboxRoot }}
             - name: repo-cache
               mountPath: {{ .Values.ariOncallAgent.repoCacheRoot }}
+            - name: build-cache
+              mountPath: {{ .Values.ariOncallAgent.buildCacheRoot }}
           resources:
             {{- toYaml .Values.ariOncallAgent.worker.resources | nindent 12 }}
       volumes:
@@ -87,6 +89,13 @@ spec:
           {{- if .Values.ariOncallAgent.persistence.repoCache.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "insightfinder.ariOncallAgentRepoCacheClaimName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: build-cache
+          {{- if .Values.ariOncallAgent.persistence.buildCache.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariOncallAgentBuildCacheClaimName" . }}
           {{- else }}
           emptyDir: {}
           {{- end }}
