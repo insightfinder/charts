@@ -122,6 +122,18 @@ Temporal
 {{- .Values.temporal.postgresql.existingSecret | default (printf "%s-temporal-secret" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
+{{- define "insightfinder.temporalPostgresServiceName" -}}
+{{- printf "%s-temporal-postgres" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.temporalPostgresHost" -}}
+{{- if .Values.temporal.postgresql.deploy -}}
+{{- include "insightfinder.temporalPostgresServiceName" . -}}
+{{- else -}}
+{{- .Values.temporal.postgresql.host -}}
+{{- end -}}
+{{- end }}
+
 {{- define "insightfinder.temporalWebServiceName" -}}
 {{- printf "%s-temporal-web" (include "insightfinder.fullname" .) }}
 {{- end }}

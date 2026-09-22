@@ -305,7 +305,9 @@ temporal:
       fsGroup: 1000
   image:
     repository: temporalio/auto-setup
-    tag: "1.32.0"
+    # 1.32.0 was never actually published to docker.io -- ImagePullBackOff.
+    # 1.29.7 is the newest tag temporalio/auto-setup actually has.
+    tag: "1.29.7"
     pullPolicy: IfNotPresent
   postgresql:
     host: "postgres.example.com"
@@ -316,6 +318,19 @@ temporal:
     visibilityDatabaseName: "temporal_visibility"
     existingSecret: ""
     secretKey: password
+    # When true, this chart deploys and manages its own single-instance
+    # Postgres pod (with a PVC) to back Temporal's persistence store, and
+    # `host` above is ignored in favor of that in-cluster service. Leave
+    # false to bring your own external Postgres (RDS, Cloud SQL, ...).
+    deploy: false
+    image:
+      repository: postgres
+      tag: "16"
+      pullPolicy: IfNotPresent
+    persistence:
+      storageClassName: ""
+      size: 5Gi
+    resources: {}
   skipDbCreate: false
   skipSchemaSetup: false
   defaultNamespace: "default"
