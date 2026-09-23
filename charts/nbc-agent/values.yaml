@@ -62,6 +62,9 @@ globalCommerce:
   enabled: false
   useNewGCWorkflow: false
   countries: []
+  # true: journey proposition/CDN filtering is handled by the InfrastructureCore
+  # backend instead of this agent. See files/processor-config.yaml.
+  gcBackend: false
 
 receiver:
   replicaCount: 3

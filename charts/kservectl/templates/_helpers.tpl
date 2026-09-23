@@ -60,3 +60,33 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Values keys that used to mean something, with what to write instead: this chart's half
+of the check `config.py` does over the files it renders.
+
+A cluster's accelerators and presets come from its values file, and a preset's own
+retired keys (`resources`, `node_selector`, `lmcache_enabled`, ...) reach kservectl
+verbatim and are refused there by name. The keys below never reach it -- nothing renders
+them -- so dropping them silently is how a values file still written for 0.1.x installs
+as a kservectl with no presets and no accelerators, which then dies naming the empty
+accelerator list rather than the file that is out of date. Failing the render instead
+says what to migrate, and leaves the running release untouched while it is.
+*/}}
+{{- define "kservectl.validateValues" -}}
+{{- $retired := dict
+  "models" "renamed to `presets`, whose entries name an `accelerator:` instead of writing their own `resources` and `node_selector`; the accelerators themselves go under `accelerators:`"
+  "default_accelerator" "removed: sizing is never guessed, so a deploy names its `accelerator` or is refused"
+  "sites_url" "removed with the per-cloud layer; every cluster is EKS"
+  "ingress" "replaced by `httpRoute`, a Gateway API HTTPRoute, and off by default"
+-}}
+{{- $found := list -}}
+{{- range $key, $replacement := $retired }}
+{{- if hasKey $.Values $key }}
+{{- $found = append $found (printf "`%s` was %s" $key $replacement) }}
+{{- end }}
+{{- end }}
+{{- if $found }}
+{{- fail (printf "kservectl: this values file is written for an older chart. %s" (join "; also " $found)) }}
+{{- end }}
+{{- end }}

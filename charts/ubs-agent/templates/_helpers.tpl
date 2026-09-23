@@ -60,3 +60,18 @@ Name of the ServiceAccount to use.
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Name of the Secret holding the LICENSE_KEY, whether pre-existing or
+chart-created.
+*/}}
+{{- define "ubs-agent.licenseSecretName" -}}
+{{- .Values.licenseKey.existingSecret | default (printf "%s-license" (include "ubs-agent.fullname" .)) -}}
+{{- end }}
+
+{{/*
+Key within the license Secret that holds the license key.
+*/}}
+{{- define "ubs-agent.licenseSecretKey" -}}
+{{- .Values.licenseKey.existingSecretKey | default "LICENSE_KEY" -}}
+{{- end }}

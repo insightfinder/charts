@@ -1,3 +1,4 @@
+{{- $confDir := "/app/conf.d" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,30 +44,39 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          env:
+            - name: KSERVECTL_NAMESPACE
+              value: {{ .Values.namespace | default .Release.Namespace | quote }}
+            - name: KSERVECTL_CONF_DIR
+              value: {{ $confDir | quote }}
+            - name: KSERVECTL_LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: models
-              mountPath: /app/conf.d/llm_models.yaml
-              subPath: llm_models.yaml
-            - name: sites-url
-              mountPath: /app/conf.d/sites_url.yaml
-              subPath: sites_url.yaml
+            - name: presets
+              mountPath: {{ $confDir }}/presets.yaml
+              subPath: presets.yaml
             - name: accelerators
-              mountPath: /app/conf.d/accelerators.yaml
+              mountPath: {{ $confDir }}/accelerators.yaml
               subPath: accelerators.yaml
       volumes:
-        - name: models
+        - name: presets
           configMap:
-            name: kservectl-models
-        - name: sites-url
-          configMap:
-            name: kservectl-sites-url
+            name: {{ include "kservectl.fullname" . }}-presets
         - name: accelerators
           configMap:
-            name: kservectl-accelerators
+            name: {{ include "kservectl.fullname" . }}-accelerators
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
