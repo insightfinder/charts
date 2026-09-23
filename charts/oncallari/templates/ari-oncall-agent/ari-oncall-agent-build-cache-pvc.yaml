@@ -1,0 +1,26 @@
+{{- if and .Values.ariOncallAgent.enabled .Values.ariOncallAgent.persistence.buildCache.enabled (not .Values.ariOncallAgent.persistence.buildCache.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "insightfinder.ariOncallAgentBuildCacheClaimName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  # Same access-mode reasoning as the repo-cache PVC (see its own
+  # comment): RWO by default since this cluster's only StorageClass
+  # (`gp3`/AWS EBS) doesn't support RWX, and worker.replicaCount is 1
+  # today. This is the worker's own $HOME for verify's build/test
+  # subprocesses only (mvn/go/npm — see the agent's own
+  # settings.build_cache_root / docs/design.md), so their dependency
+  # caches (~/.m2, Go's module+build cache, ~/.npm) survive pod restarts
+  # and stay warm across requests instead of a cold download every single
+  # verify run.
+  accessModes:
+    - {{ .Values.ariOncallAgent.persistence.buildCache.accessMode }}
+  {{- with .Values.ariOncallAgent.persistence.buildCache.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.ariOncallAgent.persistence.buildCache.size }}
+{{- end }}

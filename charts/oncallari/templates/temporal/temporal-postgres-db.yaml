@@ -1,0 +1,127 @@
+{{- if and .Values.temporal.enabled (eq .Values.temporal.mode "postgres") .Values.temporal.postgresql.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-db" (include "insightfinder.temporalPostgresServiceName" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  # A single Postgres instance backing only Temporal's own persistence store
+  # -- not a general-purpose database. One replica only: Recreate avoids two
+  # instances ever writing to the same PVC at once.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-temporal-postgres
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-temporal-postgres
+    spec:
+      # The official postgres image (Debian-based) runs as uid/gid 999 --
+      # without fsGroup a freshly provisioned block volume mounts
+      # root-owned and postgres can't initdb into it.
+      securityContext:
+        fsGroup: 999
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.temporal.postgresql.image.repository }}:{{ .Values.temporal.postgresql.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.postgresql.image.pullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.temporal.postgresql.user | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "insightfinder.temporalSecretName" . }}
+                  key: {{ .Values.temporal.postgresql.secretKey }}
+            # The default "temporal" db is created here; temporal-auto-setup
+            # creates the visibility db itself on top of this instance
+            # (SKIP_DB_CREATE=false) since POSTGRES_USER is a superuser.
+            - name: POSTGRES_DB
+              value: {{ .Values.temporal.postgresql.databaseName | quote }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.temporal.postgresql.user | quote }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.temporal.postgresql.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-data" (include "insightfinder.temporalPostgresServiceName" .) }}
+      {{- with .Values.temporal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-data" (include "insightfinder.temporalPostgresServiceName" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- with .Values.temporal.postgresql.persistence.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.temporal.postgresql.persistence.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "insightfinder.temporalPostgresServiceName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "insightfinder.selectorLabels" . | nindent 4 }}
+    app: if-temporal-postgres
+  ports:
+    - name: postgres
+      port: {{ .Values.temporal.postgresql.port }}
+      targetPort: postgres
+{{- end }}

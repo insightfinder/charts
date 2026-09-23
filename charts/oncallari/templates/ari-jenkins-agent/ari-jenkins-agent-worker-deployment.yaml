@@ -1,0 +1,104 @@
+{{- if .Values.ariJenkinsAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insightfinder.ariJenkinsAgentWorkerName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ariJenkinsAgent.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-jenkins-agent-worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-jenkins-agent-worker
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if and .Values.temporal.enabled .Values.ariJenkinsAgent.ensureTemporalNamespace }}
+      # Same reasoning as the on-call worker's identical init container
+      # (see ari-oncall-agent-worker-deployment.yaml) -- registers this
+      # agent's own Temporal namespace against the same shared dev server,
+      # since `temporal server start-dev` only auto-creates "default".
+      initContainers:
+        - name: ensure-temporal-namespace
+          image: "{{ .Values.temporal.dev.image.repository }}:{{ .Values.temporal.dev.image.tag }}"
+          imagePullPolicy: {{ .Values.temporal.dev.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -u
+              ADDR="{{ include "insightfinder.temporalServiceName" . }}:{{ .Values.temporal.service.port }}"
+              NS="{{ .Values.ariJenkinsAgent.temporalNamespace }}"
+              echo "waiting for temporal at $ADDR"
+              for i in $(seq 1 60); do
+                if temporal operator namespace list --address "$ADDR" >/dev/null 2>&1; then
+                  break
+                fi
+                sleep 2
+              done
+              if temporal operator namespace describe --address "$ADDR" --namespace "$NS" >/dev/null 2>&1; then
+                echo "namespace $NS already registered"
+              else
+                echo "registering namespace $NS"
+                temporal operator namespace create --address "$ADDR" --namespace "$NS"                   --retention {{ .Values.ariJenkinsAgent.temporalNamespaceRetention | quote }}
+              fi
+{{- end }}
+      containers:
+        - name: {{ printf "%s-ari-jenkins-agent-worker" .Chart.Name }}
+          image: "{{ .Values.ariJenkinsAgent.worker.image.repository }}:{{ .Values.ariJenkinsAgent.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.ariJenkinsAgent.worker.image.pullPolicy }}
+          command: ["python", "-m", "api.worker"]
+          env:
+            - name: AGENT_KIND
+              value: "jenkins"
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariJenkinsAgentSecretName" . }}
+          volumeMounts:
+            - name: sandbox
+              mountPath: {{ .Values.ariJenkinsAgent.sandboxRoot }}
+          resources:
+            {{- toYaml .Values.ariJenkinsAgent.worker.resources | nindent 12 }}
+      volumes:
+        # No repo-cache volume here, unlike the on-call worker -- this
+        # agent never clones or builds a target repo; every real action
+        # goes through the target Jenkins's own MCP server over HTTP.
+        - name: sandbox
+          emptyDir: {}
+      {{- with .Values.ariJenkinsAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariJenkinsAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariJenkinsAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-jenkins-agent-worker
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariJenkinsAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

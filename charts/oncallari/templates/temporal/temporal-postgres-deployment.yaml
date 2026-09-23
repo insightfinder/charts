@@ -49,7 +49,7 @@ spec:
             - name: DB_PORT
               value: {{ .Values.temporal.postgresql.port | quote }}
             - name: POSTGRES_SEEDS
-              value: {{ .Values.temporal.postgresql.host | quote }}
+              value: {{ include "insightfinder.temporalPostgresHost" . | quote }}
             - name: POSTGRES_USER
               value: {{ .Values.temporal.postgresql.user | quote }}
             - name: POSTGRES_PWD
@@ -65,12 +65,22 @@ spec:
               value: {{ .Values.temporal.skipDbCreate | quote }}
             - name: SKIP_SCHEMA_SETUP
               value: {{ .Values.temporal.skipSchemaSetup | quote }}
+            # Without this, temporal-server binds only its own detected pod
+            # IP -- reachable fine through the Service (that's routed by pod
+            # IP), but auto-setup.sh's own default-namespace bootstrap loop
+            # targets TEMPORAL_CLI_ADDRESS=127.0.0.1 and spins forever with
+            # "connection refused" since loopback was never listening.
+            - name: BIND_ON_IP
+              value: "0.0.0.0"
             - name: DEFAULT_NAMESPACE
               value: {{ .Values.temporal.defaultNamespace | quote }}
             - name: DEFAULT_NAMESPACE_RETENTION
               value: {{ .Values.temporal.defaultNamespaceRetention | quote }}
+            # temporalio/auto-setup:1.29.7's dynamicconfig/ only ships
+            # docker.yaml (development-sql.yaml doesn't exist in this image
+            # -- server fails to start: "no such file or directory").
             - name: DYNAMIC_CONFIG_FILE_PATH
-              value: "config/dynamicconfig/development-sql.yaml"
+              value: "config/dynamicconfig/docker.yaml"
             - name: TEMPORAL_ADDRESS
               value: "127.0.0.1:7233"
             - name: TEMPORAL_CLI_ADDRESS

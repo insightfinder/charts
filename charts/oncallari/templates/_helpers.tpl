@@ -77,6 +77,40 @@ ARI On-Call Agent
 {{- .Values.ariOncallAgent.persistence.repoCache.existingClaim | default (printf "%s-repo-cache" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
+{{- define "insightfinder.ariOncallAgentBuildCacheClaimName" -}}
+{{- .Values.ariOncallAgent.persistence.buildCache.existingClaim | default (printf "%s-build-cache" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{/*
+ARI Jenkins Agent
+
+Distinct "-jenkins-*" suffixes (rather than reusing the oncall agent's
+"-api"/"-worker"/"-secret") so both agents' resources can coexist under one
+Helm release without name collisions -- these are two independently
+toggleable agent kinds sharing one chart and one Temporal dev server, not
+variants of the same deployment.
+*/}}
+{{- define "insightfinder.ariJenkinsAgentApiServiceName" -}}
+{{- printf "%s-jenkins-api" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariJenkinsAgentWorkerName" -}}
+{{- printf "%s-jenkins-worker" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariJenkinsAgentSecretName" -}}
+{{- .Values.ariJenkinsAgent.existingSecret | default (printf "%s-jenkins-secret" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{/*
+Shared multi-agent Ingress (routes one domain's path prefixes to each
+agent kind's own, already-existing API Service -- see values.yaml's
+sharedIngress block and templates/shared-agents-ingress.yaml)
+*/}}
+{{- define "insightfinder.sharedAgentsStripPrefixMiddlewareName" -}}
+{{- printf "%s-agents-strip-prefix" (include "insightfinder.fullname" .) }}
+{{- end }}
+
 {{/*
 Temporal
 */}}
@@ -86,6 +120,18 @@ Temporal
 
 {{- define "insightfinder.temporalSecretName" -}}
 {{- .Values.temporal.postgresql.existingSecret | default (printf "%s-temporal-secret" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{- define "insightfinder.temporalPostgresServiceName" -}}
+{{- printf "%s-temporal-postgres" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.temporalPostgresHost" -}}
+{{- if .Values.temporal.postgresql.deploy -}}
+{{- include "insightfinder.temporalPostgresServiceName" . -}}
+{{- else -}}
+{{- .Values.temporal.postgresql.host -}}
+{{- end -}}
 {{- end }}
 
 {{- define "insightfinder.temporalWebServiceName" -}}

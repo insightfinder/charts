@@ -1,0 +1,63 @@
+{{- if .Values.sharedIngress.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "insightfinder.sharedAgentsStripPrefixMiddlewareName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  stripPrefix:
+    prefixes:
+      {{- if .Values.ariOncallAgent.enabled }}
+      - {{ .Values.ariOncallAgent.api.ingress.sharedPath | quote }}
+      {{- end }}
+      {{- if .Values.ariJenkinsAgent.enabled }}
+      - {{ .Values.ariJenkinsAgent.api.ingress.sharedPath | quote }}
+      {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ printf "%s-shared-agents" (include "insightfinder.fullname" .) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-%s@kubernetescrd" .Release.Namespace (include "insightfinder.sharedAgentsStripPrefixMiddlewareName" .) }}
+    {{- with .Values.sharedIngress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.sharedIngress.className }}
+  {{- if .Values.sharedIngress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.sharedIngress.host | quote }}
+      {{- with .Values.sharedIngress.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.sharedIngress.host | quote }}
+      http:
+        paths:
+          {{- if .Values.ariOncallAgent.enabled }}
+          - path: {{ .Values.ariOncallAgent.api.ingress.sharedPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "insightfinder.ariOncallAgentApiServiceName" . }}
+                port:
+                  number: 80
+          {{- end }}
+          {{- if .Values.ariJenkinsAgent.enabled }}
+          - path: {{ .Values.ariJenkinsAgent.api.ingress.sharedPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "insightfinder.ariJenkinsAgentApiServiceName" . }}
+                port:
+                  number: 80
+          {{- end }}
+{{- end }}

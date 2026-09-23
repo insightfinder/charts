@@ -1,0 +1,18 @@
+{{- if .Values.ariJenkinsAgent.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "insightfinder.ariJenkinsAgentApiServiceName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.ariJenkinsAgent.api.service.type }}
+  selector:
+    {{- include "insightfinder.selectorLabels" . | nindent 4 }}
+    app: if-ari-jenkins-agent-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
+{{- end }}

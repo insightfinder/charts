@@ -13,20 +13,26 @@ podAntiAffinity:
 
 ariOncallAgent:
   enabled: false
-  image:
-    repository: docker.io/insightfinderinc/ari-oncall-agent
-    pullPolicy: Always
-    # CI publishes a tag per branch (main/staging/test) plus a timestamped
-    # one. "main" is not among those built yet, so it cannot be the default:
-    # a release pinned to it fails ImagePullBackOff before anything else can
-    # be diagnosed. Deploying a different branch is an install-time override,
-    # not a chart edit:
-    #   helm install ... --set ariOncallAgent.image.tag=main
-    tag: "test"
   affinity: {}
   nodeSelector: {}
   tolerations: []
   api:
+    image:
+      # The A2A/FastAPI process image (Dockerfile.api at the repo root) is
+      # agent-kind-agnostic -- the same image backs the on-call agent's API
+      # deployment and the Jenkins agent's (ariJenkinsAgent.api.image
+      # below), differing only by this Deployment's AGENT_KIND/AGENT_NAME/
+      # AGENT_PUBLIC_URL env. It never shells out to git/opencode/a build
+      # toolchain itself, unlike the worker image below.
+      repository: docker.io/insightfinderinc/ari-agent-api
+      pullPolicy: Always
+      # CI publishes a tag per branch (main/staging/test) plus a timestamped
+      # one. "main" is not among those built yet, so it cannot be the default:
+      # a release pinned to it fails ImagePullBackOff before anything else can
+      # be diagnosed. Deploying a different branch is an install-time override,
+      # not a chart edit:
+      #   helm install ... --set ariOncallAgent.api.image.tag=main
+      tag: "test"
     replicaCount: 1
     resources:
       requests:
@@ -52,7 +58,21 @@ ariOncallAgent:
         # (the cluster-wide *.insightfinder.com wildcard cert) instead of
         # looking for a named Secret that doesn't exist in this namespace.
         secretName: ""
+      # This agent's own path prefix under the shared multi-agent domain
+      # (see the top-level `sharedIngress` block below) -- independent of
+      # `hosts` above, which is this agent's own dedicated-hostname
+      # Ingress. Both can be enabled at once during a transition; neither
+      # requires the other.
+      sharedPath: "/ari-oncall"
   worker:
+    image:
+      # Built from Dockerfile.oncall at the repo root -- carries git plus
+      # the go/java/maven toolchain `verify` needs against a real target
+      # repo. Distinct from the Jenkins worker image (ariJenkinsAgent.worker
+      # .image), which needs none of that.
+      repository: docker.io/insightfinderinc/ari-oncall-agent-worker
+      pullPolicy: Always
+      tag: "test"
     replicaCount: 1
     resources:
       requests:
@@ -63,10 +83,43 @@ ariOncallAgent:
         memory: 2Gi
   persistence:
     repoCache:
-      enabled: false
+      # PVC-backed instead of the previous emptyDir: confirmed live that
+      # emptyDir loses the whole mirror cache on every pod restart,
+      # including the frequent OOMKilled restarts this worker was already
+      # hitting (verify's build tooling is the main memory spike -- see
+      # ariOncallAgent.worker.resources) -- so the cache was rarely warm
+      # for more than a few hours at a time.
+      enabled: true
+      existingClaim: ""
+      # This cluster's only StorageClass today is `gp3` (AWS EBS via
+      # ebs.csi.aws.com), which is ReadWriteOnce-only -- see the PVC
+      # template's own comment for why accessMode defaults to RWO rather
+      # than RWX.
+      storageClassName: ""
+      accessMode: ReadWriteOnce
+      # Kept small (5Gi) on purpose: the agent's own LRU eviction
+      # (common/cache_gc.py) kicks in well before this fills, deleting the
+      # least-recently-used repo mirrors first — see the agent's own
+      # docs/design.md §6 and settings.cache_evict_low_water/high_water.
+      size: 5Gi
+    buildCache:
+      # verify's own $HOME (mvn/go/npm dependency caches, ~/.m2/Go module
+      # cache/~/.npm) — confirmed live there was previously no cache here
+      # at all (not even emptyDir-backed, just the container's own
+      # ephemeral root fs), so every single verify run paid a full cold
+      # dependency download on top of the actual build/test, which was the
+      # dominant reason verify routinely outlasted callers' own patience
+      # timeouts (see the agent's own capabilities.yaml verify.timeout_seconds
+      # and docs/design.md). Separate PVC from repoCache on purpose: this
+      # one is written to by arbitrary build tooling the target repo
+      # brings, not just git.
+      enabled: true
       existingClaim: ""
       storageClassName: ""
-      size: 20Gi
+      accessMode: ReadWriteOnce
+      # Same LRU-eviction reasoning as repoCache above — kept small (5Gi)
+      # on purpose, not sized to hold every dependency ever downloaded.
+      size: 5Gi
   existingSecret: ""
   temporalHost: "temporal.internal.example.com:7233"
   temporalNamespace: "oncall-ari-agent"
@@ -77,7 +130,7 @@ ariOncallAgent:
   # its own namespaces and will usually refuse creation.
   ensureTemporalNamespace: true
   temporalNamespaceRetention: "72h"
-  temporalTaskQueue: "oncall-ari-fix-queue"
+  temporalTaskQueue: "oncall-ari-queue"
   temporalTlsEnabled: true
   temporalApiKey: ""
   # Base64-encoded 32-byte AES-256 key. When set, the agent encrypts every
@@ -92,9 +145,132 @@ ariOncallAgent:
   agentPublicUrl: "https://ari-oncall-agent.insightfinder.com"
   sandboxRoot: "/var/lib/ari-agent/sandbox"
   repoCacheRoot: "/var/lib/ari-agent/repo-cache"
+  buildCacheRoot: "/var/lib/ari-agent/build-cache"
+  # Caps concurrent Temporal activities (clone/analyze/verify/... steps,
+  # across all in-flight requests) this worker process runs at once —
+  # Temporal's SDK default is 100, far more than the worker.resources
+  # limits below can sustain once `verify`'s go/maven/npm build tooling is
+  # in the mix. Confirmed live via repeated OOMKilled restarts. Raise only
+  # alongside more CPU/memory in worker.resources.
+  maxConcurrentActivities: 3
+  # LRU-eviction thresholds shared by both repoCache and buildCache (see
+  # common/cache_gc.py) — below cacheEvictLowWater fraction free on that
+  # PVC, least-recently-used entries are deleted until back above
+  # cacheEvictHighWater. Both PVCs are deliberately small (5Gi, see
+  # persistence above), so eviction is expected to run regularly, not an
+  # edge case.
+  cacheEvictLowWater: 0.15
+  cacheEvictHighWater: 0.30
   opencodeBin: "opencode"
+  # publish_pr's primary path is deterministic (git subprocess + a direct
+  # GitHub REST API call, see the agent's own docs/design.md §5) -- this
+  # MCP server is kept only as its fallback for when that primary path
+  # fails, still routed through a dedicated opencode agent.
   githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
   logLevel: "info"
+
+# ARI Jenkins Agent -- a second, independently toggleable agent kind on the
+# same chart, same shared Temporal dev server (its own namespace/task queue
+# below), same shared api image (ariOncallAgent.api.image's own comment
+# explains why). Deliberately no `persistence.repoCache` here: this agent
+# never clones or builds a target repo -- every real Jenkins action goes
+# through the target Jenkins's own MCP server
+# (https://plugins.jenkins.io/mcp-server/) over HTTP from inside the worker
+# pod, not a local checkout. Jenkins connection details themselves (base
+# URL, auth token, CA bundle) are NOT chart config -- they travel in each
+# A2A request's own `jenkins` DataPart, the same way the on-call agent's
+# repo URL/PAT travels per-request rather than living in this Secret (see
+# jenkins_agent/schemas.py).
+#
+# This chart currently only stands up "Mode A": a fully separate
+# api+worker Deployment pair per agent kind. A single shared API process
+# serving both agent kinds behind one Deployment ("Mode B") would need
+# api/main.py itself to mount multiple agent kinds' A2A apps under path
+# prefixes in one process -- not implemented yet, so there is no chart
+# toggle for it. Both modes would use the same api image either way.
+ariJenkinsAgent:
+  enabled: false
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  api:
+    image:
+      repository: docker.io/insightfinderinc/ari-agent-api
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+      className: "traefik"
+      annotations: {}
+      hosts:
+        - "ari-jenkins-agent.insightfinder.com"
+      tls:
+        enabled: false
+        secretName: ""
+      # See ariOncallAgent.api.ingress.sharedPath's own comment.
+      sharedPath: "/ari-jenkins"
+  worker:
+    image:
+      # Built from Dockerfile.jenkins at the repo root -- node/opencode
+      # only, no git or build toolchain (see that Dockerfile's own
+      # comment for why).
+      repository: docker.io/insightfinderinc/ari-jenkins-agent-worker
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+  existingSecret: ""
+  temporalHost: "temporal.internal.example.com:7233"
+  temporalNamespace: "jenkins-ari-agent"
+  ensureTemporalNamespace: true
+  temporalNamespaceRetention: "72h"
+  temporalTaskQueue: "jenkins-ari-queue"
+  temporalTlsEnabled: true
+  temporalApiKey: ""
+  temporalPayloadEncryptionKey: ""
+  agentApiKeys: "change-me"
+  agentName: "ARI Jenkins Agent"
+  agentPublicUrl: "https://ari-jenkins-agent.insightfinder.com"
+  sandboxRoot: "/var/lib/ari-agent/sandbox"
+  opencodeBin: "opencode"
+  logLevel: "info"
+
+# One shared domain fronting every enabled agent kind's own API Service,
+# path-routed (test-agents.insightfinder.com/ari-oncall,
+# .../ari-jenkins, ...) instead of one hostname per agent kind --
+# additive to each agent's own dedicated-hostname Ingress above, not a
+# replacement for it; both can run at once. Routes to the *same* API
+# Services/Deployments that already exist -- this does not merge agent
+# kinds into one process (see docs/design.md's "Mode A vs Mode B" -- this
+# is still Mode A underneath, just fronted by one Ingress). A caller
+# reaching an agent this way needs that agent's `agentPublicUrl` set to
+# the full path-prefixed URL (e.g. "https://test-agents.insightfinder.com
+# /ari-oncall"), not the bare hostname, since that's what the Agent Card
+# advertises as this agent's own address.
+sharedIngress:
+  enabled: false
+  host: ""
+  className: "traefik"
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
 
 temporal:
   enabled: false
@@ -129,7 +305,9 @@ temporal:
       fsGroup: 1000
   image:
     repository: temporalio/auto-setup
-    tag: "1.32.0"
+    # 1.32.0 was never actually published to docker.io -- ImagePullBackOff.
+    # 1.29.7 is the newest tag temporalio/auto-setup actually has.
+    tag: "1.29.7"
     pullPolicy: IfNotPresent
   postgresql:
     host: "postgres.example.com"
@@ -140,6 +318,19 @@ temporal:
     visibilityDatabaseName: "temporal_visibility"
     existingSecret: ""
     secretKey: password
+    # When true, this chart deploys and manages its own single-instance
+    # Postgres pod (with a PVC) to back Temporal's persistence store, and
+    # `host` above is ignored in favor of that in-cluster service. Leave
+    # false to bring your own external Postgres (RDS, Cloud SQL, ...).
+    deploy: false
+    image:
+      repository: postgres
+      tag: "16"
+      pullPolicy: IfNotPresent
+    persistence:
+      storageClassName: ""
+      size: 5Gi
+    resources: {}
   skipDbCreate: false
   skipSchemaSetup: false
   defaultNamespace: "default"

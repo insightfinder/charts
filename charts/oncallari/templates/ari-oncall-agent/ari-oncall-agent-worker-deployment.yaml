@@ -64,9 +64,12 @@ spec:
 {{- end }}
       containers:
         - name: {{ printf "%s-ari-oncall-agent-worker" .Chart.Name }}
-          image: "{{ .Values.ariOncallAgent.image.repository }}:{{ .Values.ariOncallAgent.image.tag }}"
-          imagePullPolicy: {{ .Values.ariOncallAgent.image.pullPolicy }}
-          command: ["python", "-m", "ari_agent.orchestration.worker"]
+          image: "{{ .Values.ariOncallAgent.worker.image.repository }}:{{ .Values.ariOncallAgent.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.ariOncallAgent.worker.image.pullPolicy }}
+          command: ["python", "-m", "api.worker"]
+          env:
+            - name: AGENT_KIND
+              value: "oncall"
           envFrom:
             - secretRef:
                 name: {{ include "insightfinder.ariOncallAgentSecretName" . }}
@@ -75,6 +78,8 @@ spec:
               mountPath: {{ .Values.ariOncallAgent.sandboxRoot }}
             - name: repo-cache
               mountPath: {{ .Values.ariOncallAgent.repoCacheRoot }}
+            - name: build-cache
+              mountPath: {{ .Values.ariOncallAgent.buildCacheRoot }}
           resources:
             {{- toYaml .Values.ariOncallAgent.worker.resources | nindent 12 }}
       volumes:
@@ -84,6 +89,13 @@ spec:
           {{- if .Values.ariOncallAgent.persistence.repoCache.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "insightfinder.ariOncallAgentRepoCacheClaimName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: build-cache
+          {{- if .Values.ariOncallAgent.persistence.buildCache.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariOncallAgentBuildCacheClaimName" . }}
           {{- else }}
           emptyDir: {}
           {{- end }}
