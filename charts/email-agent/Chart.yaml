@@ -10,5 +10,5 @@ description: >
   call the subagent. Connects to an already-running Temporal server and
   traceserver instance; this chart deploys neither.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "0.1.0"

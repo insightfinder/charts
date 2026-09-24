@@ -1,9 +1,11 @@
 namespace: insightfinder
 
 # Both agents talk to the same already-running Temporal server; only the task
-# queue differs, and that is set per-component below.
+# queue differs, and that is set per-component below. Defaults to the standalone,
+# Flux-managed Temporal every environment runs in the insightfinder namespace
+# (HelmRelease `temporal`, test-fluxcd / eks-fluxcd).
 temporal:
-  address: "temporal-test-server:7233"
+  address: "temporal-frontend:7233"
   namespace: "default"
 
 # Both agents export to the same traceserver under the same identity -- that
