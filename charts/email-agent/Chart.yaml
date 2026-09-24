@@ -1,0 +1,14 @@
+apiVersion: v2
+name: email-agent
+description: >
+  Email agent demo (II-24784) -- a main agent that takes a request, delegates
+  drafting to a subagent Pod that makes a real Claude call, waits for human
+  confirmation, then sends the email via SMTP. Both agents are traced with
+  OpenTelemetry so the pair shows up as one multi-component trace.
+  Source: InsightAgent/email-agent. The two components are deployed by this
+  one chart because they are useless apart -- main-agent's only job is to
+  call the subagent. Connects to an already-running Temporal server and
+  traceserver instance; this chart deploys neither.
+type: application
+version: 0.1.1
+appVersion: "0.1.0"
