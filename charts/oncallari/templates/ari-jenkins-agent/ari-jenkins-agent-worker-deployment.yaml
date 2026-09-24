@@ -26,36 +26,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- if and .Values.temporal.enabled .Values.ariJenkinsAgent.ensureTemporalNamespace }}
-      # Same reasoning as the on-call worker's identical init container
-      # (see ari-oncall-agent-worker-deployment.yaml) -- registers this
-      # agent's own Temporal namespace against the same shared dev server,
-      # since `temporal server start-dev` only auto-creates "default".
-      initContainers:
-        - name: ensure-temporal-namespace
-          image: "{{ .Values.temporal.dev.image.repository }}:{{ .Values.temporal.dev.image.tag }}"
-          imagePullPolicy: {{ .Values.temporal.dev.image.pullPolicy }}
-          command:
-            - sh
-            - -c
-            - |
-              set -u
-              ADDR="{{ include "insightfinder.temporalServiceName" . }}:{{ .Values.temporal.service.port }}"
-              NS="{{ .Values.ariJenkinsAgent.temporalNamespace }}"
-              echo "waiting for temporal at $ADDR"
-              for i in $(seq 1 60); do
-                if temporal operator namespace list --address "$ADDR" >/dev/null 2>&1; then
-                  break
-                fi
-                sleep 2
-              done
-              if temporal operator namespace describe --address "$ADDR" --namespace "$NS" >/dev/null 2>&1; then
-                echo "namespace $NS already registered"
-              else
-                echo "registering namespace $NS"
-                temporal operator namespace create --address "$ADDR" --namespace "$NS"                   --retention {{ .Values.ariJenkinsAgent.temporalNamespaceRetention | quote }}
-              fi
-{{- end }}
       containers:
         - name: {{ printf "%s-ari-jenkins-agent-worker" .Chart.Name }}
           image: "{{ .Values.ariJenkinsAgent.worker.image.repository }}:{{ .Values.ariJenkinsAgent.worker.image.tag }}"
