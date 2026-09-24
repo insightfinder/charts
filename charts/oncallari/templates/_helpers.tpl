@@ -87,7 +87,7 @@ ARI Jenkins Agent
 Distinct "-jenkins-*" suffixes (rather than reusing the oncall agent's
 "-api"/"-worker"/"-secret") so both agents' resources can coexist under one
 Helm release without name collisions -- these are two independently
-toggleable agent kinds sharing one chart and one Temporal dev server, not
+toggleable agent kinds sharing one chart and one Temporal server, not
 variants of the same deployment.
 */}}
 {{- define "insightfinder.ariJenkinsAgentApiServiceName" -}}
@@ -109,43 +109,4 @@ sharedIngress block and templates/shared-agents-ingress.yaml)
 */}}
 {{- define "insightfinder.sharedAgentsStripPrefixMiddlewareName" -}}
 {{- printf "%s-agents-strip-prefix" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{/*
-Temporal
-*/}}
-{{- define "insightfinder.temporalServiceName" -}}
-{{- printf "%s-temporal" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{- define "insightfinder.temporalSecretName" -}}
-{{- .Values.temporal.postgresql.existingSecret | default (printf "%s-temporal-secret" (include "insightfinder.fullname" .)) }}
-{{- end }}
-
-{{- define "insightfinder.temporalPostgresServiceName" -}}
-{{- printf "%s-temporal-postgres" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{- define "insightfinder.temporalPostgresHost" -}}
-{{- if .Values.temporal.postgresql.deploy -}}
-{{- include "insightfinder.temporalPostgresServiceName" . -}}
-{{- else -}}
-{{- .Values.temporal.postgresql.host -}}
-{{- end -}}
-{{- end }}
-
-{{- define "insightfinder.temporalWebServiceName" -}}
-{{- printf "%s-temporal-web" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{- define "insightfinder.temporalUiIngressName" -}}
-{{- printf "%s-temporal-ui" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{- define "insightfinder.temporalBasicAuthMiddlewareName" -}}
-{{- printf "%s-temporal-basic-auth" (include "insightfinder.fullname" .) }}
-{{- end }}
-
-{{- define "insightfinder.temporalBasicAuthSecretName" -}}
-{{- .Values.temporal.ingress.basicAuth.secretName | default (printf "%s-temporal-basicauth" (include "insightfinder.fullname" .)) }}
 {{- end }}

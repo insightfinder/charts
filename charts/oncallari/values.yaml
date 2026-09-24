@@ -121,17 +121,15 @@ ariOncallAgent:
       # on purpose, not sized to hold every dependency ever downloaded.
       size: 5Gi
   existingSecret: ""
-  temporalHost: "temporal.internal.example.com:7233"
+  # This chart no longer deploys a Temporal server: every environment runs a
+  # standalone, Flux-managed one (HelmRelease `temporal` in the insightfinder
+  # namespace, test-fluxcd / eks-fluxcd), reached in-cluster over plaintext
+  # gRPC. Its namespace-setup job registers temporalNamespace -- the worker
+  # exits at startup if the namespace is missing, so add new ones there.
+  temporalHost: "temporal-frontend:7233"
   temporalNamespace: "oncall-ari-agent"
-  # Register temporalNamespace from an init container on every worker pod
-  # start. `temporal server start-dev` only auto-creates "default", so
-  # without this a fresh install CrashLoops until someone registers it by
-  # hand. Ignored unless temporal.enabled -- a managed cluster provisions
-  # its own namespaces and will usually refuse creation.
-  ensureTemporalNamespace: true
-  temporalNamespaceRetention: "72h"
   temporalTaskQueue: "oncall-ari-queue"
-  temporalTlsEnabled: true
+  temporalTlsEnabled: false
   temporalApiKey: ""
   # Base64-encoded 32-byte AES-256 key. When set, the agent encrypts every
   # workflow/activity payload before Temporal persists it, instead of
@@ -170,7 +168,7 @@ ariOncallAgent:
   logLevel: "info"
 
 # ARI Jenkins Agent -- a second, independently toggleable agent kind on the
-# same chart, same shared Temporal dev server (its own namespace/task queue
+# same chart, same shared Temporal server (its own namespace/task queue
 # below), same shared api image (ariOncallAgent.api.image's own comment
 # explains why). Deliberately no `persistence.repoCache` here: this agent
 # never clones or builds a target repo -- every real Jenkins action goes
@@ -236,12 +234,11 @@ ariJenkinsAgent:
         cpu: 1000m
         memory: 1Gi
   existingSecret: ""
-  temporalHost: "temporal.internal.example.com:7233"
+  # Same standalone Temporal as ariOncallAgent (see its temporalHost comment).
+  temporalHost: "temporal-frontend:7233"
   temporalNamespace: "jenkins-ari-agent"
-  ensureTemporalNamespace: true
-  temporalNamespaceRetention: "72h"
   temporalTaskQueue: "jenkins-ari-queue"
-  temporalTlsEnabled: true
+  temporalTlsEnabled: false
   temporalApiKey: ""
   temporalPayloadEncryptionKey: ""
   agentApiKeys: "change-me"
@@ -271,104 +268,3 @@ sharedIngress:
   tls:
     enabled: false
     secretName: ""
-
-temporal:
-  enabled: false
-  mode: "dev"
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  service:
-    type: ClusterIP
-    port: 7233
-  dev:
-    image:
-      repository: temporalio/temporal
-      tag: "1.9.1"
-      pullPolicy: IfNotPresent
-    uiPort: 8233
-    dbFilename: "/data/temporal.db"
-    persistence:
-      # start-dev keeps everything in one SQLite file. On an emptyDir that
-      # file dies with the pod, taking the registered namespaces and all
-      # workflow history with it -- a node rotation left the worker
-      # CrashLooping for hours because its namespace had silently vanished.
-      # A claim costs one small volume and makes a restart uneventful.
-      enabled: true
-      existingClaim: ""
-      storageClassName: ""
-      size: 5Gi
-      # uid/gid the temporalio/temporal image runs as. Applied as the pod's
-      # fsGroup so the provisioned volume is writable -- without it start-dev
-      # cannot create its SQLite file and CrashLoops.
-      fsGroup: 1000
-  image:
-    repository: temporalio/auto-setup
-    # 1.32.0 was never actually published to docker.io -- ImagePullBackOff.
-    # 1.29.7 is the newest tag temporalio/auto-setup actually has.
-    tag: "1.29.7"
-    pullPolicy: IfNotPresent
-  postgresql:
-    host: "postgres.example.com"
-    port: 5432
-    user: "temporal"
-    password: ""
-    databaseName: "temporal"
-    visibilityDatabaseName: "temporal_visibility"
-    existingSecret: ""
-    secretKey: password
-    # When true, this chart deploys and manages its own single-instance
-    # Postgres pod (with a PVC) to back Temporal's persistence store, and
-    # `host` above is ignored in favor of that in-cluster service. Leave
-    # false to bring your own external Postgres (RDS, Cloud SQL, ...).
-    deploy: false
-    image:
-      repository: postgres
-      tag: "16"
-      pullPolicy: IfNotPresent
-    persistence:
-      storageClassName: ""
-      size: 5Gi
-    resources: {}
-  skipDbCreate: false
-  skipSchemaSetup: false
-  defaultNamespace: "default"
-  defaultNamespaceRetention: "72h"
-  web:
-    enabled: true
-    image:
-      repository: temporalio/ui
-      tag: "2.54.1"
-      pullPolicy: IfNotPresent
-    service:
-      type: ClusterIP
-      port: 8080
-    corsOrigins: ""
-  # Exposes the Temporal Web UI outside the cluster. Points at the
-  # dev-mode server's own "ui" port when temporal.mode is "dev", or at
-  # the separate temporal-web Service when mode is "postgres".
-  #
-  # `temporal server start-dev` (dev mode) ships with NO authentication of
-  # its own -- basicAuth defaults to enabled so this is never opened up
-  # unprotected by accident. Disable it only if something else in front
-  # (a VPN, an authenticating proxy) already gates access.
-  ingress:
-    enabled: false
-    className: "traefik"
-    annotations: {}
-    host: ""
-    tls:
-      enabled: false
-      secretName: ""
-    basicAuth:
-      enabled: true
-      # Name of an existing traefik.io/v1alpha1 Secret (key: `users`,
-      # htpasswd format) to reuse. Leave blank to have this chart create
-      # one from `htpasswd` below.
-      secretName: ""
-      # An htpasswd-format "user:hash" line (apr1/bcrypt), e.g. the output
-      # of `htpasswd -nbB <user> <password>`. Required when basicAuth is
-      # enabled and secretName is blank.
-      htpasswd: ""
-
