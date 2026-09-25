@@ -7,6 +7,8 @@ metadata:
     {{- include "insightfinder.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.ariOncallAgent.worker.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "insightfinder.selectorLabels" . | nindent 6 }}
