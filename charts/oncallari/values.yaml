@@ -248,6 +248,86 @@ ariJenkinsAgent:
   opencodeBin: "opencode"
   logLevel: "info"
 
+ariActionAgent:
+  # The `action` agent kind -- runs InsightFinder's registered Actions
+  # from a conversation instead of a click (II-24921). Built and released
+  # from its OWN repository, insightfinder/ari-agent-demo, not from
+  # ari-oncall-agent like the other two kinds here.
+  enabled: false
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  api:
+    image:
+      # NOT the shared ari-agent-api image. That image is "agent-kind
+      # agnostic" only within one repository: it bakes in src/ and
+      # configs/, so it contains the oncall and jenkins kinds and knows
+      # nothing about `action`. This kind's API image is built from
+      # ari-agent-demo's own Dockerfile.api.
+      repository: docker.io/insightfinderinc/ari-agent-demo-api
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+      className: "traefik"
+      annotations: {}
+      hosts:
+        - "ari-action-agent.insightfinder.com"
+      tls:
+        enabled: false
+        secretName: ""
+      # See ariOncallAgent.api.ingress.sharedPath's own comment.
+      sharedPath: "/ari-action"
+  worker:
+    image:
+      # Built from Dockerfile.action in ari-agent-demo -- the smallest of
+      # the three: no git, no build toolchain, no Node, no opencode.
+      # It calls no InsightFinder backend API at all -- only the
+      # target action server named in the request.
+      repository: docker.io/insightfinderinc/ari-agent-demo-worker
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+  existingSecret: ""
+  # Same standalone Temporal as the other two kinds (see
+  # ariOncallAgent.temporalHost's comment); its own namespace and queue.
+  temporalHost: "temporal-frontend:7233"
+  temporalNamespace: "action-ari-agent"
+  temporalTaskQueue: "action-ari-queue"
+  temporalTlsEnabled: false
+  temporalApiKey: ""
+  temporalPayloadEncryptionKey: ""
+  agentApiKeys: "change-me"
+  agentName: "ARI Action Agent"
+  agentPublicUrl: "https://ari-action-agent.insightfinder.com"
+  # Per-request scratch directory the shared engine expects. Nothing is
+  # cloned into it -- there is no repo-cache PVC for this kind.
+  sandboxRoot: "/var/lib/ari-agent/sandbox"
+  logLevel: "info"
+  # No opencodeBin: this kind has no opencode in its image at all.
+  #
+  # Note there is deliberately NO InsightFinder base_url / credential /
+  # project here. Those arrive per-request in the A2A config DataPart, so
+  # one deployment can serve several InsightFinder instances and a
+  # compromised agent is not a standing key to any of them.
+
 # One shared domain fronting every enabled agent kind's own API Service,
 # path-routed (test-agents.insightfinder.com/ari-oncall,
 # .../ari-jenkins, ...) instead of one hostname per agent kind --

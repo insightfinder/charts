@@ -1,0 +1,74 @@
+{{- if .Values.ariActionAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insightfinder.ariActionAgentWorkerName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ariActionAgent.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-action-agent-worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-action-agent-worker
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-ari-action-agent-worker" .Chart.Name }}
+          image: "{{ .Values.ariActionAgent.worker.image.repository }}:{{ .Values.ariActionAgent.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.ariActionAgent.worker.image.pullPolicy }}
+          command: ["python", "-m", "api.worker"]
+          env:
+            - name: AGENT_KIND
+              value: "action"
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariActionAgentSecretName" . }}
+          volumeMounts:
+            - name: sandbox
+              mountPath: {{ .Values.ariActionAgent.sandboxRoot }}
+          resources:
+            {{- toYaml .Values.ariActionAgent.worker.resources | nindent 12 }}
+      volumes:
+        # No repo-cache volume, same as the Jenkins worker: this agent
+        # never clones or builds anything. The sandbox is only the
+        # per-request scratch directory the shared engine expects.
+        - name: sandbox
+          emptyDir: {}
+      {{- with .Values.ariActionAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariActionAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariActionAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-action-agent-worker
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariActionAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

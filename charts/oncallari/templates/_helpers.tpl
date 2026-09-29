@@ -103,6 +103,25 @@ variants of the same deployment.
 {{- end }}
 
 {{/*
+Same reasoning as the "-jenkins-*" suffixes above: a third independently
+toggleable agent kind under the same release needs its own "-action-*"
+names. This kind's images come from a different repository entirely
+(insightfinder/ari-agent-demo), so unlike the other two it does NOT share
+the ari-agent-api image -- see values.yaml's ariActionAgent.api.image.
+*/}}
+{{- define "insightfinder.ariActionAgentApiServiceName" -}}
+{{- printf "%s-action-api" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariActionAgentWorkerName" -}}
+{{- printf "%s-action-worker" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariActionAgentSecretName" -}}
+{{- .Values.ariActionAgent.existingSecret | default (printf "%s-action-secret" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{/*
 Shared multi-agent Ingress (routes one domain's path prefixes to each
 agent kind's own, already-existing API Service -- see values.yaml's
 sharedIngress block and templates/shared-agents-ingress.yaml)
