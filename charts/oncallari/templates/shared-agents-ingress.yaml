@@ -15,6 +15,9 @@ spec:
       {{- if .Values.ariJenkinsAgent.enabled }}
       - {{ .Values.ariJenkinsAgent.api.ingress.sharedPath | quote }}
       {{- end }}
+      {{- if .Values.ariActionAgent.enabled }}
+      - {{ .Values.ariActionAgent.api.ingress.sharedPath | quote }}
+      {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -57,6 +60,15 @@ spec:
             backend:
               service:
                 name: {{ include "insightfinder.ariJenkinsAgentApiServiceName" . }}
+                port:
+                  number: 80
+          {{- end }}
+          {{- if .Values.ariActionAgent.enabled }}
+          - path: {{ .Values.ariActionAgent.api.ingress.sharedPath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "insightfinder.ariActionAgentApiServiceName" . }}
                 port:
                   number: 80
           {{- end }}
