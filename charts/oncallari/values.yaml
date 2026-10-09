@@ -74,13 +74,33 @@ ariOncallAgent:
       pullPolicy: Always
       tag: "test"
     replicaCount: 1
+    # `verify` shells out to the target repository's own build tooling
+    # (mvn/go/npm) inside this container, so what fits here is decided by
+    # whichever repo the agent is pointed at, not by the agent itself.
+    #
+    # 2Gi was not enough, and had not been for a while. The repoCache note
+    # below already called these "the frequent OOMKilled restarts this
+    # worker was already hitting" -- but only the cache was moved out of
+    # their way; the limit itself was left alone. Confirmed on stg
+    # 2026-10-09 (workflow 5a0f4506): three OOMKills in eighteen minutes,
+    # every one mid-verify, which broke the run outright. Memory went
+    # 981Mi -> 1154Mi -> killed inside a single two-minute scrape window,
+    # so the real peak is above 2Gi and is still unmeasured.
+    #
+    # 6Gi is headroom, not a measured ceiling. The stg node (t3a.2xlarge,
+    # ~30Gi allocatable) sat at 60% of memory limits with this at 2Gi.
+    #
+    # Only this one block. The API deployments stay small on purpose --
+    # that process never shells out to git, opencode or a build toolchain
+    # (see its own image comment above), and measures 63Mi in steady state
+    # on stg with no restart in its history.
     resources:
       requests:
         cpu: 500m
-        memory: 512Mi
+        memory: 1Gi
       limits:
         cpu: 2000m
-        memory: 2Gi
+        memory: 6Gi
   persistence:
     repoCache:
       # PVC-backed instead of the previous emptyDir: confirmed live that
