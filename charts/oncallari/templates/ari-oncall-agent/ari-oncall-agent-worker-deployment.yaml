@@ -5,6 +5,12 @@ metadata:
   name: {{ include "insightfinder.ariOncallAgentWorkerName" . }}
   labels:
     {{- include "insightfinder.labels" . | nindent 4 }}
+  annotations:
+    # Config reaches these pods only through the release Secret
+    # (envFrom.secretRef), so without this a changed key updates the
+    # Secret and leaves the pods running the old value. Same as the
+    # traceserver and nbc-agent charts.
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.ariOncallAgent.worker.replicaCount }}
   strategy:
