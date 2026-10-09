@@ -37,10 +37,10 @@ ariOncallAgent:
     resources:
       requests:
         cpu: 250m
-        memory: 1Gi
+        memory: 256Mi
       limits:
         cpu: 1000m
-        memory: 6Gi
+        memory: 512Mi
     service:
       type: ClusterIP
     ingress:
