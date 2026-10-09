@@ -38,7 +38,6 @@ spec:
         - name: {{ printf "%s-ari-oncall-agent-worker" .Chart.Name }}
           image: "{{ .Values.ariOncallAgent.worker.image.repository }}:{{ .Values.ariOncallAgent.worker.image.tag }}"
           imagePullPolicy: {{ .Values.ariOncallAgent.worker.image.pullPolicy }}
-          command: ["python", "-m", "api.worker"]
           env:
             - name: AGENT_KIND
               value: "oncall"
