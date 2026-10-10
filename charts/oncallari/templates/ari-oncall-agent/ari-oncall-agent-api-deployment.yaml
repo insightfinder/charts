@@ -55,6 +55,17 @@ spec:
             initialDelaySeconds: 15
           resources:
             {{- toYaml .Values.ariOncallAgent.api.resources | nindent 12 }}
+          {{- if .Values.ariOncallAgent.persistence.taskStore.enabled }}
+          volumeMounts:
+            - name: task-store
+              mountPath: {{ .Values.ariOncallAgent.taskStoreRoot }}
+          {{- end }}
+      {{- if .Values.ariOncallAgent.persistence.taskStore.enabled }}
+      volumes:
+        - name: task-store
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariOncallAgentTaskStoreClaimName" . }}
+      {{- end }}
       {{- with .Values.ariOncallAgent.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

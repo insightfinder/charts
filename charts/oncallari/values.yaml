@@ -102,6 +102,12 @@ ariOncallAgent:
         cpu: 2000m
         memory: 6Gi
   persistence:
+    taskStore:
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
     repoCache:
       # PVC-backed instead of the previous emptyDir: confirmed live that
       # emptyDir loses the whole mirror cache on every pod restart,
@@ -164,6 +170,7 @@ ariOncallAgent:
   sandboxRoot: "/var/lib/ari-agent/sandbox"
   repoCacheRoot: "/var/lib/ari-agent/repo-cache"
   buildCacheRoot: "/var/lib/ari-agent/build-cache"
+  taskStoreRoot: "/var/lib/ari-agent/tasks"
   # Caps concurrent Temporal activities (clone/analyze/verify/... steps,
   # across all in-flight requests) this worker process runs at once —
   # Temporal's SDK default is 100, far more than the worker.resources

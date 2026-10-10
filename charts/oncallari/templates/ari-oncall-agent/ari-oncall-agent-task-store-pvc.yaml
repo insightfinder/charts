@@ -1,0 +1,17 @@
+{{- if and .Values.ariOncallAgent.enabled .Values.ariOncallAgent.persistence.taskStore.enabled (not .Values.ariOncallAgent.persistence.taskStore.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "insightfinder.ariOncallAgentTaskStoreClaimName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.ariOncallAgent.persistence.taskStore.accessMode }}
+  {{- with .Values.ariOncallAgent.persistence.taskStore.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.ariOncallAgent.persistence.taskStore.size }}
+{{- end }}
