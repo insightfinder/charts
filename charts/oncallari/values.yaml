@@ -170,7 +170,7 @@ ariOncallAgent:
   # limits below can sustain once `verify`'s go/maven/npm build tooling is
   # in the mix. Confirmed live via repeated OOMKilled restarts. Raise only
   # alongside more CPU/memory in worker.resources.
-  maxConcurrentActivities: 3
+  maxConcurrentActivities: 1
   # LRU-eviction thresholds shared by both repoCache and buildCache (see
   # common/cache_gc.py) — below cacheEvictLowWater fraction free on that
   # PVC, least-recently-used entries are deleted until back above
