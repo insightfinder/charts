@@ -13,6 +13,8 @@ metadata:
     reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.ariOncallAgent.api.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "insightfinder.selectorLabels" . | nindent 6 }}
