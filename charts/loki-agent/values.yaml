@@ -83,6 +83,9 @@ config:
     default_instance_name_field: "container"
     headers: {}
 
+    # Each query may set project_name / system_name to send its logs to its own
+    # InsightFinder project (created if missing). Empty values fall back to
+    # insightfinder.logs_project_name / logs_system_name.
     queries:
       - name: "insightfinder_audit_logs"
         query: '{namespace="insightfinder",pod=~".*appserver.*"} |= `com.insightfinder.models.AuditLog`'
@@ -93,6 +96,8 @@ config:
         component_name_field: "container"
         container_name_field: "node_name"
         headers: {}
+        project_name: ""
+        system_name: ""
 
       - name: "application_errors"
         query: '{namespace="insightfinder"} |~ "ERROR|Exception|FATAL"'
@@ -103,6 +108,8 @@ config:
         component_name_field: "container"
         container_name_field: "pod"
         headers: {}
+        project_name: ""
+        system_name: ""
 
       - name: "kubernetes_events"
         query: '{namespace=~"kube-.*|default"} |= "Event"'
@@ -114,12 +121,16 @@ config:
         component_name_field: "instance"
         container_name_field: "pod"
         headers: {}
+        project_name: ""
+        system_name: ""
 
   insightfinder:
     server_url: "https://app.insightfinder.com"
     username: ""
     license_key: ""
     
+    # Default project/system for queries without project_name / system_name.
+    # logs_project_name is required unless every enabled query sets project_name.
     logs_project_name: ""
     logs_system_name: ""
     logs_project_type: "LOG"
