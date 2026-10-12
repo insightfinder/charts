@@ -823,6 +823,17 @@ entries:
   oncallari:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-10-12T07:56:08.738476849Z"
+    description: ARI agents (A2A API + Temporal worker) -- on-call, Jenkins and Action
+      kinds
+    digest: 4659db3b8156b1c2ffdfe16b5737dbe036cb0c95a4342f1907cab0c37edf52a7
+    name: oncallari
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/oncallari-0.3.5/oncallari-0.3.5.tgz
+    version: 0.3.5
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-10-10T09:52:44.270638258Z"
     description: ARI agents (A2A API + Temporal worker) -- on-call, Jenkins and Action
       kinds
@@ -1232,4 +1243,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-10-10T09:52:44.270718188Z"
+generated: "2026-10-12T07:56:08.738618383Z"
