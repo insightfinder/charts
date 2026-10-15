@@ -1,0 +1,17 @@
+{{- if and .Values.ariK8sAgent.enabled .Values.ariK8sAgent.persistence.taskStore.enabled (not .Values.ariK8sAgent.persistence.taskStore.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "insightfinder.ariK8sAgentTaskStoreClaimName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.ariK8sAgent.persistence.taskStore.accessMode }}
+  {{- with .Values.ariK8sAgent.persistence.taskStore.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.ariK8sAgent.persistence.taskStore.size }}
+{{- end }}

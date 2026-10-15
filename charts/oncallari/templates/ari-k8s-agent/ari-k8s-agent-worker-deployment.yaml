@@ -1,0 +1,97 @@
+{{- if .Values.ariK8sAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insightfinder.ariK8sAgentWorkerName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  annotations:
+    # Config reaches these pods only through the release Secret
+    # (envFrom.secretRef), so without this a changed key updates the
+    # Secret and leaves the pods running the old value.
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.ariK8sAgent.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-k8s-agent-worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-k8s-agent-worker
+    spec:
+      # The only pod of this kind that talks to the Kubernetes API, so the
+      # only one that gets a token and the RBAC-bound ServiceAccount. The
+      # API Deployment keeps automountServiceAccountToken: false.
+      serviceAccountName: {{ include "insightfinder.ariK8sAgentServiceAccountName" . }}
+      automountServiceAccountToken: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-ari-k8s-agent-worker" .Chart.Name }}
+          image: "{{ .Values.ariK8sAgent.worker.image.repository }}:{{ .Values.ariK8sAgent.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.ariK8sAgent.worker.image.pullPolicy }}
+          # No command/args: the image's own ENTRYPOINT (tini, which forwards
+          # SIGTERM so the worker stops cleanly on a rollout) runs its CMD
+          # `python -m api.worker`. A `command:` here would replace tini.
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: AGENT_KIND
+              value: "k8s"
+            {{- with include "insightfinder.ariK8sAgentEncryptionKeyEnv" . }}
+            {{- . | trim | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariK8sAgentSecretName" . }}
+          volumeMounts:
+            # The root filesystem is read-only; /tmp (and the sandbox
+            # beneath it) is the only writable path.
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.ariK8sAgent.worker.resources | nindent 12 }}
+      volumes:
+        # No PVCs: this agent never clones or builds anything.
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.ariK8sAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariK8sAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariK8sAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-k8s-agent-worker
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariK8sAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
