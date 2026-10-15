@@ -1,0 +1,102 @@
+{{- if .Values.ariK8sAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insightfinder.ariK8sAgentApiServiceName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  annotations:
+    # Config reaches these pods only through the release Secret
+    # (envFrom.secretRef), so without this a changed key updates the
+    # Secret and leaves the pods running the old value. Same as the
+    # traceserver and nbc-agent charts.
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.ariK8sAgent.api.replicaCount }}
+  # The task store volume is ReadWriteOnce: the old pod must let go of it
+  # before the new one can mount it.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "insightfinder.selectorLabels" . | nindent 6 }}
+      app: if-ari-k8s-agent-api
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "insightfinder.selectorLabels" . | nindent 8 }}
+        app: if-ari-k8s-agent-api
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ printf "%s-ari-k8s-agent-api" .Chart.Name }}
+          image: "{{ .Values.ariK8sAgent.api.image.repository }}:{{ .Values.ariK8sAgent.api.image.tag }}"
+          imagePullPolicy: {{ .Values.ariK8sAgent.api.image.pullPolicy }}
+          command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+          env:
+            - name: AGENT_KIND
+              value: "k8s"
+            {{- with include "insightfinder.ariK8sAgentEncryptionKeyEnv" . }}
+            {{- . | trim | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ include "insightfinder.ariK8sAgentSecretName" . }}
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 15
+          resources:
+            {{- toYaml .Values.ariK8sAgent.api.resources | nindent 12 }}
+          {{- if .Values.ariK8sAgent.persistence.taskStore.enabled }}
+          volumeMounts:
+            - name: task-store
+              mountPath: {{ .Values.ariK8sAgent.taskStoreRoot }}
+          {{- end }}
+      {{- if .Values.ariK8sAgent.persistence.taskStore.enabled }}
+      volumes:
+        # A proposal waiting for approval lives only in this store; without
+        # it an API restart in that window turns the approval into "Could not
+        # find a pending action" and nothing is applied.
+        - name: task-store
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariK8sAgentTaskStoreClaimName" . }}
+      {{- end }}
+      {{- with .Values.ariK8sAgent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ariK8sAgent.affinity }}
+      affinity:
+        {{- toYaml .Values.ariK8sAgent.affinity | nindent 8 }}
+      {{- else if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "insightfinder.selectorLabels" . | nindent 18 }}
+                  app: if-ari-k8s-agent-api
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+      {{- end }}
+      {{- with .Values.ariK8sAgent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

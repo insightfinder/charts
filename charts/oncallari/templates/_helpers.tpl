@@ -126,6 +126,58 @@ the ari-agent-api image -- see values.yaml's ariActionAgent.api.image.
 {{- end }}
 
 {{/*
+ARI Kubernetes Agent -- a fourth independently toggleable kind; "-k8s-*"
+suffixes keep its resources from colliding with the other kinds' under one
+release. Its ServiceAccount (and the cluster-scoped RBAC names) are only
+used by the worker.
+*/}}
+{{- define "insightfinder.ariK8sAgentApiServiceName" -}}
+{{- printf "%s-k8s-api" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariK8sAgentWorkerName" -}}
+{{- printf "%s-k8s-worker" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.ariK8sAgentSecretName" -}}
+{{- .Values.ariK8sAgent.existingSecret | default (printf "%s-k8s-secret" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{- define "insightfinder.ariK8sAgentTaskStoreClaimName" -}}
+{{- .Values.ariK8sAgent.persistence.taskStore.existingClaim | default (printf "%s-k8s-task-store" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{- define "insightfinder.ariK8sAgentServiceAccountName" -}}
+{{- .Values.ariK8sAgent.serviceAccount.name | default (printf "%s-k8s" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
+{{/*
+Name shared by the ClusterRole and ClusterRoleBinding (and the prefix of the
+kube-system Role/RoleBinding). Release-prefixed because these are cluster
+scoped / live outside the release namespace.
+*/}}
+{{- define "insightfinder.ariK8sAgentRbacName" -}}
+{{- printf "%s-k8s" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{/*
+TEMPORAL_PAYLOAD_ENCRYPTION_KEY from a pre-existing Secret (preferred).
+Renders nothing when temporalPayloadEncryptionKeySecret.name is unset, in
+which case the key (if any) comes from the release Secret via envFrom.
+*/}}
+{{- define "insightfinder.ariK8sAgentEncryptionKeyEnv" -}}
+{{- with .Values.ariK8sAgent.temporalPayloadEncryptionKeySecret }}
+{{- if .name }}
+- name: TEMPORAL_PAYLOAD_ENCRYPTION_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .name }}
+      key: {{ .key | default "TEMPORAL_PAYLOAD_ENCRYPTION_KEY" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Shared multi-agent Ingress (routes one domain's path prefixes to each
 agent kind's own, already-existing API Service -- see values.yaml's
 sharedIngress block and templates/shared-agents-ingress.yaml)

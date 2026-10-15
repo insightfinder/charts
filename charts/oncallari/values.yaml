@@ -355,6 +355,120 @@ ariActionAgent:
   # one deployment can serve several InsightFinder instances and a
   # compromised agent is not a standing key to any of them.
 
+# ARI Kubernetes Agent -- the `k8s` agent kind (II-25173): checks Pod health
+# and, after human approval, changes Deployment replicas, KEDA/HPA bounds
+# or container CPU/memory. Same
+# images repository as the oncall/jenkins kinds for the API; its own worker
+# image. Only the worker talks to the Kubernetes API (see rbac below).
+ariK8sAgent:
+  enabled: false
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  api:
+    image:
+      repository: docker.io/insightfinderinc/ari-agent-api
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+      className: "traefik"
+      annotations: {}
+      hosts:
+        - "ari-k8s-agent.insightfinder.com"
+      tls:
+        enabled: false
+        secretName: ""
+      # See ariOncallAgent.api.ingress.sharedPath's own comment. Unlike the other
+      # kinds, the shared Ingress routes this path only when `enabled` above is
+      # also true: this agent holds cluster-wide patch rights, so turning on the
+      # shared domain for another kind must not expose it too.
+      sharedPath: "/ari-k8s"
+  worker:
+    image:
+      repository: docker.io/insightfinderinc/ari-k8s-agent-worker
+      pullPolicy: Always
+      tag: "test"
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  persistence:
+    # The API pod's A2A task store. A proposal paused for approval is
+    # resolved against it when the approval arrives, so it has to survive
+    # an API restart (the shared ari-agent-api image is redeployed on every
+    # build). ReadWriteOnce, so the API Deployment uses Recreate and runs
+    # one replica.
+    taskStore:
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+  # The worker runs as this ServiceAccount (the only pod of this kind with a
+  # mounted token). Leave `name` empty for "<fullname>-k8s".
+  serviceAccount:
+    create: true
+    name: ""
+  # ClusterRole + ClusterRoleBinding, and a kube-system Role + RoleBinding
+  # limited to the cluster-autoscaler-status ConfigMap (get). Rules match
+  # ari-action-agent's docs/examples/k8s-rbac.yaml. Set create=false only if
+  # you manage equivalent RBAC for the ServiceAccount yourself.
+  rbac:
+    create: true
+  existingSecret: ""
+  # Same standalone Temporal as the other kinds (see
+  # ariOncallAgent.temporalHost's comment); its own namespace and queue.
+  temporalHost: "temporal-frontend:7233"
+  temporalNamespace: "k8s-ari-agent"
+  temporalTaskQueue: "k8s-ari-queue"
+  temporalTlsEnabled: false
+  temporalApiKey: ""
+  # MUST be set for any real deployment: a base64-encoded 32-byte AES-256 key
+  # that encrypts every workflow/activity payload before Temporal persists it
+  # (otherwise request data sits in plaintext in Temporal's history / Web UI).
+  # Preferred: reference a pre-existing Secret (used by BOTH the API and the
+  # worker; takes precedence over temporalPayloadEncryptionKey below):
+  #   temporalPayloadEncryptionKeySecret:
+  #     name: my-ari-k8s-encryption-key
+  #     key: TEMPORAL_PAYLOAD_ENCRYPTION_KEY
+  # Generate a key with:
+  #   python3 -c "import base64, os; print(base64.b64encode(os.urandom(32)).decode())"
+  temporalPayloadEncryptionKeySecret:
+    name: ""
+    key: "TEMPORAL_PAYLOAD_ENCRYPTION_KEY"
+  # Fallback only (lands in this release's Secret, so in Helm release
+  # state): the key value itself. Ignored when the Secret reference above is set.
+  temporalPayloadEncryptionKey: ""
+  agentApiKeys: "change-me"
+  agentName: "ARI Kubernetes Agent"
+  agentPublicUrl: "https://ari-k8s-agent.insightfinder.com"
+  # Lives on the worker's /tmp emptyDir (the root filesystem is read-only).
+  sandboxRoot: "/tmp/ari-agent-sandbox"
+  # API pod only: where persistence.taskStore is mounted.
+  taskStoreRoot: "/var/lib/ari-agent/tasks"
+  # Caps concurrent Temporal activities this worker runs at once. Unlike
+  # the oncall kind (one heavy build at a time), these activities are light
+  # API calls -- but an approved change holds its slot while it waits for
+  # the rollout (up to the Deployment's progressDeadlineSeconds + 60s), so
+  # 1 would make every other request queue behind a slow rollout.
+  maxConcurrentActivities: 4
+  logLevel: "info"
+
 # One shared domain fronting every enabled agent kind's own API Service,
 # path-routed (test-agents.insightfinder.com/ari-oncall,
 # .../ari-jenkins, ...) instead of one hostname per agent kind --
