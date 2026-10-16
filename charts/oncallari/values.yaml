@@ -370,6 +370,8 @@ ariK8sAgent:
       repository: docker.io/insightfinderinc/ari-agent-api
       pullPolicy: Always
       tag: "test"
+    # Must stay 1 (rendering fails otherwise): proposals waiting for
+    # approval live in this pod's task store.
     replicaCount: 1
     resources:
       requests:
@@ -438,7 +440,7 @@ ariK8sAgent:
   temporalTaskQueue: "k8s-ari-queue"
   temporalTlsEnabled: false
   temporalApiKey: ""
-  # MUST be set for any real deployment: a base64-encoded 32-byte AES-256 key
+  # Required (rendering fails without it, unless existingSecret is set): a base64-encoded 32-byte AES-256 key
   # that encrypts every workflow/activity payload before Temporal persists it
   # (otherwise request data sits in plaintext in Temporal's history / Web UI).
   # Preferred: reference a pre-existing Secret (used by BOTH the API and the
@@ -454,7 +456,10 @@ ariK8sAgent:
   # Fallback only (lands in this release's Secret, so in Helm release
   # state): the key value itself. Ignored when the Secret reference above is set.
   temporalPayloadEncryptionKey: ""
-  agentApiKeys: "change-me"
+  # Required (rendering fails without it, or with "change-me"), unless
+  # existingSecret is set: a key that can approve cluster-wide changes. Generate
+  # one, e.g. `openssl rand -hex 24`; comma-separate several.
+  agentApiKeys: ""
   agentName: "ARI Kubernetes Agent"
   agentPublicUrl: "https://ari-k8s-agent.insightfinder.com"
   # Lives on the worker's /tmp emptyDir (the root filesystem is read-only).
