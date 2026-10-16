@@ -1,4 +1,5 @@
 {{- if .Values.ariK8sAgent.enabled }}
+{{- include "insightfinder.ariK8sAgentValidate" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

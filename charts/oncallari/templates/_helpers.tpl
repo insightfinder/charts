@@ -147,6 +147,32 @@ used by the worker.
 {{- .Values.ariK8sAgent.persistence.taskStore.existingClaim | default (printf "%s-k8s-task-store" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
+{{/*
+Refuses an ariK8sAgent configuration that would run but be unsafe or broken.
+Whoever holds an API key can both propose and approve changes, and the worker
+can patch Deployments cluster-wide, so a guessable key is a cluster credential;
+without a payload key, request data sits in Temporal's history in plaintext;
+the A2A task store is one pod's volume (or memory), so a second API replica
+would lose proposals between pods.
+*/}}
+{{- define "insightfinder.ariK8sAgentValidate" -}}
+{{- $a := .Values.ariK8sAgent -}}
+{{- if not $a.existingSecret -}}
+{{- if or (not $a.agentApiKeys) (eq (toString $a.agentApiKeys) "change-me") -}}
+{{- fail "ariK8sAgent.agentApiKeys must be set to a generated key (or use ariK8sAgent.existingSecret): any holder of it can approve cluster changes" -}}
+{{- end -}}
+{{- if and (not $a.temporalPayloadEncryptionKeySecret.name) (not $a.temporalPayloadEncryptionKey) -}}
+{{- fail "ariK8sAgent needs a Temporal payload encryption key: set temporalPayloadEncryptionKeySecret.name (preferred) or temporalPayloadEncryptionKey" -}}
+{{- end -}}
+{{- end -}}
+{{- if gt (int $a.api.replicaCount) 1 -}}
+{{- fail "ariK8sAgent.api.replicaCount must be 1: the A2A task store holding proposals that wait for approval belongs to one pod" -}}
+{{- end -}}
+{{- if and (not $a.serviceAccount.create) (not $a.serviceAccount.name) -}}
+{{- fail "ariK8sAgent.serviceAccount.name is required when serviceAccount.create is false" -}}
+{{- end -}}
+{{- end }}
+
 {{- define "insightfinder.ariK8sAgentServiceAccountName" -}}
 {{- .Values.ariK8sAgent.serviceAccount.name | default (printf "%s-k8s" (include "insightfinder.fullname" .)) }}
 {{- end }}
