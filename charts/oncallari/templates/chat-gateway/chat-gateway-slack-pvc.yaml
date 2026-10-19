@@ -1,0 +1,18 @@
+{{- $p := .Values.chatGateway.slack }}
+{{- if and $p.enabled $p.persistence.enabled (not $p.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-slack" (include "insightfinder.chatGatewayName" .) }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- with $p.persistence.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $p.persistence.size }}
+{{- end }}

@@ -1,0 +1,19 @@
+{{- if .Values.chatGateway.teams.enabled }}
+{{- $name := printf "%s-teams" (include "insightfinder.chatGatewayName" .) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "insightfinder.selectorLabels" . | nindent 4 }}
+    app: {{ $name }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+{{- end }}

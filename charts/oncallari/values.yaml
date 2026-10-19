@@ -375,3 +375,46 @@ sharedIngress:
   tls:
     enabled: false
     secretName: ""
+
+chatGateway:
+  image:
+    repository: docker.io/insightfinderinc/ari-chat-gateway
+    pullPolicy: Always
+    tag: "test"
+  agentUrl: ""
+  agentApiKey: ""
+  existingSecret: ""
+  secrets: {}
+  env: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+  nodeSelector: {}
+  tolerations: []
+  slack:
+    enabled: false
+    persistence:
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      size: 100Mi
+  teams:
+    enabled: false
+    persistence:
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      size: 100Mi
+    ingress:
+      enabled: true
+      className: "traefik"
+      annotations: {}
+      hosts: []
+      path: "/teams/api/messages"
+      tls:
+        enabled: false
+        secretName: ""

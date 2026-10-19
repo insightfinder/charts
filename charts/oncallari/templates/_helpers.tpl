@@ -133,3 +133,50 @@ sharedIngress block and templates/shared-agents-ingress.yaml)
 {{- define "insightfinder.sharedAgentsStripPrefixMiddlewareName" -}}
 {{- printf "%s-agents-strip-prefix" (include "insightfinder.fullname" .) }}
 {{- end }}
+
+{{/*
+Chat gateway (Slack and Microsoft Teams front ends for an ARI agent)
+*/}}
+{{- define "insightfinder.chatGatewayName" -}}
+{{- printf "%s-chat" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.chatGatewaySecretName" -}}
+{{- printf "%s-chat-secret" (include "insightfinder.fullname" .) }}
+{{- end }}
+
+{{- define "insightfinder.chatGatewayAgentUrl" -}}
+{{- if .Values.chatGateway.agentUrl }}
+{{- .Values.chatGateway.agentUrl }}
+{{- else if .Values.ariOncallAgent.enabled }}
+{{- printf "http://%s" (include "insightfinder.ariOncallAgentApiServiceName" .) }}
+{{- else }}
+{{- fail "chatGateway.agentUrl is required when ariOncallAgent is not enabled in this release" }}
+{{- end }}
+{{- end }}
+
+{{- define "insightfinder.chatGatewayAgentApiKey" -}}
+{{- if .Values.chatGateway.agentApiKey }}
+{{- .Values.chatGateway.agentApiKey }}
+{{- else if .Values.ariOncallAgent.enabled }}
+{{- splitList "," .Values.ariOncallAgent.agentApiKeys | first | trim }}
+{{- end }}
+{{- end }}
+
+{{- define "insightfinder.chatGatewayEnv" -}}
+- name: ARI_AGENT_URL
+  value: {{ include "insightfinder.chatGatewayAgentUrl" . | quote }}
+{{- range $name, $value := .Values.chatGateway.env }}
+- name: {{ $name }}
+  value: {{ $value | toString | quote }}
+{{- end }}
+{{- end }}
+
+{{- define "insightfinder.chatGatewayEnvFrom" -}}
+- secretRef:
+    name: {{ include "insightfinder.chatGatewaySecretName" . }}
+{{- with .Values.chatGateway.existingSecret }}
+- secretRef:
+    name: {{ . }}
+{{- end }}
+{{- end }}

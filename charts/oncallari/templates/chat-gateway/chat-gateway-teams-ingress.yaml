@@ -1,0 +1,37 @@
+{{- $p := .Values.chatGateway.teams }}
+{{- if and $p.enabled $p.ingress.enabled }}
+{{- $name := printf "%s-teams" (include "insightfinder.chatGatewayName" .) }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  {{- with $p.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ $p.ingress.className }}
+  {{- if and $p.ingress.hosts $p.ingress.tls.enabled }}
+  tls:
+    - hosts:
+      {{- $p.ingress.hosts | toYaml | nindent 6 }}
+      {{- with $p.ingress.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+  {{- end }}
+  rules:
+    {{- range $p.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $p.ingress.path }}
+            pathType: Exact
+            backend:
+              service:
+                name: {{ $name }}
+                port:
+                  number: 80
+    {{- end }}
+{{- end }}
