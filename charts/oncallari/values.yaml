@@ -193,6 +193,13 @@ ariOncallAgent:
   # fails, still routed through a dedicated opencode agent.
   githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
   logLevel: "info"
+  # OTLP/gRPC address of the InsightFinder trace server (the agent's
+  # TRACE_SERVER_URL, same as mcp-service's), e.g.
+  # http://traceserver-llm-labs.traceserver.svc.cluster.local:4618 on test.
+  # Empty leaves tracing off. Set, a request is traced only when its caller
+  # sends a `trace` block naming its own trace project -- the project is
+  # never this deployment's choice.
+  traceServerUrl: ""
 
 # ARI Jenkins Agent -- a second, independently toggleable agent kind on the
 # same chart, same shared Temporal server (its own namespace/task queue
@@ -473,6 +480,11 @@ ariK8sAgent:
   # 1 would make every other request queue behind a slow rollout.
   maxConcurrentActivities: 4
   logLevel: "info"
+  # OTLP/gRPC address of the InsightFinder trace server, as for
+  # ariOncallAgent.traceServerUrl. Empty leaves tracing off; set, a request
+  # is traced only when its caller sends a `trace` block naming its own
+  # trace project.
+  traceServerUrl: ""
 
 # One shared domain fronting every enabled agent kind's own API Service,
 # path-routed (test-agents.insightfinder.com/ari-oncall,
