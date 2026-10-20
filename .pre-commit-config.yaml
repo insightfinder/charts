@@ -2,4 +2,7 @@ repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.0
     hooks:
-      - id: gitleaks
+      # Use the locally installed gitleaks binary (e.g. `brew install gitleaks`)
+      # instead of building it with Go.
+      - id: gitleaks-system
+        pass_filenames: false

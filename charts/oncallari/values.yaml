@@ -193,6 +193,13 @@ ariOncallAgent:
   # fails, still routed through a dedicated opencode agent.
   githubMcpServerUrl: "https://api.githubcopilot.com/mcp/"
   logLevel: "info"
+  # OTLP/gRPC address of the InsightFinder trace server (the agent's
+  # TRACE_SERVER_URL, same as mcp-service's), e.g.
+  # http://traceserver-llm-labs.traceserver.svc.cluster.local:4618 on test.
+  # Empty leaves tracing off. Set, a request is traced only when its caller
+  # sends a `trace` block naming its own trace project -- the project is
+  # never this deployment's choice.
+  traceServerUrl: ""
 
 # ARI Jenkins Agent -- a second, independently toggleable agent kind on the
 # same chart, same shared Temporal server (its own namespace/task queue
@@ -376,10 +383,10 @@ ariK8sAgent:
     resources:
       requests:
         cpu: 100m
-        memory: 128Mi
+        memory: 256Mi
       limits:
         cpu: 500m
-        memory: 256Mi
+        memory: 512Mi
     service:
       type: ClusterIP
     ingress:
@@ -432,6 +439,10 @@ ariK8sAgent:
   # you manage equivalent RBAC for the ServiceAccount yourself.
   rbac:
     create: true
+  # A Secret of your own in place of this release's: it must hold every key
+  # ari-k8s-agent-secret.yaml writes, AGENT_API_KEYS above all. Nothing here
+  # checks it, and without AGENT_API_KEYS the API falls back to its
+  # public development key, which can approve cluster-wide changes.
   existingSecret: ""
   # Same standalone Temporal as the other kinds (see
   # ariOncallAgent.temporalHost's comment); its own namespace and queue.
@@ -473,6 +484,11 @@ ariK8sAgent:
   # 1 would make every other request queue behind a slow rollout.
   maxConcurrentActivities: 4
   logLevel: "info"
+  # OTLP/gRPC address of the InsightFinder trace server, as for
+  # ariOncallAgent.traceServerUrl. Empty leaves tracing off; set, a request
+  # is traced only when its caller sends a `trace` block naming its own
+  # trace project.
+  traceServerUrl: ""
 
 # One shared domain fronting every enabled agent kind's own API Service,
 # path-routed (test-agents.insightfinder.com/ari-oncall,

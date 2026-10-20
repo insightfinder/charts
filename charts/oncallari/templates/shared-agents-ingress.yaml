@@ -1,4 +1,8 @@
 {{- if .Values.sharedIngress.enabled }}
+{{- $v := .Values }}
+{{- if not (or $v.ariOncallAgent.enabled $v.ariJenkinsAgent.enabled $v.ariActionAgent.enabled (and $v.ariK8sAgent.enabled $v.ariK8sAgent.api.ingress.enabled)) }}
+{{- fail "sharedIngress.enabled needs at least one agent kind to route (ariK8sAgent counts only with ariK8sAgent.api.ingress.enabled)" }}
+{{- end }}
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:

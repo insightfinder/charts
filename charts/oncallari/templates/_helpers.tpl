@@ -179,11 +179,13 @@ would lose proposals between pods.
 
 {{/*
 Name shared by the ClusterRole and ClusterRoleBinding (and the prefix of the
-kube-system Role/RoleBinding). Release-prefixed because these are cluster
-scoped / live outside the release namespace.
+kube-system Role/RoleBinding). Prefixed with the release namespace and name
+because these are cluster scoped / live outside the release namespace, so two
+same-named releases in different namespaces must not claim the same objects.
+Cut to leave room for the "-ca-status" suffix within 63 characters.
 */}}
 {{- define "insightfinder.ariK8sAgentRbacName" -}}
-{{- printf "%s-k8s" (include "insightfinder.fullname" .) }}
+{{- printf "%s-%s" .Release.Namespace (include "insightfinder.fullname" .) | trunc 49 | trimSuffix "-" | printf "%s-k8s" }}
 {{- end }}
 
 {{/*
