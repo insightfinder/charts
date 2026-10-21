@@ -495,45 +495,48 @@ sharedIngress:
     enabled: false
     secretName: ""
 
-chatGateway:
+orchestration: mcp
+
+coordinator:
   image:
-    repository: docker.io/insightfinderinc/ari-chat-gateway
+    repository: docker.io/insightfinderinc/ari-agent-api
     pullPolicy: Always
     tag: "test"
-  agentUrl: ""
-  agentApiKey: ""
+  name: "ARI"
+  publicUrl: ""
+  agentApiKeys: ""
   existingSecret: ""
-  secrets: {}
+  defaultAgent: oncall
+  agents:
+    - name: oncall
+      url: ""
+      apiKey: ""
+      forwardConfig: [repo, llm, options, system_prompt]
+    - name: k8s
+      url: ""
+      apiKey: ""
+      forwardConfig: [llm, options]
   env: {}
   resources:
     requests:
       cpu: 50m
-      memory: 96Mi
+      memory: 128Mi
     limits:
       cpu: 500m
-      memory: 384Mi
+      memory: 512Mi
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  ingress:
+    enabled: false
+    className: "traefik"
+    annotations: {}
+    hosts: []
+    tls:
+      enabled: false
+      secretName: ""
   nodeSelector: {}
   tolerations: []
-  slack:
-    enabled: false
-    persistence:
-      enabled: true
-      existingClaim: ""
-      storageClassName: ""
-      size: 100Mi
-  teams:
-    enabled: false
-    persistence:
-      enabled: true
-      existingClaim: ""
-      storageClassName: ""
-      size: 100Mi
-    ingress:
-      enabled: true
-      className: "traefik"
-      annotations: {}
-      hosts: []
-      path: "/teams/api/messages"
-      tls:
-        enabled: false
-        secretName: ""

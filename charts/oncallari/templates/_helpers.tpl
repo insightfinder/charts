@@ -213,48 +213,20 @@ sharedIngress block and templates/shared-agents-ingress.yaml)
 {{- end }}
 
 {{/*
-Chat gateway (Slack and Microsoft Teams front ends for an ARI agent)
+Coordinator (the open-source edition's router in front of the agents; orchestration: coordinator)
 */}}
-{{- define "insightfinder.chatGatewayName" -}}
-{{- printf "%s-chat" (include "insightfinder.fullname" .) }}
+{{- define "insightfinder.coordinatorName" -}}
+{{- printf "%s-coordinator" (include "insightfinder.fullname" .) }}
 {{- end }}
 
-{{- define "insightfinder.chatGatewaySecretName" -}}
-{{- printf "%s-chat-secret" (include "insightfinder.fullname" .) }}
+{{- define "insightfinder.coordinatorSecretName" -}}
+{{- .Values.coordinator.existingSecret | default (printf "%s-coordinator-secret" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
-{{- define "insightfinder.chatGatewayAgentUrl" -}}
-{{- if .Values.chatGateway.agentUrl }}
-{{- .Values.chatGateway.agentUrl }}
-{{- else if .Values.ariOncallAgent.enabled }}
-{{- printf "http://%s" (include "insightfinder.ariOncallAgentApiServiceName" .) }}
-{{- else }}
-{{- fail "chatGateway.agentUrl is required when ariOncallAgent is not enabled in this release" }}
-{{- end }}
+{{- define "insightfinder.coordinatorKeyEnv" -}}
+{{- printf "COORDINATOR_AGENT_%s_API_KEY" (. | upper | replace "-" "_") }}
 {{- end }}
 
-{{- define "insightfinder.chatGatewayAgentApiKey" -}}
-{{- if .Values.chatGateway.agentApiKey }}
-{{- .Values.chatGateway.agentApiKey }}
-{{- else if .Values.ariOncallAgent.enabled }}
-{{- splitList "," .Values.ariOncallAgent.agentApiKeys | first | trim }}
-{{- end }}
-{{- end }}
-
-{{- define "insightfinder.chatGatewayEnv" -}}
-- name: ARI_AGENT_URL
-  value: {{ include "insightfinder.chatGatewayAgentUrl" . | quote }}
-{{- range $name, $value := .Values.chatGateway.env }}
-- name: {{ $name }}
-  value: {{ $value | toString | quote }}
-{{- end }}
-{{- end }}
-
-{{- define "insightfinder.chatGatewayEnvFrom" -}}
-- secretRef:
-    name: {{ include "insightfinder.chatGatewaySecretName" . }}
-{{- with .Values.chatGateway.existingSecret }}
-- secretRef:
-    name: {{ . }}
-{{- end }}
+{{- define "insightfinder.coordinatorEnabled" -}}
+{{- if eq (toString .Values.orchestration) "coordinator" }}true{{- else if eq (toString .Values.orchestration) "mcp" }}{{- else }}{{- fail (printf "orchestration must be mcp or coordinator, got %v" .Values.orchestration) }}{{- end }}
 {{- end }}
