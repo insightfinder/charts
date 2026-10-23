@@ -1,0 +1,18 @@
+{{- $p := .Values.coordinator.persistence }}
+{{- if and (include "insightfinder.coordinatorEnabled" .) $p.enabled (not $p.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "insightfinder.coordinatorName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ $p.accessMode }}
+  {{- with $p.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $p.size }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if include "insightfinder.coordinatorEnabled" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "insightfinder.coordinatorName" . }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+data:
+  agents.yaml: |
+    agents:
+    {{- range .Values.coordinator.agents }}
+      - name: {{ required "every coordinator.agents entry needs a name" .name | quote }}
+        url: {{ required (printf "coordinator.agents %s needs a url" .name) .url | quote }}
+        api_key_env: {{ include "insightfinder.coordinatorKeyEnv" .name }}
+        forward_config: {{ .forwardConfig | default (list "llm" "options") | toJson }}
+    {{- end }}
+    default_agent: {{ .Values.coordinator.defaultAgent | quote }}
+{{- end }}

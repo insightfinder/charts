@@ -1,0 +1,37 @@
+{{- $i := .Values.coordinator.ingress }}
+{{- if and (include "insightfinder.coordinatorEnabled" .) $i.enabled }}
+{{- $name := include "insightfinder.coordinatorName" . }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+  {{- with $i.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ $i.className }}
+  {{- if and $i.hosts $i.tls.enabled }}
+  tls:
+    - hosts:
+      {{- $i.hosts | toYaml | nindent 6 }}
+      {{- with $i.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+  {{- end }}
+  rules:
+    {{- range $i.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $name }}
+                port:
+                  number: 80
+    {{- end }}
+{{- end }}
