@@ -143,6 +143,10 @@ used by the worker.
 {{- .Values.ariK8sAgent.existingSecret | default (printf "%s-k8s-secret" (include "insightfinder.fullname" .)) }}
 {{- end }}
 
+{{- define "insightfinder.ariJenkinsAgentTaskStoreClaimName" -}}
+{{- .Values.ariJenkinsAgent.persistence.taskStore.existingClaim | default (printf "%s-jenkins-task-store" (include "insightfinder.fullname" .)) }}
+{{- end }}
+
 {{- define "insightfinder.ariK8sAgentTaskStoreClaimName" -}}
 {{- .Values.ariK8sAgent.persistence.taskStore.existingClaim | default (printf "%s-k8s-task-store" (include "insightfinder.fullname" .)) }}
 {{- end }}
