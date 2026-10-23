@@ -120,8 +120,17 @@ config:
   # Optional, e.g. "2026-09-01" - leave blank to use today's date.
   historicalDate: ""
 
+  # Optional, default false - take the date from the 4th HEADER field of each
+  # file (YYYYMMDD) instead; overrides historicalDate. A file whose header
+  # date is missing or malformed is skipped with an error logged.
+  useFileDate: false
+
   # Optional, default true - see UBSAgent's README for details.
   uniqueTimestamps: true
+
+  # Optional, default 2048 - split outbound log data into HTTP requests no
+  # larger than this many KB.
+  maxChunkSizeKb: 2048
 
   fileDownload:
     # Local download directory inside the container; must match the `data`
