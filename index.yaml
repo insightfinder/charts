@@ -343,6 +343,16 @@ entries:
   if-loki-agent:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-10-23T15:28:24.077070336Z"
+    description: A Helm chart for Loki Agent of InsightFinder
+    digest: 8bed3a2ab829e091436eee0fc26fffbd0867a1acab79e6184be8c0f1c2d7cbfb
+    name: if-loki-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/if-loki-agent-0.0.4/if-loki-agent-0.0.4.tgz
+    version: 0.0.4
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-07-29T16:08:56.61352748Z"
     description: A Helm chart for Loki Agent of InsightFinder
     digest: 031e6a840759fadf4315aa695cd40c7c8ddad31d6c2b3ad00e53a6f43fbe3d27
@@ -1298,4 +1308,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-10-23T13:55:37.457921078Z"
+generated: "2026-10-23T15:28:24.077145185Z"
