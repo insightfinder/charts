@@ -13,6 +13,8 @@ metadata:
     reloader.stakater.com/auto: "true"
 spec:
   replicas: {{ .Values.ariJenkinsAgent.api.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "insightfinder.selectorLabels" . | nindent 6 }}
@@ -55,6 +57,17 @@ spec:
             initialDelaySeconds: 15
           resources:
             {{- toYaml .Values.ariJenkinsAgent.api.resources | nindent 12 }}
+          {{- if .Values.ariJenkinsAgent.persistence.taskStore.enabled }}
+          volumeMounts:
+            - name: task-store
+              mountPath: {{ .Values.ariJenkinsAgent.taskStoreRoot }}
+          {{- end }}
+      {{- if .Values.ariJenkinsAgent.persistence.taskStore.enabled }}
+      volumes:
+        - name: task-store
+          persistentVolumeClaim:
+            claimName: {{ include "insightfinder.ariJenkinsAgentTaskStoreClaimName" . }}
+      {{- end }}
       {{- with .Values.ariJenkinsAgent.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
