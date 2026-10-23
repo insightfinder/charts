@@ -267,6 +267,14 @@ ariJenkinsAgent:
       limits:
         cpu: 1000m
         memory: 1Gi
+  persistence:
+    taskStore:
+      enabled: true
+      existingClaim: ""
+      storageClassName: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+  taskStoreRoot: "/var/lib/ari-agent/tasks"
   existingSecret: ""
   # Same standalone Temporal as ariOncallAgent (see its temporalHost comment).
   temporalHost: "temporal-frontend:7233"

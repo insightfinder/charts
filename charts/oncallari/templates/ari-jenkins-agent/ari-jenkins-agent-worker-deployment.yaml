@@ -36,7 +36,6 @@ spec:
         - name: {{ printf "%s-ari-jenkins-agent-worker" .Chart.Name }}
           image: "{{ .Values.ariJenkinsAgent.worker.image.repository }}:{{ .Values.ariJenkinsAgent.worker.image.tag }}"
           imagePullPolicy: {{ .Values.ariJenkinsAgent.worker.image.pullPolicy }}
-          command: ["python", "-m", "api.worker"]
           env:
             - name: AGENT_KIND
               value: "jenkins"
