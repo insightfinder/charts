@@ -162,6 +162,11 @@ config:
   # request to InsightFinder.
   maxChunkSizeKb: 2048
 
+  # Optional, default 4 - HTTP requests sent to InsightFinder at once, while
+  # the next chunk is prepared; 1 sends them one after another. Each request
+  # in flight holds about 8 MB.
+  sendConcurrency: 4
+
   fileDownload:
     # Local download directory inside the container; must match the `data`
     # emptyDir mount path in templates/cronjob.yaml.
