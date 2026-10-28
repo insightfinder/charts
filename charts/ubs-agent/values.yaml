@@ -15,6 +15,10 @@ fullnameOverride: ""
 # API version passed to the agent as the API_VERSION env var.
 apiVersion: ""
 
+# Agent log level (LOG_LEVEL env var): INFO logs each file, a progress line
+# every 30s while sending and a run summary; DEBUG also logs every HTTP chunk.
+logLevel: INFO
+
 # The agent runs once, downloads what's new, streams it, and exits -- so it
 # is scheduled as a CronJob rather than a long-running Deployment.
 # Default: once per day at 01:00 UTC.
@@ -143,8 +147,13 @@ config:
   # none land in the future. Past dates always use the whole day.
   ignoreCurrentTime: true
 
+  # Optional, default "00:00" / "23:59:59.999" - UTC times of day the records
+  # are spread between (both included), e.g. "08:00" and "18:00".
+  windowStartTime: "00:00"
+  windowEndTime: "23:59:59.999"
+
   # Optional, e.g. 10 - place records on fixed slots this many minutes apart
-  # from 00:00 UTC instead, split evenly in file order; all records in a slot
+  # from windowStartTime instead, split evenly in file order; all records in a slot
   # share its time and the earliest slots take any remainder. Overrides
   # uniqueTimestamps. Leave blank to spread per record.
   windowIntervalMinutes: ""

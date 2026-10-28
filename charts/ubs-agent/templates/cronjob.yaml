@@ -63,6 +63,8 @@ spec:
                   value: {{ .Values.azure.clientId | quote }}
                 - name: API_VERSION
                   value: {{ .Values.apiVersion | quote }}
+                - name: LOG_LEVEL
+                  value: {{ .Values.logLevel | quote }}
                 - name: LICENSE_KEY
                   valueFrom:
                     secretKeyRef:
