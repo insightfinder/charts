@@ -99,7 +99,7 @@ spec:
                 secretName: {{ include "ubs-agent.fullname" . }}-config
             - name: data
               emptyDir:
-                sizeLimit: 512Mi
+                sizeLimit: {{ .Values.dataVolume.sizeLimit }}
             - name: tmp
               emptyDir:
                 sizeLimit: 128Mi

@@ -99,13 +99,22 @@ resourceQuota:
       memory: 2Gi
       pods: "2"
 
+# The agent streams each file, so memory stays flat (~50-70 MB measured on a
+# 1.5 GB feed) regardless of file size. It is single-threaded: a CPU limit
+# above 1 does not help, and below 1 makes a run proportionally slower.
 resources:
   limits:
-    cpu: 500m
+    cpu: "1"
     memory: 512Mi
   requests:
-    cpu: 100m
+    cpu: 500m
     memory: 128Mi
+
+# emptyDir mounted at /app/data. Every file of a run is downloaded here before
+# any is sent, so size it to the total of one run's files (compressed size
+# for .gz) plus headroom - a run that outgrows it gets the pod evicted.
+dataVolume:
+  sizeLimit: 4Gi
 
 nodeSelector: {}
 
@@ -120,8 +129,29 @@ config:
   # Optional, e.g. "2026-09-01" - leave blank to use today's date.
   historicalDate: ""
 
-  # Optional, default true - see UBSAgent's README for details.
+  # Optional, default false - take the date from the 4th HEADER field of each
+  # file (YYYYMMDD) instead; overrides historicalDate.
+  useFileDate: false
+
+  # Optional, default true - spread each tag/instance's records evenly across
+  # the day (see ignoreCurrentTime); false sends every record of the run with
+  # one shared timestamp.
   uniqueTimestamps: true
+
+  # Optional, default true - spread today's records across the whole day
+  # (00:00:00.000 - 23:59:59.999 UTC); false stops at the run's start time so
+  # none land in the future. Past dates always use the whole day.
+  ignoreCurrentTime: true
+
+  # Optional, e.g. 10 - place records on fixed slots this many minutes apart
+  # from 00:00 UTC instead, split evenly in file order; all records in a slot
+  # share its time and the earliest slots take any remainder. Overrides
+  # uniqueTimestamps. Leave blank to spread per record.
+  windowIntervalMinutes: ""
+
+  # Optional, default 2048 - max size in KB of the log data in each HTTP
+  # request to InsightFinder.
+  maxChunkSizeKb: 2048
 
   fileDownload:
     # Local download directory inside the container; must match the `data`
