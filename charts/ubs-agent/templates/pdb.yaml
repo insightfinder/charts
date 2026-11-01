@@ -1,0 +1,17 @@
+{{- if .Values.podDisruptionBudget.enabled }}
+# Blocks voluntary evictions (kubectl drain, NAP consolidation, AKS upgrade
+# drains) of the running agent pod. See the warning in values.yaml: on AKS a
+# PDB with maxUnavailable 0 makes cluster upgrades fail with UnsatisfiablePDB.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "ubs-agent.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "ubs-agent.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "ubs-agent.selectorLabels" . | nindent 6 }}
+{{- end }}

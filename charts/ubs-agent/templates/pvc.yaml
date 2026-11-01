@@ -1,0 +1,24 @@
+{{- if and .Values.persistence.enabled (eq .Values.persistence.type "pvc") }}
+# Standard PersistentVolumeClaim holding only the agent's checkpoint file, so a
+# pod that restarts (node drain, Spot eviction, rebalance) resumes instead of
+# re-sending. It is created once and reused by every CronJob run; kept across
+# helm upgrades via the resource-policy annotation.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ubs-agent.fullname" . }}-state
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "ubs-agent.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+  {{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  {{- end }}
+{{- end }}
