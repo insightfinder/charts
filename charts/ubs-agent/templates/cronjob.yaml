@@ -1,3 +1,8 @@
+{{- $cp := .Values.config.checkpoint | default dict }}
+{{- $pvcOn := and .Values.persistence.enabled (eq .Values.persistence.type "pvc") }}
+{{- if and (eq ($cp.backend | default "pvc") "pvc") (not $pvcOn) }}
+{{- fail "config.checkpoint.backend is 'pvc' but no PVC is enabled: enable persistence (persistence.enabled=true, type=pvc) or set config.checkpoint.backend: none. Writing the checkpoint to an unmounted path fails on the read-only root filesystem." }}
+{{- end }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -20,12 +25,35 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: {{ .Values.backoffLimit }}
-      {{- if .Values.activeDeadlineSeconds }}
-      activeDeadlineSeconds: {{ .Values.activeDeadlineSeconds }}
+      {{- /* activeDeadlineSeconds is the old name of jobActiveDeadlineSeconds; it wins when set */}}
+      {{- with (.Values.activeDeadlineSeconds | default .Values.jobActiveDeadlineSeconds) }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      {{- if .Values.podFailurePolicy.enabled }}
+      # Interruptions don't use up backoffLimit: node drains, evictions and
+      # preemption (DisruptionTarget), and the agent's own graceful stop on
+      # SIGTERM (exit 143) - it has saved its progress and the next pod
+      # resumes. Also makes the Job wait for the old pod to fully stop before
+      # starting its replacement, so two pods never share the checkpoint.
+      podFailurePolicy:
+        rules:
+          - action: Ignore
+            onPodConditions:
+              - type: DisruptionTarget
+                status: "True"
+          - action: Ignore
+            onExitCodes:
+              operator: In
+              values: [143]
       {{- end }}
       template:
         metadata:
           annotations:
+            {{- if and .Values.doNotDisrupt (not (hasKey (.Values.podAnnotations | default dict) "karpenter.sh/do-not-disrupt")) }}
+            # Ask NAP (Karpenter) not to consolidate or drift this pod's node
+            # while a run is in progress.
+            karpenter.sh/do-not-disrupt: "true"
+            {{- end }}
             {{- with .Values.podAnnotations }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -44,6 +72,14 @@ spec:
           serviceAccountName: {{ include "ubs-agent.serviceAccountName" . }}
           automountServiceAccountToken: false
           restartPolicy: Never
+          {{- with .Values.podActiveDeadlineSeconds }}
+          activeDeadlineSeconds: {{ . }}
+          {{- end }}
+          {{- with .Values.terminationGracePeriodSeconds }}
+          # Time for the agent to finish in-flight chunks and flush its
+          # checkpoint on SIGTERM (node drain / Spot eviction) before SIGKILL.
+          terminationGracePeriodSeconds: {{ . }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           {{- with .Values.imagePullSecrets }}
@@ -83,6 +119,10 @@ spec:
                   mountPath: /app/data
                 - name: tmp
                   mountPath: /tmp
+                {{- if and .Values.persistence.enabled (eq .Values.persistence.type "pvc") }}
+                - name: state
+                  mountPath: {{ .Values.persistence.mountPath }}
+                {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
@@ -105,3 +145,8 @@ spec:
             - name: tmp
               emptyDir:
                 sizeLimit: 128Mi
+            {{- if and .Values.persistence.enabled (eq .Values.persistence.type "pvc") }}
+            - name: state
+              persistentVolumeClaim:
+                claimName: {{ include "ubs-agent.fullname" . }}-state
+            {{- end }}

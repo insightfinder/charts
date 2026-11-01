@@ -6,6 +6,8 @@ image:
   repository: insightfinderinc/ubs-agent
   pullPolicy: Always
   # Tag example: "latest@sha256:cb5c1bddd1b5665e1867a7fa1b5fa843a47ee433bbb75d4293888b71def53229"
+  # Pin a digest in production: a run interrupted mid-file is resumed by a
+  # new pod, which must run the same agent build to resume it by chunk.
   tag: "latest"
 
 imagePullSecrets: []
@@ -29,10 +31,50 @@ suspend: false
 successfulJobsHistoryLimit: 3
 failedJobsHistoryLimit: 3
 startingDeadlineSeconds: 300
-# Give up retrying a run and let the next schedule try again.
-backoffLimit: 2
-# Hard ceiling on how long a single run may take before it's killed.
-activeDeadlineSeconds: 3600
+# Retries for a failed run within the same schedule. The agent checkpoints
+# its progress, so each retry resumes where the last pod stopped rather than
+# re-sending. With podFailurePolicy enabled, interruptions (node drains,
+# evictions, the agent's graceful stop) don't count against this - only real
+# errors do.
+backoffLimit: 6
+# Interruptions don't count against backoffLimit (see above) and the Job waits
+# for an interrupted pod to fully stop before starting its replacement, so two
+# pods never use the checkpoint at once. Stable since Kubernetes 1.31; on older
+# clusters it needs the JobPodFailurePolicy feature gate - set false if
+# unavailable.
+podFailurePolicy:
+  enabled: true
+# Time limit (seconds) for the WHOLE run - every pod and retry together. When
+# it passes, the Job is stopped and fails; the next scheduled run resumes where
+# it stopped, so nothing is lost or duplicated, only delayed. Keep it below the
+# schedule interval. 0 or empty = no limit. (Replaces activeDeadlineSeconds,
+# which is still honoured, and wins, if set.)
+jobActiveDeadlineSeconds: 21600
+# Time limit (seconds) for ONE pod, after which it is stopped and the Job
+# starts a new pod that resumes. 0 or empty = no limit.
+podActiveDeadlineSeconds: 0
+# Time (seconds) the pod gets on SIGTERM (node drain / Spot eviction) to finish
+# in-flight chunks and flush its checkpoint before SIGKILL. Azure Spot gives
+# only ~30s of real notice regardless.
+terminationGracePeriodSeconds: 120
+
+# Adds the karpenter.sh/do-not-disrupt: "true" pod annotation, so AKS Node
+# Auto Provisioning (Karpenter) does not consolidate or drift the agent's node
+# while a run is in progress. It does not prevent node expiry, Spot eviction,
+# kubectl drain or upgrades, and a NodePool terminationGracePeriod overrides
+# it. Set false if cluster policy doesn't allow the annotation; resume still
+# prevents duplicates without it.
+doNotDisrupt: true
+
+# Optional PodDisruptionBudget for the agent pod. With a single pod only
+# maxUnavailable: 0 protects it (1 allows the eviction). WARNING: on AKS any
+# PDB with maxUnavailable 0 makes cluster and node pool upgrades fail with
+# UnsatisfiablePDB, even while no agent pod is running - check with the
+# platform team before enabling. Not needed for correctness: resume prevents
+# duplicates without it.
+podDisruptionBudget:
+  enabled: false
+  maxUnavailable: 0
 
 podAnnotations: {}
 podLabels: {}
@@ -114,11 +156,37 @@ resources:
     cpu: 500m
     memory: 128Mi
 
-# emptyDir mounted at /app/data. Every file of a run is downloaded here before
-# any is sent, so size it to the total of one run's files (compressed size
-# for .gz) plus headroom - a run that outgrows it gets the pod evicted.
+# emptyDir mounted at /app/data. The agent downloads and sends one file at a
+# time (deleting each after it's sent), so size this to the LARGEST SINGLE file
+# (compressed size for .gz) plus headroom - not the total of a run. A file that
+# outgrows it gets the pod evicted and the run can't progress past it.
 dataVolume:
   sizeLimit: 4Gi
+
+# Persistent checkpoint so a pod that restarts (node drain, Spot eviction,
+# rebalance) resumes without re-sending, instead of restarting the whole run.
+# A single standard PVC is created once and reused by every run; it holds only
+# a tiny checkpoint file. The agent locks it, so a second run started while one
+# is active (e.g. a Job created by hand) exits instead of sharing it. Set type
+# to anything other than "pvc" to disable the PVC (then also set
+# config.checkpoint.backend: none).
+persistence:
+  enabled: true
+  type: pvc
+  # ReadWriteOnce (Azure Disk) is simplest. A locally-redundant (LRS) disk
+  # pins the pod to the disk's zone; a zone-redundant one (skuName
+  # StandardSSD_ZRS / Premium_ZRS) attaches in any zone - AKS's built-in disk
+  # classes use ZRS on multi-zone clusters from Kubernetes 1.29. After a hard
+  # node loss an RWO disk can take a while to detach before the new pod starts.
+  # ReadWriteMany with an Azure Files storageClass avoids attaching altogether.
+  accessMode: ReadWriteOnce
+  # Checkpoint is tiny; Azure managed disks may round this up to their minimum.
+  size: 1Gi
+  # Empty = cluster default StorageClass. On AKS: managed-csi (Azure Disk) or
+  # azurefile-csi (Azure Files, with accessMode ReadWriteMany).
+  storageClass: ""
+  # Where the PVC is mounted; must match config.checkpoint.path below.
+  mountPath: /app/state
 
 nodeSelector: {}
 
@@ -133,9 +201,13 @@ config:
   # Optional, e.g. "2026-09-01" - leave blank to use today's date.
   historicalDate: ""
 
-  # Optional, default false - take the date from the 4th HEADER field of each
-  # file (YYYYMMDD) instead; overrides historicalDate.
-  useFileDate: false
+  # Optional, agent default false - take the date from the 4th HEADER field of
+  # each file (YYYYMMDD) instead; overrides historicalDate. On here because each
+  # file is one group's records for its HEADER date, so each file is sent in a
+  # single pass. With it off, files of the same group share the run's date and
+  # the agent first downloads every file once to count its rows, to spread each
+  # group's records across its files.
+  useFileDate: true
 
   # Optional, default true - spread each tag/instance's records evenly across
   # the day (see ignoreCurrentTime); false sends every record of the run with
@@ -167,11 +239,21 @@ config:
   # in flight holds about 8 MB.
   sendConcurrency: 4
 
+  # Durable progress so an interrupted run resumes without re-sending.
+  checkpoint:
+    # pvc = persist to the mounted PVC (see persistence above); none = stateless
+    # (re-sends everything after any interruption).
+    backend: pvc
+    # Directory the checkpoint file is written to; must match
+    # persistence.mountPath above.
+    path: /app/state
+
   fileDownload:
     # Local download directory inside the container; must match the `data`
     # emptyDir mount path in templates/cronjob.yaml.
     destination: /app/data
-    # Optional blob name prefix filter.
+    # Optional blob name prefix filter. The checkpoint is keyed on this: the
+    # same prefix on restart resumes; a different prefix starts a fresh run.
     prefix: ""
 
   insightfinder:
