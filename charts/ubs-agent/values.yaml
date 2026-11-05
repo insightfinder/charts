@@ -146,7 +146,9 @@ resourceQuota:
       pods: "2"
 
 # The agent streams each file, so memory stays flat (~50-70 MB measured on a
-# 1.5 GB feed) regardless of file size. It is single-threaded: a CPU limit
+# 1.5 GB feed) regardless of file size. Splitting (config.split_instance_count)
+# adds one partial chunk per split instance - up to ~125 MB with 50 instances
+# and 2 MB chunks, capped at 128 MB of data whatever the count. It is single-threaded: a CPU limit
 # above 1 does not help, and below 1 makes a run proportionally slower.
 resources:
   limits:
@@ -238,6 +240,20 @@ config:
   # the next chunk is prepared; 1 sends them one after another. Each request
   # in flight holds about 8 MB.
   sendConcurrency: 4
+
+  # Optional, default 50 - deal each group's records round-robin to this many
+  # InsightFinder instances, named <group><split_instance_suffix>1 to N (e.g.
+  # PRODUCT_KYC_US01-SPLIT1 .. -SPLIT50), so no one instance holds too much
+  # data. Each instance gets the same number of records and covers the whole
+  # time window; the `group` field and field-name prefixes keep the group's own
+  # name. 1 sends each group to a single instance named after it. Every file
+  # takes at least min(records, this) requests, as each request carries one
+  # instance's records. Changing it (or the suffix) while a file is part-sent
+  # re-sends that file from the start.
+  split_instance_count: 50
+
+  # Optional, default "-SPLIT" - put between the group and the instance number.
+  split_instance_suffix: "-SPLIT"
 
   # Durable progress so an interrupted run resumes without re-sending.
   checkpoint:
