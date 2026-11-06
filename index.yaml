@@ -1205,6 +1205,17 @@ entries:
   ubs-agent:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-11-06T04:33:09.352678149Z"
+    description: A Helm chart running the UBS Azure Blob feed agent as a daily Kubernetes
+      CronJob
+    digest: 465c1b2b51cbee25de8c0646a4eb5b0896ba3b39356f92286cefeca59c762b74
+    name: ubs-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/ubs-agent-0.5.0/ubs-agent-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-11-01T20:57:52.166561838Z"
     description: A Helm chart running the UBS Azure Blob feed agent as a daily Kubernetes
       CronJob
@@ -1330,4 +1341,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-11-01T20:57:52.166734367Z"
+generated: "2026-11-06T04:33:09.352845341Z"
