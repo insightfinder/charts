@@ -55,7 +55,11 @@ jobActiveDeadlineSeconds: 21600
 podActiveDeadlineSeconds: 0
 # Time (seconds) the pod gets on SIGTERM (node drain / Spot eviction) to finish
 # in-flight chunks and flush its checkpoint before SIGKILL. Azure Spot gives
-# only ~30s of real notice regardless.
+# only ~30s of real notice regardless. A graceful stop usually takes a few
+# seconds, but a request to an unresponsive InsightFinder can take up to its
+# 180s timeout: raise this above 180 if that is a risk. A pod killed before it
+# stops can send up to config.sendConcurrency chunks again per file in flight
+# (config.fileConcurrency files).
 terminationGracePeriodSeconds: 120
 
 # Adds the karpenter.sh/do-not-disrupt: "true" pod annotation, so AKS Node
@@ -137,6 +141,8 @@ limitRange:
         memory: "128Mi"
       type: Container
 
+# If enabled, the quota must leave room for the agent pod's resources (one CPU
+# per config.fileConcurrency, see `resources` below).
 resourceQuota:
   enabled: false
   spec:
@@ -145,11 +151,16 @@ resourceQuota:
       memory: 2Gi
       pods: "2"
 
-# The agent streams each file, so memory stays flat (~50-70 MB measured on a
-# 1.5 GB feed) regardless of file size. Splitting (config.split_instance_count)
-# adds one partial chunk per split instance - up to ~125 MB with 50 instances
-# and 2 MB chunks, capped at 128 MB of data whatever the count. It is single-threaded: a CPU limit
-# above 1 does not help, and below 1 makes a run proportionally slower.
+# The agent streams each file, so memory stays flat regardless of file size:
+# about 100 MB per file being sent, plus one partial chunk per split instance
+# (config.split_instance_count) - about 230 MB per file measured with 50
+# instances and 2 MB chunks, capped at 128 MB of data whatever the count.
+# A file is parsed on one core: give the pod one CPU per file sent at once
+# (config.fileConcurrency); more does not help, and less makes a run
+# proportionally slower. The defaults suit fileConcurrency 1. For N files at
+# once, set cpu to N and memory to about 250Mi x N + 100Mi, e.g. for 3:
+#   limits:   { cpu: "3", memory: 1Gi }
+#   requests: { cpu: "3", memory: 768Mi }
 resources:
   limits:
     cpu: "1"
@@ -160,8 +171,10 @@ resources:
 
 # emptyDir mounted at /app/data. The agent downloads and sends one file at a
 # time (deleting each after it's sent), so size this to the LARGEST SINGLE file
-# (compressed size for .gz) plus headroom - not the total of a run. A file that
-# outgrows it gets the pod evicted and the run can't progress past it.
+# (compressed size for .gz) plus headroom - not the total of a run. With
+# config.fileConcurrency above 1 that many files are on disk at once: size it
+# to that many of the largest files. A file that outgrows it gets the pod
+# evicted and the run can't progress past it.
 dataVolume:
   sizeLimit: 4Gi
 
@@ -236,10 +249,20 @@ config:
   # request to InsightFinder.
   maxChunkSizeKb: 2048
 
-  # Optional, default 4 - HTTP requests sent to InsightFinder at once, while
-  # the next chunk is prepared; 1 sends them one after another. Each request
-  # in flight holds about 8 MB.
+  # Optional, default 4 - HTTP requests sent to InsightFinder at once per file
+  # being sent, while the next chunk is prepared; 1 sends them one after
+  # another. Each request in flight holds about 8 MB. 8-16 keeps a file's
+  # requests flowing with split_instance_count 50.
   sendConcurrency: 4
+
+  # Optional, default 1 - files counted and sent at once, each by its own
+  # worker process (a file is parsed on one core, so this is how a run uses
+  # more than one CPU: about 1.7x faster with 2, 2.7x with 3). Every file's
+  # records get the same timestamps and instances either way, and files resume
+  # independently after an interruption. Each needs about one CPU and 250 MB
+  # (see `resources`) and holds its download on disk (see `dataVolume`); a
+  # hard kill can duplicate up to sendConcurrency chunks per file in flight.
+  fileConcurrency: 1
 
   # Optional, default 50 - deal each group's records round-robin to this many
   # InsightFinder instances, named <group><split_instance_suffix>1 to N (e.g.
