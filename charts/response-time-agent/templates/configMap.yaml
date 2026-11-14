@@ -17,6 +17,12 @@ data:
     genaichat_url = {{ .Values.agent.genaichat_url }}
     llmjudge_url = {{ .Values.agent.llmjudge_url }}
 
+    # Enable/disable each request type (true/false)
+    enable_endpoint_monitoring = {{ .Values.agent.enable_endpoint_monitoring }}
+    enable_incident_summary_llm = {{ .Values.agent.enable_incident_summary_llm }}
+    enable_llm_chatbot = {{ .Values.agent.enable_llm_chatbot }}
+    enable_llm_judge = {{ .Values.agent.enable_llm_judge }}
+
     login_user = {{ .Values.agent.login_user }}
     login_pass = {{ .Values.agent.login_pass }}
 
