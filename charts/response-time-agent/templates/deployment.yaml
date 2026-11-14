@@ -17,7 +17,7 @@ spec:
       containers:
       - name: {{ .Release.Name }}
         imagePullPolicy: Always
-        image: "docker.io/insightfinderinc/response-time-agent:{{.Chart.AppVersion}}"
+        image: "docker.io/insightfinderinc/response-time-agent:{{ .Values.image.tag | default .Chart.AppVersion }}"
         resources:
           requests:
             cpu: "{{.Values.agent.resources.requests.cpu}}"
