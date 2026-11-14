@@ -1098,6 +1098,16 @@ entries:
   response-time-agent:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-11-14T16:45:44.967189832Z"
+    description: A helm chart for response time agent
+    digest: 03e7e0a6c69ea75087342ec47b5bb8dd534f7489903d4b100f55c5d8d602ef4d
+    name: response-time-agent
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/response-time-agent-0.1.5/response-time-agent-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-02-24T16:05:53.888795215Z"
     description: A helm chart for response time agent
     digest: 9f2ebbecc5e1856a8207e367c0fae380aebe82d5af06fe97391c881b55f099ff
@@ -1352,4 +1362,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-11-09T21:43:14.781221379Z"
+generated: "2026-11-14T16:45:44.967342748Z"
