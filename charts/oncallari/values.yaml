@@ -200,6 +200,7 @@ ariOncallAgent:
   # sends a `trace` block naming its own trace project -- the project is
   # never this deployment's choice.
   traceServerUrl: ""
+  environment: ""
 
 # ARI Jenkins Agent -- a second, independently toggleable agent kind on the
 # same chart, same shared Temporal server (its own namespace/task queue
@@ -493,6 +494,7 @@ ariK8sAgent:
   # is traced only when its caller sends a `trace` block naming its own
   # trace project.
   traceServerUrl: ""
+  environment: ""
 
 # One shared domain fronting every enabled agent kind's own API Service,
 # path-routed (test-agents.insightfinder.com/ari-oncall,
