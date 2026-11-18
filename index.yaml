@@ -66,6 +66,18 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/email-agent-0.1.1/email-agent-0.1.1.tgz
     version: 0.1.1
+  evenup-trace-proxy:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-11-18T21:53:45.013852746Z"
+    description: HTTP proxy that converts EvenUp agent traces to OTLP and forwards
+      them to the InsightFinder TraceServer
+    digest: 83dd2f6e5c6505e391545a239918a33daad7732c83a0d4c14222b2b067379e35
+    name: evenup-trace-proxy
+    type: application
+    urls:
+    - https://github.com/insightfinder/charts/releases/download/evenup-trace-proxy-0.1.0/evenup-trace-proxy-0.1.0.tgz
+    version: 0.1.0
   huggingface-download:
   - apiVersion: v2
     created: "2025-05-14T08:29:42.952682248Z"
@@ -1373,4 +1385,4 @@ entries:
     urls:
     - https://github.com/insightfinder/charts/releases/download/valkey-cluster-3.0.25/valkey-cluster-3.0.25.tgz
     version: 3.0.25
-generated: "2026-11-17T02:01:50.273427587Z"
+generated: "2026-11-18T21:53:45.01405187Z"
