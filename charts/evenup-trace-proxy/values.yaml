@@ -1,0 +1,56 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/insightfinderinc/evenup-trace-proxy
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+existingSecret: ""
+
+config:
+  server:
+    listen: "0.0.0.0:8080"
+    maxBodyBytes: 8388608
+  auth:
+    users: []
+  transform:
+    serviceName: "evenup-agent"
+    spanDurationSeconds: 1
+  exporter:
+    endpoint: "traceserver.example.com:4317"
+    insecure: false
+    timeoutSeconds: 10
+    retries: 3
+    backoffSeconds: 0.5
+    maxBackoffSeconds: 5
+    forwardUserMetadata: true
+    headers: {}
+  logging:
+    level: "info"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+  hostnames: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
