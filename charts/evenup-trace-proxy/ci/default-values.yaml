@@ -1,0 +1,8 @@
+config:
+  auth:
+    users:
+      - username: "ci-user"
+        licenseKey: "ci-license-key"
+  exporter:
+    endpoint: "localhost:4317"
+    insecure: true
