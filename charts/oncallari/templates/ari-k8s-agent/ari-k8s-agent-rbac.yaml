@@ -17,7 +17,7 @@ metadata:
 Rules mirror ari-action-agent's docs/examples/k8s-rbac.yaml. Every resource
 and verb is enumerated -- no wildcards -- and the agent can never read
 Secrets, exec/attach/port-forward, create or delete anything, or touch RBAC.
-Writes are cluster-wide by decision (II-25173).
+Writes are cluster-wide.
 */}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -33,6 +33,30 @@ rules:
     verbs: [get, list]
   - apiGroups: ["apps"]
     resources: [deployments]
+    verbs: [get, list]
+  # ---- read for listing resources. ConfigMaps and listing Flux objects are
+  # not granted: a list returns ConfigMap values, and Helm values and source
+  # URLs can hold credentials.
+  - apiGroups: [""]
+    resources: [services, persistentvolumes, namespaces, resourcequotas, limitranges]
+    verbs: [get, list]
+  - apiGroups: ["apps"]
+    resources: [statefulsets, daemonsets, replicasets, controllerrevisions]
+    verbs: [get, list]
+  - apiGroups: ["batch"]
+    resources: [jobs, cronjobs]
+    verbs: [get, list]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: [endpointslices]
+    verbs: [get, list]
+  - apiGroups: ["networking.k8s.io"]
+    resources: [ingresses, networkpolicies]
+    verbs: [get, list]
+  - apiGroups: ["storage.k8s.io"]
+    resources: [storageclasses]
+    verbs: [get, list]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: [customresourcedefinitions]
     verbs: [get, list]
   - apiGroups: ["autoscaling"]
     resources: [horizontalpodautoscalers]
@@ -64,6 +88,11 @@ rules:
     verbs: [patch]
   - apiGroups: ["keda.sh"]
     resources: [scaledobjects]
+    verbs: [patch]
+  # In-place pod resize: the resize subresource accepts only container
+  # CPU/memory; patching the pod itself stays denied.
+  - apiGroups: [""]
+    resources: [pods/resize]
     verbs: [patch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
