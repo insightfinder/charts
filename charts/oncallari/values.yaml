@@ -468,6 +468,8 @@ ariK8sAgent:
       - vault
       - keda
       - traefik
+      - ingress-nginx
+      - istio-system
     # Deployments, as <namespace>/<name>, or <name> for one in the release
     # namespace; a trailing * matches every name with that prefix. Covers
     # their pods and autoscalers too. The agent's own API and worker are
