@@ -3,7 +3,8 @@
 {{- $sa := printf "system:serviceaccount:%s:%s" .Release.Namespace (include "insightfinder.ariK8sAgentServiceAccountName" .) }}
 {{- /*
 Denies the k8s agent's ServiceAccount any write in a protected namespace,
-and any write to a protected Deployment, its pods or its autoscalers. Only
+any write to a protected Deployment, its pods or its autoscalers (before or
+after the request), and any change to what an autoscaler scales. Only
 requests from that ServiceAccount are evaluated.
 */}}
 apiVersion: admissionregistration.k8s.io/v1
@@ -54,6 +55,13 @@ spec:
             && has(oldObject.spec) && has(oldObject.spec.scaleTargetRef) && has(oldObject.spec.scaleTargetRef.name)
           ? oldObject.spec.scaleTargetRef.name
           : request.name)
+    # The same for the autoscaler as it would be after the request.
+    - name: newOwner
+      expression: >-
+        request.resource.resource in ["horizontalpodautoscalers", "scaledobjects"]
+        && object != null && has(object.spec) && has(object.spec.scaleTargetRef) && has(object.spec.scaleTargetRef.name)
+        ? object.spec.scaleTargetRef.name
+        : variables.owner
   validations:
     - expression: '!(request.namespace in variables.namespaces)'
       messageExpression: '"namespace " + request.namespace + " is protected: the k8s agent changes nothing in it"'
@@ -65,6 +73,23 @@ spec:
             ? variables.owner.startsWith(w.split("/")[1].substring(0, size(w.split("/")[1]) - 1))
             : variables.owner == w.split("/")[1]))
       messageExpression: '"workload " + request.namespace + "/" + variables.owner + " is protected: the k8s agent never changes it"'
+      reason: Forbidden
+    - expression: >-
+        !variables.workloads.exists(w,
+          w.split("/")[0] == request.namespace
+          && (w.endsWith("*")
+            ? variables.newOwner.startsWith(w.split("/")[1].substring(0, size(w.split("/")[1]) - 1))
+            : variables.newOwner == w.split("/")[1]))
+      messageExpression: '"workload " + request.namespace + "/" + variables.newOwner + " is protected: the k8s agent never changes it"'
+      reason: Forbidden
+    # The agent changes an autoscaler's bounds only, never what it scales.
+    - expression: >-
+        request.operation != "UPDATE"
+        || !(request.resource.resource in ["horizontalpodautoscalers", "scaledobjects"])
+        || (has(object.spec) && has(oldObject.spec)
+            && (has(object.spec.scaleTargetRef) == has(oldObject.spec.scaleTargetRef))
+            && (!has(object.spec.scaleTargetRef) || object.spec.scaleTargetRef == oldObject.spec.scaleTargetRef))
+      message: "the k8s agent may not change what an autoscaler scales (spec.scaleTargetRef)"
       reason: Forbidden
 ---
 apiVersion: admissionregistration.k8s.io/v1
