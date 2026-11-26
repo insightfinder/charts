@@ -290,6 +290,8 @@ ariJenkinsAgent:
   sandboxRoot: "/var/lib/ari-agent/sandbox"
   opencodeBin: "opencode"
   logLevel: "info"
+  traceServerUrl: ""
+  environment: ""
 
 ariActionAgent:
   # The `action` agent kind -- runs InsightFinder's registered Actions
