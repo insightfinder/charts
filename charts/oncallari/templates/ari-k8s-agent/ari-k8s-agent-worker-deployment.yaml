@@ -54,6 +54,10 @@ spec:
           env:
             - name: AGENT_KIND
               value: "k8s"
+            - name: K8S_AGENT_PROTECTED_NAMESPACES
+              value: {{ join "," .Values.ariK8sAgent.protection.namespaces | quote }}
+            - name: K8S_AGENT_PROTECTED_WORKLOADS
+              value: {{ include "insightfinder.ariK8sAgentProtectedWorkloads" . | quote }}
             {{- with include "insightfinder.ariK8sAgentEncryptionKeyEnv" . }}
             {{- . | trim | nindent 12 }}
             {{- end }}

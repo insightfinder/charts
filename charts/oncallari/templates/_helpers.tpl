@@ -186,6 +186,37 @@ Name shared by the ClusterRole and ClusterRoleBinding (and the prefix of the
 kube-system Role/RoleBinding). Release-prefixed because these are cluster
 scoped / live outside the release namespace.
 */}}
+{{/*
+Workloads the k8s agent never changes, comma-separated <namespace>/<name>:
+the configured ones (a bare name is in the release namespace) plus the
+agent's own API and worker.
+*/}}
+{{- define "insightfinder.ariK8sAgentProtectedWorkloads" -}}
+{{- $out := list (printf "%s/%s" .Release.Namespace (include "insightfinder.ariK8sAgentApiServiceName" .)) (printf "%s/%s" .Release.Namespace (include "insightfinder.ariK8sAgentWorkerName" .)) -}}
+{{- range .Values.ariK8sAgent.protection.workloads -}}
+{{- $out = append $out (ternary . (printf "%s/%s" $.Release.Namespace .) (contains "/" .)) -}}
+{{- end -}}
+{{- join "," (uniq $out) -}}
+{{- end }}
+
+{{/*
+Whether the k8s agent's ValidatingAdmissionPolicy is rendered: "render",
+"skip" (protection.admissionPolicy is auto and the cluster does not serve
+admissionregistration.k8s.io/v1 ValidatingAdmissionPolicy, Kubernetes < 1.30)
+or "off". Set to true, a cluster without the API fails the render.
+*/}}
+{{- define "insightfinder.ariK8sAgentAdmissionPolicy" -}}
+{{- $mode := toString .Values.ariK8sAgent.protection.admissionPolicy -}}
+{{- $served := .Capabilities.APIVersions.Has "admissionregistration.k8s.io/v1/ValidatingAdmissionPolicy" -}}
+{{- if not .Values.ariK8sAgent.enabled -}}off
+{{- else if eq $mode "false" -}}off
+{{- else if $served -}}render
+{{- else if eq $mode "true" -}}
+{{- fail "ariK8sAgent.protection.admissionPolicy is true, but this cluster does not serve ValidatingAdmissionPolicy (admissionregistration.k8s.io/v1, Kubernetes >= 1.30); use auto or false" -}}
+{{- else -}}skip
+{{- end -}}
+{{- end }}
+
 {{- define "insightfinder.ariK8sAgentRbacName" -}}
 {{- printf "%s-k8s" (include "insightfinder.fullname" .) }}
 {{- end }}
