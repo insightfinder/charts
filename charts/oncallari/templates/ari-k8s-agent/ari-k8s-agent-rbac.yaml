@@ -80,7 +80,7 @@ rules:
   - apiGroups: ["source.toolkit.fluxcd.io"]
     resources: [gitrepositories, ocirepositories, buckets, helmrepositories]
     verbs: [get]
-  # ---- write (Deployments only; the scale subresource for replica changes)
+  # ---- write (Deployments, the scale subresource for replica changes; PVC size)
   - apiGroups: ["apps"]
     resources: [deployments/scale, deployments]
     verbs: [patch]
@@ -99,6 +99,10 @@ rules:
   - apiGroups: [""]
     resources: [pods]
     verbs: [delete]
+  # Growing a PVC (its storage request); PVCs are never deleted.
+  - apiGroups: [""]
+    resources: [persistentvolumeclaims]
+    verbs: [patch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
