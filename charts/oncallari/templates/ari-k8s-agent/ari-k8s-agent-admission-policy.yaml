@@ -4,8 +4,9 @@
 {{- /*
 Denies the k8s agent's ServiceAccount any write in a protected namespace,
 any write to a protected Deployment, its pods or its autoscalers (before or
-after the request), and any change to what an autoscaler scales. Only
-requests from that ServiceAccount are evaluated.
+after the request), any change to what an autoscaler scales, any write to a
+PVC that Helm, Flux or Argo CD applies, and any write to a PVC of a
+protected StatefulSet. Only requests from that ServiceAccount are evaluated.
 */}}
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
@@ -24,7 +25,7 @@ spec:
       - apiGroups: [""]
         apiVersions: ["*"]
         operations: ["UPDATE", "DELETE"]
-        resources: ["pods", "pods/resize"]
+        resources: ["pods", "pods/resize", "persistentvolumeclaims"]
       - apiGroups: ["autoscaling"]
         apiVersions: ["*"]
         operations: ["UPDATE", "DELETE"]
@@ -90,6 +91,29 @@ spec:
             && (has(object.spec.scaleTargetRef) == has(oldObject.spec.scaleTargetRef))
             && (!has(object.spec.scaleTargetRef) || object.spec.scaleTargetRef == oldObject.spec.scaleTargetRef))
       message: "the k8s agent may not change what an autoscaler scales (spec.scaleTargetRef)"
+      reason: Forbidden
+    # A PVC that Helm, Flux or Argo CD applies gets its size re-applied from
+    # Git, which fails once the volume is larger: it is changed in Git only.
+    - expression: >-
+        request.resource.resource != "persistentvolumeclaims"
+        || (!(has(oldObject.metadata.labels)
+              && ["helm.toolkit.fluxcd.io/name", "kustomize.toolkit.fluxcd.io/name",
+                  "app.kubernetes.io/managed-by", "argocd.argoproj.io/instance"].exists(k, k in oldObject.metadata.labels))
+            && !(has(oldObject.metadata.annotations)
+              && oldObject.metadata.annotations.exists(k, k.startsWith("meta.helm.sh/") || k.startsWith("argocd.argoproj.io/"))))
+      message: "the k8s agent may not change a PVC that Helm, Flux or Argo CD applies"
+      reason: Forbidden
+    # A StatefulSet's PVCs are named <template>-<statefulset>-<ordinal>.
+    - expression: >-
+        request.resource.resource != "persistentvolumeclaims"
+        || !variables.workloads.exists(w,
+          w.split("/")[0] == request.namespace
+          && request.name.matches("^.+-"
+            + (w.endsWith("*")
+              ? w.split("/")[1].substring(0, size(w.split("/")[1]) - 1) + ".*"
+              : w.split("/")[1])
+            + "-[0-9]+$"))
+      messageExpression: '"PVC " + request.namespace + "/" + request.name + " belongs to a protected workload: the k8s agent never changes it"'
       reason: Forbidden
 ---
 apiVersion: admissionregistration.k8s.io/v1
