@@ -5,8 +5,8 @@
 Denies the k8s agent's ServiceAccount any write in a protected namespace,
 any write to a protected Deployment, its pods or its autoscalers (before or
 after the request), any change to what an autoscaler scales, any write to a
-PVC that Helm, Flux or Argo CD applies, and any write to a PVC of a
-protected StatefulSet. Only requests from that ServiceAccount are evaluated.
+PVC that Helm, Flux or Argo CD applies or of a protected StatefulSet, and
+any PVC change other than a larger storage request. Only requests from that ServiceAccount are evaluated.
 */}}
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
@@ -102,6 +102,20 @@ spec:
             && !(has(oldObject.metadata.annotations)
               && oldObject.metadata.annotations.exists(k, k.startsWith("meta.helm.sh/") || k.startsWith("argocd.argoproj.io/"))))
       message: "the k8s agent may not change a PVC that Helm, Flux or Argo CD applies"
+      reason: Forbidden
+    # A PVC update may only raise its storage request: its labels,
+    # annotations, owners, finalizers and every other spec field stay as
+    # they are.
+    - expression: >-
+        request.resource.resource != "persistentvolumeclaims" || request.operation != "UPDATE"
+        || (quantity(object.spec.resources.requests.storage).isGreaterThan(quantity(oldObject.spec.resources.requests.storage))
+            && (has(object.metadata.labels) ? object.metadata.labels : {}) == (has(oldObject.metadata.labels) ? oldObject.metadata.labels : {})
+            && (has(object.metadata.annotations) ? object.metadata.annotations : {}) == (has(oldObject.metadata.annotations) ? oldObject.metadata.annotations : {})
+            && (has(object.metadata.ownerReferences) ? object.metadata.ownerReferences : []) == (has(oldObject.metadata.ownerReferences) ? oldObject.metadata.ownerReferences : [])
+            && (has(object.metadata.finalizers) ? object.metadata.finalizers : []) == (has(oldObject.metadata.finalizers) ? oldObject.metadata.finalizers : [])
+            && (has(object.spec.volumeAttributesClassName) ? object.spec.volumeAttributesClassName : "") == (has(oldObject.spec.volumeAttributesClassName) ? oldObject.spec.volumeAttributesClassName : "")
+            && (has(object.spec.resources.limits) ? object.spec.resources.limits : {}) == (has(oldObject.spec.resources.limits) ? oldObject.spec.resources.limits : {}))
+      message: "the k8s agent may only raise a PVC's storage request"
       reason: Forbidden
     # A StatefulSet's PVCs are named <template>-<statefulset>-<ordinal>.
     - expression: >-
