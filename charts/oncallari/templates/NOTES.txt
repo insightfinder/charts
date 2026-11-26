@@ -1,0 +1,6 @@
+{{- if eq (include "insightfinder.ariK8sAgentAdmissionPolicy" .) "skip" }}
+WARNING: this cluster does not serve ValidatingAdmissionPolicy
+(admissionregistration.k8s.io/v1, Kubernetes >= 1.30), so the k8s agent's
+admission policy was not installed. The agent still refuses protected
+namespaces and workloads itself, but the API server does not enforce it.
+{{- end }}

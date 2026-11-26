@@ -372,8 +372,8 @@ ariActionAgent:
   # compromised agent is not a standing key to any of them.
 
 # ARI Kubernetes Agent -- the `k8s` agent kind (II-25173): checks Pod health
-# and, after human approval, changes Deployment replicas, KEDA/HPA bounds
-# or container CPU/memory. Same
+# and, after human approval, changes Deployments only (replicas, KEDA/HPA
+# bounds, CPU/memory, restarts, one pod at a time). Same
 # images repository as the oncall/jenkins kinds for the API; its own worker
 # image. Only the worker talks to the Kubernetes API (see rbac below).
 ariK8sAgent:
@@ -448,6 +448,33 @@ ariK8sAgent:
   # you manage equivalent RBAC for the ServiceAccount yourself.
   rbac:
     create: true
+  # What the agent never changes. The worker always refuses these itself;
+  # a ValidatingAdmissionPolicy also has the API server deny them to its
+  # ServiceAccount, so a bug in the agent is not the last line.
+  # admissionPolicy: auto renders the policy when the cluster serves the API
+  # (Kubernetes >= 1.30) and leaves it out otherwise, with a warning in the
+  # release notes; true requires it (the render fails without the API);
+  # false never renders it.
+  protection:
+    admissionPolicy: auto
+    namespaces:
+      - kube-system
+      - kube-public
+      - kube-node-lease
+      - flux-system
+      - cert-manager
+      - vault
+      - keda
+      - traefik
+    # Deployments, as <namespace>/<name>, or <name> for one in the release
+    # namespace; a trailing * matches every name with that prefix. Covers
+    # their pods and autoscalers too. The agent's own API and worker are
+    # always added.
+    workloads:
+      - insightfinder-mcp-service
+      - insightfinder-mcp-service-worker
+      - temporal-*
+      - ari-coordinator
   existingSecret: ""
   # Same standalone Temporal as the other kinds (see
   # ariOncallAgent.temporalHost's comment); its own namespace and queue.

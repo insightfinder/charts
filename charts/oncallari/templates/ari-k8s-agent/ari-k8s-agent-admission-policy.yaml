@@ -1,0 +1,79 @@
+{{- if eq (include "insightfinder.ariK8sAgentAdmissionPolicy" .) "render" }}
+{{- $name := printf "%s-protected" (include "insightfinder.ariK8sAgentRbacName" .) }}
+{{- $sa := printf "system:serviceaccount:%s:%s" .Release.Namespace (include "insightfinder.ariK8sAgentServiceAccountName" .) }}
+{{- /*
+Denies the k8s agent's ServiceAccount any write in a protected namespace,
+and any write to a protected Deployment, its pods or its autoscalers. Only
+requests from that ServiceAccount are evaluated.
+*/}}
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["*"]
+        operations: ["UPDATE", "DELETE"]
+        resources: ["deployments", "deployments/scale", "statefulsets", "daemonsets"]
+      - apiGroups: [""]
+        apiVersions: ["*"]
+        operations: ["UPDATE", "DELETE"]
+        resources: ["pods", "pods/resize"]
+      - apiGroups: ["autoscaling"]
+        apiVersions: ["*"]
+        operations: ["UPDATE", "DELETE"]
+        resources: ["horizontalpodautoscalers"]
+      - apiGroups: ["keda.sh"]
+        apiVersions: ["*"]
+        operations: ["UPDATE", "DELETE"]
+        resources: ["scaledobjects"]
+  matchConditions:
+    - name: agent-service-account
+      expression: 'request.userInfo.username == {{ $sa | quote }}'
+  variables:
+    - name: namespaces
+      expression: {{ .Values.ariK8sAgent.protection.namespaces | toJson | squote }}
+    - name: workloads
+      expression: {{ splitList "," (include "insightfinder.ariK8sAgentProtectedWorkloads" .) | toJson | squote }}
+    # The Deployment the request is about: the Deployment itself, the owner
+    # of a pod's ReplicaSet (its name less the hash), an autoscaler's target.
+    - name: owner
+      expression: >-
+        request.resource.resource == "pods"
+        ? (has(oldObject.metadata.ownerReferences) && size(oldObject.metadata.ownerReferences) > 0
+            && oldObject.metadata.ownerReferences[0].kind == "ReplicaSet"
+            && oldObject.metadata.ownerReferences[0].name.lastIndexOf("-") > 0
+          ? oldObject.metadata.ownerReferences[0].name.substring(0, oldObject.metadata.ownerReferences[0].name.lastIndexOf("-"))
+          : request.name)
+        : (request.resource.resource in ["horizontalpodautoscalers", "scaledobjects"]
+            && has(oldObject.spec) && has(oldObject.spec.scaleTargetRef) && has(oldObject.spec.scaleTargetRef.name)
+          ? oldObject.spec.scaleTargetRef.name
+          : request.name)
+  validations:
+    - expression: '!(request.namespace in variables.namespaces)'
+      messageExpression: '"namespace " + request.namespace + " is protected: the k8s agent changes nothing in it"'
+      reason: Forbidden
+    - expression: >-
+        !variables.workloads.exists(w,
+          w.split("/")[0] == request.namespace
+          && (w.endsWith("*")
+            ? variables.owner.startsWith(w.split("/")[1].substring(0, size(w.split("/")[1]) - 1))
+            : variables.owner == w.split("/")[1]))
+      messageExpression: '"workload " + request.namespace + "/" + variables.owner + " is protected: the k8s agent never changes it"'
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "insightfinder.labels" . | nindent 4 }}
+spec:
+  policyName: {{ $name }}
+  validationActions: [Deny]
+{{- end }}
